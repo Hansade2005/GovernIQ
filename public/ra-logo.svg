@@ -1,0 +1,21 @@
+<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <!-- Background circle -->
+  <rect width="40" height="40" rx="8" fill="url(#grad1)"/>
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6B6FA6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DD7E42;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- "RA" text -->
+  <text x="20" y="28" font-family="'Instrument Serif', serif" font-size="24" font-weight="700" fill="white" text-anchor="middle" letter-spacing="-0.5">RA</text>
+  
+  <!-- Archive folder icon (stylized) -->
+  <g transform="translate(8, 8)" stroke="white" stroke-width="1.5" fill="none">
+    <path d="M 2 4 L 24 4 L 24 20 L 2 20 Z"/>
+    <path d="M 2 8 L 24 8"/>
+  </g>
+</svg>

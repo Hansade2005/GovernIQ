@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/* Make `dark:` utilities respond to a .dark class on <html> (v4 defaults to media query). */
+@custom-variant dark (&:is(.dark *));
+
+/* Map the semantic design tokens (bg-primary, text-foreground, border-input, …) + the
+   radius scale onto Tailwind's theme. `inline` resolves them against the CSS vars below,
+   so editing :root / .dark re-themes every utility. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-surface-alt: var(--surface-alt);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-light: var(--primary-light);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-archive-spine: var(--archive-spine);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+}
+
+/* ── Design tokens. Re-theme the whole app by overriding these values. ── */
+:root {
+  /* Refined-minimal institutional aesthetic for Regional Governance */
+  --background: oklch(98% 0.002 262);
+  --foreground: oklch(18% 0.03 262);
+  --card: oklch(96% 0.004 262);
+  --card-foreground: oklch(18% 0.03 262);
+  --surface-alt: oklch(92% 0.006 262);
+  --primary: oklch(42% 0.12 262);
+  --primary-foreground: #ffffff;
+  --primary-light: oklch(72% 0.08 262);
+  --secondary: oklch(55% 0.1 262);
+  --secondary-foreground: #ffffff;
+  --muted: oklch(48% 0.02 262);
+  --muted-foreground: oklch(55% 0.01 262);
+  --accent: oklch(62% 0.18 29);
+  --accent-foreground: #ffffff;
+  --archive-spine: oklch(42% 0.15 33);
+  --destructive: oklch(58% 0.22 27);
+  --destructive-foreground: oklch(98% 0.01 27);
+  --border: oklch(88% 0.008 262);
+  --input: oklch(92% 0.005 262);
+  --ring: oklch(42% 0.12 262);
+  --radius: 0.625rem;
+  
+  /* Institutional typography */
+  --font-display: 'Instrument Serif', serif;
+  --font-body: 'Bricolage Grotesque', sans-serif;
+}
+
+.dark {
+  --background: oklch(16% 0.04 262);
+  --foreground: oklch(96% 0.003 262);
+  --card: oklch(22% 0.04 262);
+  --card-foreground: oklch(96% 0.003 262);
+  --surface-alt: oklch(24% 0.04 262);
+  --primary: oklch(62% 0.15 262);
+  --primary-foreground: oklch(16% 0.01 262);
+  --primary-light: oklch(52% 0.1 262);
+  --secondary: oklch(65% 0.12 262);
+  --secondary-foreground: oklch(16% 0.01 262);
+  --muted: oklch(72% 0.02 262);
+  --muted-foreground: oklch(72% 0.02 262);
+  --accent: oklch(72% 0.18 29);
+  --accent-foreground: oklch(16% 0.01 29);
+  --archive-spine: oklch(72% 0.15 33);
+  --destructive: oklch(62% 0.21 25);
+  --destructive-foreground: oklch(96% 0.003 25);
+  --border: oklch(32% 0.04 262);
+  --input: oklch(32% 0.04 262);
+  --ring: oklch(62% 0.15 262);
+}
+
+* { border-color: var(--border); }
+html { font-family: var(--font-body); }
+body { 
+  background: var(--background); 
+  color: var(--foreground); 
+  -webkit-font-smoothing: antialiased;
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+}
+h1, h2, h3, h4, h5, h6 { 
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.2;
+}
+h1 { font-size: 2.5rem; letter-spacing: -0.02em; }
+h2 { font-size: 2rem; letter-spacing: -0.015em; }
+h3 { font-size: 1.5rem; letter-spacing: -0.01em; }
+
+/* Institutional aesthetic: subtle linen overlay + archive spine accent */
+@supports (backdrop-filter: blur(1px)) {
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 2px,
+      rgba(139, 69, 19, 0.015) 2px,
+      rgba(139, 69, 19, 0.015) 4px
+    );
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+.dark body::before {
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.008) 2px,
+    rgba(255, 255, 255, 0.008) 4px
+  );
+}
+
+/* Archive card spine accent */
+.record-card {
+  position: relative;
+  border-left: 3px solid var(--archive-spine);
+  transition: border-left-width 0.2s ease-out, padding-left 0.2s ease-out;
+}
+.record-card:hover {
+  border-left-width: 5px;
+  padding-left: calc(1rem - 2px);
+}

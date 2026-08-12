@@ -172,11 +172,20 @@ export function ProjectsPage() {
   }
 
   return (
-    <div className="space-y-12">
-      {/* Main Header */}
+    <div className="stagger space-y-12">
+      {/* Masthead */}
       <div>
-        <h1 className="text-4xl font-bold font-display text-foreground mb-2">Infrastructure & Development Projects</h1>
-        <p className="text-muted-foreground">Complete project tracking, portfolio management, and AI-powered analysis for 2026 NWRA initiatives</p>
+        <div className="flex items-baseline gap-3 mb-3">
+          <p className="eyebrow">Vol. II · Section IV</p>
+          <span className="ornament-mark" aria-hidden />
+        </div>
+        <h1 className="serif text-[clamp(2.25rem,4.5vw,4rem)] font-light leading-[0.98] tracking-tight max-w-4xl">
+          Programmes of <span className="italic text-[color:var(--highland)]">public works</span>.
+        </h1>
+        <div className="ornament ornament-draw mt-6 max-w-md" aria-hidden />
+        <p className="mt-5 text-[color:var(--sepia)] max-w-2xl leading-relaxed">
+          Every infrastructure and development programme presently on the roll — contractor, budget, and rate of execution.
+        </p>
       </div>
 
       {/* Project Bank Section */}
@@ -184,10 +193,10 @@ export function ProjectsPage() {
         <ProjectBank />
       </div>
 
-      {/* Legacy Projects Section Header */}
+      {/* Sub-section */}
       <div>
-        <h2 className="text-2xl font-bold font-display text-foreground mb-2">Active Monitoring Dashboard</h2>
-        <p className="text-muted-foreground">Real-time tracking of ongoing projects</p>
+        <p className="eyebrow mb-2">Roll of programmes</p>
+        <h2 className="serif text-3xl font-light tracking-tight">Under active supervision</h2>
       </div>
 
       {/* Search & Controls */}

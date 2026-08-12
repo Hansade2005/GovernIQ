@@ -123,14 +123,19 @@ export function DocumentsPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="stagger space-y-8">
+      {/* Masthead */}
       <div>
-        <h1 className="text-4xl font-bold font-display text-foreground mb-2">
-          Document Archive
+        <div className="flex items-baseline gap-3 mb-3">
+          <p className="eyebrow">Vol. II · Section II</p>
+          <span className="ornament-mark" aria-hidden />
+        </div>
+        <h1 className="serif text-[clamp(2.25rem,4.5vw,4rem)] font-light leading-[0.98] tracking-tight max-w-4xl">
+          The <span className="italic text-[color:var(--highland)]">Registry</span>.
         </h1>
-        <p className="text-muted-foreground">
-          Manage, search, and analyze institutional documents with AI-powered insights
+        <div className="ornament ornament-draw mt-6 max-w-md" aria-hidden />
+        <p className="mt-5 text-[color:var(--sepia)] max-w-2xl leading-relaxed">
+          A single, searchable repository of every minute, motion, and ministerial report — indexed by OCR and interrogated by AI.
         </p>
       </div>
 

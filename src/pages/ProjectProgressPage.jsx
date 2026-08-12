@@ -192,8 +192,17 @@ export function ProjectProgressPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-foreground">Project Progress Tracking</h1>
-          <p className="text-muted-foreground mt-2">Monitor project status with visual evidence and stakeholder feedback</p>
+          <div className="flex items-baseline gap-3 mb-3">
+            <p className="eyebrow">Execution</p>
+            <span className="ornament-mark" aria-hidden />
+          </div>
+          <h1 className="serif text-[clamp(2rem,4vw,3.5rem)] font-light leading-[0.98] tracking-tight">
+            Rate of <span className="italic text-[color:var(--highland)]">progress</span>.
+          </h1>
+          <div className="ornament ornament-draw mt-4 max-w-xs" aria-hidden />
+          <p className="mt-3 text-[color:var(--sepia)] max-w-xl leading-relaxed">
+            Programme status with visual evidence and stakeholder testimony.
+          </p>
         </div>
         <Button
           onClick={handleAddProgress}

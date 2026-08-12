@@ -47,10 +47,10 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-[color:var(--paper)]">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-foreground font-semibold">Loading authentication...</p>
+          <div className="w-4 h-4 rotate-45 border border-[color:var(--kola)] mx-auto mb-6 animate-pulse" />
+          <p className="eyebrow">Verifying credentials</p>
         </div>
       </div>
     )
@@ -110,7 +110,7 @@ function AppContent() {
           {isChatPage ? (
             renderPage()
           ) : (
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-14 py-12">
               {renderPage()}
             </div>
           )}

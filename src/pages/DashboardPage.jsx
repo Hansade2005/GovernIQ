@@ -1,353 +1,361 @@
 import { useState } from 'react'
 import { Card } from '@/components/Card'
 import { Badge } from '@/components/Badge'
+import { Button } from '@/components/Button'
 import { MapComponent } from '@/components/MapComponent'
 import { ThreeDVisualization } from '@/components/ThreeDVisualization'
-import { BarChart3, FileText, CheckCircle, AlertCircle, Zap, TrendingUp, Users, MapPin, DollarSign, Calendar, Play } from 'lucide-react'
-import { Button } from '@/components/Button'
+import {
+  FileText, CheckCircle, MapPin, ArrowUpRight, ArrowDownRight,
+  Calendar, ChevronRight,
+} from 'lucide-react'
 
 const metrics = [
-  { label: 'Budget Execution', value: '97.5%', icon: BarChart3, trend: '+2.3%', color: 'bg-emerald-100 text-emerald-700' },
-  { label: 'Projects Active', value: '31', icon: Zap, trend: '+5 this month', color: 'bg-blue-100 text-blue-700' },
-  { label: 'Divisions', value: '7', icon: MapPin, trend: 'All operational', color: 'bg-purple-100 text-purple-700' },
-  { label: 'Budget (2026)', value: '20.8B', icon: DollarSign, trend: 'FCFA', color: 'bg-orange-100 text-orange-700' }
+  { label: 'Budget Execution',  value: '97.5',  unit: '%',    delta: '+2.3 pts',  dir: 'up',   note: 'Against FY 2025 baseline' },
+  { label: 'Programmes Active', value: '31',    unit: '',     delta: '+5 mo/mo',  dir: 'up',   note: 'Across seven divisions' },
+  { label: 'Registered Divisions', value: '07', unit: '',     delta: 'Full quorum', dir: 'flat', note: 'Plus House of Chiefs' },
+  { label: 'Budget FY 2026',    value: '20.8',  unit: 'B FCFA', delta: '+8.4% y/y', dir: 'up',   note: '18.1B investment · 2.7B operations' },
 ]
 
 const divisions = [
-  { name: 'Mezam Division', projects: 5, status: 'active', head: 'Divisional Officer (DO)' },
-  { name: 'Menchum Division', projects: 4, status: 'active', head: 'Divisional Officer (DO)' },
-  { name: 'Momo Division', projects: 3, status: 'active', head: 'Divisional Officer (DO)' },
-  { name: 'Boyo Division', projects: 1, status: 'active', head: 'Divisional Officer (DO)' },
-  { name: 'Bui Division', projects: 1, status: 'active', head: 'Divisional Officer (DO)' },
-  { name: 'Donga-Mantung Division', projects: 1, status: 'active', head: 'Divisional Officer (DO)' },
-  { name: 'Ngo-Ketunjia Division', projects: 1, status: 'active', head: 'Divisional Officer (DO)' }
+  { name: 'Mezam',         seat: 'Bamenda',  projects: 5, exec: 0.94 },
+  { name: 'Menchum',       seat: 'Wum',      projects: 4, exec: 0.81 },
+  { name: 'Momo',          seat: 'Mbengwi',  projects: 3, exec: 0.78 },
+  { name: 'Bui',           seat: 'Kumbo',    projects: 1, exec: 0.68 },
+  { name: 'Boyo',          seat: 'Fundong',  projects: 1, exec: 0.72 },
+  { name: 'Donga-Mantung', seat: 'Nkambe',   projects: 1, exec: 0.65 },
+  { name: 'Ngo-Ketunjia',  seat: 'Ndop',     projects: 1, exec: 0.70 },
 ]
 
-const recentProjects = [
-  {
-    id: 1,
-    name: 'Wum District Hospital Fence',
-    division: 'Mezam',
-    contractor: 'Lake Nyos Survival',
-    status: 'completed',
-    progress: 100,
-    budget: '45M FCFA',
-    image: '/projects/wum-hospital-fence-1.jpg'
-  },
-  {
-    id: 2,
-    name: 'GHS Classroom Blocks',
-    division: 'Momo',
-    contractor: 'ACONSEP CO LTD',
-    status: 'completed',
-    progress: 100,
-    budget: '120M FCFA',
-    image: '/projects/ghs-roofing-1.jpg'
-  },
-  {
-    id: 3,
-    name: 'Science Lab Construction',
-    division: 'Mezam',
-    contractor: 'Regional Contractor',
-    status: 'ongoing',
-    progress: 75,
-    budget: '85M FCFA',
-    image: '/projects/ghs-roofing-2.jpg'
-  },
-  {
-    id: 4,
-    name: 'Batibo Hospital Rehabilitation',
-    division: 'Menchum',
-    contractor: 'Infrastructure Partners',
-    status: 'ongoing',
-    progress: 60,
-    budget: '95M FCFA',
-    image: '/projects/batibo-hospital-1.jpg'
-  }
+const featured = [
+  { id: 1, name: 'Wum District Hospital · Perimeter Fence',   division: 'Menchum',  contractor: 'Lake Nyos Survival',  status: 'Completed', progress: 100, budget: '45 M', image: '/projects/wum-hospital-fence-1.jpg' },
+  { id: 2, name: 'Government High School · Classroom Blocks', division: 'Momo',     contractor: 'ACONSEP Co. Ltd',      status: 'Completed', progress: 100, budget: '120 M', image: '/projects/ghs-roofing-1.jpg' },
+  { id: 3, name: 'Regional Science Laboratory',               division: 'Mezam',    contractor: 'Regional Contractor', status: 'In session', progress: 75,  budget: '85 M',  image: '/projects/ghs-roofing-2.jpg' },
+  { id: 4, name: 'Batibo Hospital Rehabilitation',            division: 'Menchum',  contractor: 'Infrastructure Ptrs', status: 'In session', progress: 60,  budget: '95 M',  image: '/projects/batibo-hospital-1.jpg' },
 ]
 
 const sessions = [
-  { date: 'March 12, 2026', type: 'Full Assembly', items: 8, status: 'completed' },
-  { date: 'February 15, 2026', type: 'Committee Hearing', items: 12, status: 'completed' },
-  { date: 'January 28, 2026', type: 'Special Session', items: 5, status: 'completed' }
+  { date: '12 March 2026',    type: 'Full Assembly',      items: 8,  note: 'Ratification of the Q1 execution report' },
+  { date: '15 February 2026', type: 'Committee Hearing',  items: 12, note: 'Finance, Budget & Investment' },
+  { date: '28 January 2026',  type: 'Special Session',    items: 5,  note: 'Emergency roads programme' },
 ]
 
 export function DashboardPage() {
-  const [selectedDivision, setSelectedDivision] = useState(null)
+  const [openDiv, setOpenDiv] = useState(null)
+  const today = new Date().toLocaleDateString('en-GB', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  })
 
   return (
-    <div className="space-y-8">
-      {/* Hero Section - Full Title No Truncation */}
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-accent/10 to-primary/10 border border-primary/20 p-8 md:p-12 shadow-lg">
-        <div className="relative z-10">
-          <h1 className="text-5xl md:text-6xl font-bold font-display text-foreground mb-4 tracking-tight leading-tight">
-            Regional Governance & Project Management Dashboard
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl leading-relaxed">
-            North West Regional Assembly of Cameroon — Real-time project tracking, financial oversight, divisional coordination, and institutional transparency platform
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <Badge label="7 Operational Divisions" icon={MapPin} />
-            <Badge label="97.5% Budget Execution" icon={CheckCircle} />
-            <Badge label="31 Active Projects" icon={Zap} />
-            <Badge label="20.8B FCFA 2026 Budget" icon={DollarSign} />
+    <div className="stagger space-y-14">
+      {/* Masthead */}
+      <section>
+        <div className="flex flex-wrap items-baseline justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <span className="eyebrow">Volume II · Session 2026</span>
+            <span className="w-px h-3 bg-[color:var(--rule)]" />
+            <span className="mono text-[0.7rem] text-[color:var(--sepia)]">{today}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="success">Chamber in session</Badge>
+            <Badge variant="secondary">Records signed</Badge>
           </div>
         </div>
-      </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {metrics.map((metric) => {
-          const Icon = metric.icon
-          return (
-            <Card key={metric.label} className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className={`p-3 rounded-lg ${metric.color} bg-opacity-10`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground mb-2">{metric.label}</p>
-              <div className="flex items-baseline gap-2">
-                <p className="text-3xl font-bold font-display text-foreground">{metric.value}</p>
-              </div>
-              <p className="text-xs text-accent mt-2 font-medium">{metric.trend}</p>
-            </Card>
-          )
-        })}
-      </div>
+        <h1 className="serif text-[clamp(2.75rem,5.5vw,4.75rem)] leading-[0.98] font-light tracking-tight max-w-5xl">
+          A morning of <span className="italic text-[color:var(--highland)]">good order</span>,
+          <br className="hidden md:block" /> punctual programmes, and paid ledgers.
+        </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Division Overview */}
-        <div className="lg:col-span-2">
-          <Card className="p-6">
-            <div className="mb-6">
-              <h2 className="text-xl font-bold font-display text-foreground flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-accent" />
-                7 Divisions & House of Chiefs
-              </h2>
-              <p className="text-sm text-muted-foreground mt-2">Active operational regions</p>
-            </div>
+        <div className="ornament ornament-draw mt-8 max-w-xl" aria-hidden />
 
-            <div className="space-y-3">
-              {divisions.map((div, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 rounded-lg border border-border hover:border-primary/30 hover:bg-surface-alt/50 transition group"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-foreground text-sm">{div.name}</h3>
-                      <p className="text-xs text-muted-foreground mt-1">Headed by {div.head}</p>
-                    </div>
-                    <div className="text-right ml-4">
-                      <div className="text-lg font-bold text-primary">{div.projects}</div>
-                      <p className="text-xs text-muted-foreground">Projects</p>
-                    </div>
-                  </div>
-                  <div className="mt-2 w-full bg-surface rounded-full h-2 overflow-hidden mb-3">
-                    <div
-                      className="bg-gradient-to-r from-primary to-accent h-full rounded-full transition-all"
-                      style={{ width: `${(div.projects / 6) * 100}%` }}
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-xs px-2 h-7 flex-1"
-                      onClick={() => console.log('View division:', div.name)}
-                    >
-                      View
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-xs px-2 h-7 flex-1"
-                      onClick={() => setSelectedDivision(selectedDivision === idx ? null : idx)}
-                    >
-                      Details
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
+        <p className="mt-6 max-w-2xl text-[color:var(--sepia)] leading-relaxed">
+          The state of the North West Regional Assembly today: seven divisions
+          operational, thirty-one programmes underway, and the treasury on
+          course to close FY 2026 above execution target.
+        </p>
+      </section>
+
+      {/* Ledger of key figures */}
+      <section>
+        <div className="flex items-baseline justify-between mb-5">
+          <p className="eyebrow">Ledger of the day</p>
+          <a href="#/analytics" className="text-xs mono text-[color:var(--sepia)] hover:text-[color:var(--ink)]">
+            View analytics →
+          </a>
         </div>
 
-        {/* Financial Summary */}
-        <div>
-          <Card className="p-6 h-full flex flex-col">
-            <h2 className="text-xl font-bold font-display text-foreground flex items-center gap-2 mb-6">
-              <DollarSign className="w-5 h-5 text-accent" />
-              2026 Budget
-            </h2>
-
-            <div className="space-y-4 flex-1">
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-foreground">Total Budget</span>
-                  <span className="text-lg font-bold text-primary">20.8B FCFA</span>
-                </div>
-                <div className="w-full bg-surface rounded-full h-2 overflow-hidden">
-                  <div className="bg-primary h-full rounded-full" style={{ width: '100%' }} />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-foreground">Investment</span>
-                  <span className="text-lg font-bold text-emerald-600">87.31%</span>
-                </div>
-                <div className="w-full bg-surface rounded-full h-2 overflow-hidden">
-                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: '87.31%' }} />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">18.1B FCFA</p>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-foreground">Functioning</span>
-                  <span className="text-lg font-bold text-blue-600">12.69%</span>
-                </div>
-                <div className="w-full bg-surface rounded-full h-2 overflow-hidden">
-                  <div className="bg-blue-500 h-full rounded-full" style={{ width: '12.69%' }} />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">2.7B FCFA</p>
-              </div>
-            </div>
-
-            <div className="mt-6 p-4 bg-surface-alt/50 rounded-lg border border-accent/20">
-              <p className="text-xs text-muted-foreground mb-2">2025 Execution Rate</p>
-              <p className="text-2xl font-bold text-accent">97.5%</p>
-              <p className="text-xs text-foreground mt-2">10.3B FCFA (adjusted)</p>
-            </div>
-          </Card>
-        </div>
-      </div>
-
-      {/* Interactive Map */}
-      <MapComponent />
-
-      {/* 3D Visualization */}
-      <ThreeDVisualization />
-
-      {/* Recent Projects */}
-      <Card className="p-6">
-        <h2 className="text-2xl font-bold font-display text-foreground mb-6 flex items-center gap-2">
-          <Zap className="w-6 h-6 text-accent" />
-          Featured Projects
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {recentProjects.map((project) => (
+        <div className="grid grid-cols-2 lg:grid-cols-4 border-t border-b border-[color:var(--rule)]">
+          {metrics.map((m, idx) => (
             <div
-              key={project.id}
-              className="rounded-lg overflow-hidden border border-border hover:border-primary/50 hover:shadow-lg transition group"
+              key={m.label}
+              className={`px-5 py-6 ${idx < metrics.length - 1 ? 'lg:border-r' : ''} ${idx < 2 ? 'border-b lg:border-b-0' : ''} ${idx % 2 === 0 ? 'border-r lg:border-r' : ''} border-[color:var(--rule)]`}
             >
-              <div className="relative h-40 overflow-hidden bg-surface">
+              <p className="eyebrow text-[0.6rem]">{m.label}</p>
+              <div className="mt-3 flex items-baseline gap-1.5">
+                <span className="figure text-[clamp(2.5rem,4.5vw,3.75rem)] figure-brass">{m.value}</span>
+                <span className="mono text-xs text-[color:var(--sepia)] pb-2">{m.unit}</span>
+              </div>
+              <div className={`mt-2 flex items-center gap-1.5 mono text-[0.7rem] ${m.dir === 'up' ? 'text-[color:var(--sage)]' : m.dir === 'down' ? 'text-[color:var(--rust)]' : 'text-[color:var(--sepia)]'}`}>
+                {m.dir === 'up' && <ArrowUpRight size={12} strokeWidth={2} />}
+                {m.dir === 'down' && <ArrowDownRight size={12} strokeWidth={2} />}
+                {m.delta}
+              </div>
+              <p className="text-[0.7rem] text-[color:var(--sepia)] mt-1.5 leading-snug">{m.note}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Two columns — divisions + treasury */}
+      <section className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-8">
+        <Card>
+          <CardMasthead
+            eyebrow="Seven divisions"
+            title="Operational disposition"
+            aside="+ House of Chiefs"
+          />
+          <div className="space-y-0">
+            {divisions.map((d, idx) => (
+              <div
+                key={d.name}
+                className={`grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 py-3 ${idx !== 0 ? 'border-t border-[color:var(--rule)]' : ''}`}
+              >
+                <span className="mono text-[0.7rem] text-[color:var(--sepia)] w-8">
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+                <div className="min-w-0">
+                  <p className="serif text-base leading-tight">
+                    {d.name}
+                    <span className="text-[color:var(--sepia)] text-sm ml-2">· {d.seat}</span>
+                  </p>
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <div className="progress-track flex-1 max-w-[220px]">
+                      <div
+                        className="progress-fill progress-fill--brass"
+                        style={{ width: `${d.exec * 100}%` }}
+                      />
+                    </div>
+                    <span className="mono text-[0.7rem] text-[color:var(--sepia)]">
+                      {(d.exec * 100).toFixed(0)}% executed
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="mono text-lg text-[color:var(--ink)]">{d.projects}</p>
+                  <p className="eyebrow text-[0.55rem]">programmes</p>
+                </div>
+                <button
+                  onClick={() => setOpenDiv(openDiv === idx ? null : idx)}
+                  className="text-[color:var(--sepia)] hover:text-[color:var(--kola)] transition p-1"
+                  aria-label={`Details for ${d.name}`}
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card>
+          <CardMasthead
+            eyebrow="Treasury"
+            title="FY 2026 disposition"
+            aside="20.8 B FCFA"
+          />
+
+          <TreasuryLine label="Investment programmes" value="87.31" figure="18.1 B" tone="highland" />
+          <TreasuryLine label="Ordinary operations"    value="12.69" figure="2.7 B" tone="brass" />
+
+          <div className="mt-6 pt-6 border-t border-[color:var(--rule)]">
+            <p className="eyebrow text-[0.6rem]">FY 2025 execution — closed</p>
+            <div className="flex items-baseline gap-2 mt-2">
+              <span className="figure text-5xl figure-kola">97.5</span>
+              <span className="mono text-sm text-[color:var(--sepia)] pb-1">%</span>
+            </div>
+            <p className="text-xs text-[color:var(--sepia)] mt-2">
+              10.3 B FCFA appropriated · adjusted upward from initial vote
+            </p>
+          </div>
+        </Card>
+      </section>
+
+      {/* Map + 3D — keep original components */}
+      <section>
+        <SectionHead
+          eyebrow="Cartography"
+          title="Geographic disposition of programmes"
+          note="Every mapped point is an active programme with a signed contract, a contractor of record, and a public liaison."
+        />
+        <MapComponent />
+      </section>
+
+      <section>
+        <SectionHead
+          eyebrow="Model"
+          title="Three-dimensional programme atlas"
+          note="A live model of programme intensity, budget weight, and completion rate across the seven divisions."
+        />
+        <ThreeDVisualization />
+      </section>
+
+      {/* Featured programmes */}
+      <section>
+        <SectionHead eyebrow="Roll of programmes" title="Currently before the chamber" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featured.map((p) => (
+            <article key={p.id} className="group">
+              <div className="relative aspect-[4/3] overflow-hidden border border-[color:var(--rule)] bg-[color:var(--linen)]">
                 <img
-                  src={project.image}
-                  alt={project.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition"
+                  src={p.image}
+                  alt={p.name}
+                  className="w-full h-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                  style={{ filter: 'sepia(0.2) contrast(1.05)' }}
                   onError={(e) => {
-                    e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23e5e7eb" width="400" height="300"/%3E%3Ctext x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="16" fill="%239ca3af"%3E' + project.name.split(' ')[0] + '%3C/text%3E%3C/svg%3E'
+                    e.target.style.display = 'none'
                   }}
                 />
-                <div className="absolute top-2 right-2">
-                  <Badge
-                    label={project.status === 'completed' ? 'Completed' : 'Ongoing'}
-                    icon={project.status === 'completed' ? CheckCircle : AlertCircle}
-                    variant={project.status === 'completed' ? 'success' : 'warning'}
+                <div className="absolute top-2 left-2">
+                  <Badge variant={p.status === 'Completed' ? 'success' : 'accent'}>
+                    {p.status}
+                  </Badge>
+                </div>
+              </div>
+              <p className="mono text-[0.65rem] text-[color:var(--sepia)] mt-3">
+                {String(p.id).padStart(2, '0')} · {p.division} Division
+              </p>
+              <h3 className="serif text-lg leading-tight mt-1">{p.name}</h3>
+              <p className="text-xs text-[color:var(--sepia)] mt-1">{p.contractor}</p>
+              <div className="mt-3 flex items-center gap-3">
+                <div className="progress-track flex-1">
+                  <div
+                    className={`progress-fill ${p.status === 'Completed' ? '' : 'progress-fill--accent'}`}
+                    style={{ width: `${p.progress}%` }}
                   />
                 </div>
+                <span className="mono text-[0.7rem] text-[color:var(--sepia)]">{p.progress}%</span>
               </div>
-
-              <div className="p-4">
-                <h3 className="font-semibold text-foreground text-sm mb-2">{project.name}</h3>
-                <p className="text-xs text-muted-foreground mb-3">
-                  {project.contractor} • {project.division}
-                </p>
-
-                <div className="mb-3">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs font-medium text-foreground">Progress</span>
-                    <span className="text-xs font-bold text-primary">{project.progress}%</span>
-                  </div>
-                  <div className="w-full bg-surface rounded-full h-2 overflow-hidden">
-                    <div
-                      className="bg-gradient-to-r from-primary to-accent h-full rounded-full transition-all"
-                      style={{ width: `${project.progress}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-accent">{project.budget}</p>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="text-xs px-2 h-7"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      console.log('View project:', project.id)
-                    }}
-                  >
-                    View
-                  </Button>
-                </div>
+              <div className="mt-2 flex items-center justify-between text-xs">
+                <span className="mono text-[color:var(--brass)]">{p.budget} FCFA</span>
+                <a
+                  href="#/projects"
+                  className="text-[color:var(--sepia)] hover:text-[color:var(--kola)] flex items-center gap-1"
+                >
+                  Read <ArrowUpRight size={12} />
+                </a>
               </div>
-            </div>
+            </article>
           ))}
         </div>
-      </Card>
+      </section>
 
-      {/* Recent Sessions */}
-      <Card className="p-6">
-        <h2 className="text-2xl font-bold font-display text-foreground mb-6 flex items-center gap-2">
-          <Calendar className="w-6 h-6 text-accent" />
-          Recent Sessions & Deliberations
-        </h2>
+      {/* Sessions */}
+      <section>
+        <SectionHead eyebrow="Order of the day" title="Recent sessions and deliberations" />
 
-        <div className="space-y-3">
-          {sessions.map((session, idx) => (
-            <div key={idx} className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-surface-alt/30 transition group">
-              <div className="flex items-center gap-4 flex-1">
-                <div className="w-3 h-3 rounded-full bg-gradient-to-r from-primary to-accent" />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-foreground">{session.type}</h3>
-                  <p className="text-sm text-muted-foreground">{session.date}</p>
+        <Card>
+          <div className="space-y-0">
+            {sessions.map((s, idx) => (
+              <div
+                key={idx}
+                className={`grid grid-cols-[auto_1fr_auto_auto] items-center gap-6 py-4 ${idx !== 0 ? 'border-t border-[color:var(--rule)]' : ''}`}
+              >
+                <div className="mono text-xs text-[color:var(--sepia)] w-32">
+                  {s.date}
                 </div>
-              </div>
-              <div className="text-right flex items-center gap-4">
                 <div>
-                  <p className="text-lg font-bold text-primary">{session.items}</p>
-                  <p className="text-xs text-muted-foreground">Items</p>
+                  <p className="serif text-base leading-tight">{s.type}</p>
+                  <p className="text-xs text-[color:var(--sepia)] mt-0.5">{s.note}</p>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="text-xs px-3 h-8"
-                  onClick={() => console.log('View session:', idx)}
-                >
-                  <FileText size={14} className="mr-1" />
-                  Minutes
+                <div className="text-right">
+                  <p className="mono text-lg text-[color:var(--ink)]">{s.items}</p>
+                  <p className="eyebrow text-[0.55rem]">items</p>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => console.log('View session:', idx)}>
+                  <FileText size={13} /> Minutes
                 </Button>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <Button className="w-full py-3" onClick={() => console.log('View all sessions')}>
-            <FileText className="w-4 h-4 mr-2" />
-            View All Sessions
-          </Button>
-          <Button variant="outline" className="w-full py-3" onClick={() => console.log('Schedule new')}>
-            <Calendar className="w-4 h-4 mr-2" />
-            Schedule New
-          </Button>
+          <div className="mt-6 pt-5 border-t border-[color:var(--rule)] flex flex-wrap gap-3">
+            <Button variant="primary">
+              <FileText size={14} /> Full order of the day
+            </Button>
+            <Button variant="outline">
+              <Calendar size={14} /> Schedule a session
+            </Button>
+          </div>
+        </Card>
+      </section>
+
+      {/* Colophon */}
+      <section className="border-t border-[color:var(--rule)] pt-8 pb-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-4">
+          <div>
+            <p className="eyebrow">Colophon</p>
+            <p className="serif italic text-sm text-[color:var(--sepia)] mt-2 max-w-xl">
+              Set in Fraunces and Instrument Sans · tabular figures in JetBrains
+              Mono · ornament after grassfields textile lozenges of the Bamenda
+              highlands.
+            </p>
+          </div>
+          <span className="mono text-[0.65rem] text-[color:var(--sepia)]">© MMXXVI · NWRA</span>
         </div>
-      </Card>
+      </section>
+    </div>
+  )
+}
+
+/* ────────────────────────────────────────────────────────────
+   Local subcomponents (kept in this file to avoid noise)
+   ──────────────────────────────────────────────────────────── */
+
+function CardMasthead({ eyebrow, title, aside }) {
+  return (
+    <div className="mb-5 pb-4 border-b border-[color:var(--rule)]">
+      <div className="flex items-baseline justify-between gap-4">
+        <p className="eyebrow">{eyebrow}</p>
+        {aside && <span className="mono text-xs text-[color:var(--brass)]">{aside}</span>}
+      </div>
+      <h3 className="serif text-2xl mt-1 leading-tight">{title}</h3>
+    </div>
+  )
+}
+
+function SectionHead({ eyebrow, title, note }) {
+  return (
+    <div className="mb-6">
+      <div className="flex items-baseline gap-3">
+        <p className="eyebrow">{eyebrow}</p>
+        <span className="ornament-mark" aria-hidden />
+      </div>
+      <h2 className="serif text-3xl md:text-4xl font-light mt-2 max-w-3xl leading-tight">
+        {title}
+      </h2>
+      {note && (
+        <p className="text-sm text-[color:var(--sepia)] mt-3 max-w-2xl leading-relaxed">
+          {note}
+        </p>
+      )}
+    </div>
+  )
+}
+
+function TreasuryLine({ label, value, figure, tone }) {
+  const fillClass = tone === 'highland' ? '' : 'progress-fill--brass'
+  return (
+    <div className="mt-5">
+      <div className="flex items-baseline justify-between mb-2">
+        <span className="text-sm text-[color:var(--ink)]">{label}</span>
+        <span className="mono text-sm text-[color:var(--sepia)]">
+          <span className="text-[color:var(--ink)]">{figure} FCFA</span>
+          {' · '}{value}%
+        </span>
+      </div>
+      <div className="progress-track">
+        <div className={`progress-fill ${fillClass}`} style={{ width: `${value}%` }} />
+      </div>
     </div>
   )
 }

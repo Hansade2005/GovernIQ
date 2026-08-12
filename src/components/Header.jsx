@@ -1,231 +1,154 @@
 import { useState } from 'react'
-import { cn } from '@/lib/utils'
-import { Menu, X, LogOut, Settings, User, LifeBuoy, FileText, Clock } from 'lucide-react'
-import { Button } from './Button'
+import { Menu, X, LogOut, Settings, User, LifeBuoy, FileText, Clock, Search } from 'lucide-react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 
+/**
+ * Header — parchment strip. Left: institutional wordmark with an
+ * ornamental diamond in place of a logo mark. Right: search, session
+ * date, user affordance. Deliberately quiet so the ornament below the
+ * hero can carry visual weight.
+ */
 export function Header({ user, onSignOut }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const today = new Date().toLocaleDateString('en-GB', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  })
 
-  // Core navigation items (visible in header)
-  const mainNavItems = [
-    { label: 'Dashboard', href: '#/', icon: null },
-    { label: 'Documents', href: '#/documents', icon: null },
-    { label: 'Projects', href: '#/projects', icon: null },
-    { label: 'Analytics', href: '#/analytics', icon: null },
-  ]
-
-  // Additional items (in dropdown menu)
-  const additionalItems = [
-    { label: 'Reports', href: '#/reports', icon: FileText },
-    { label: 'Upload Reports', href: '#/upload-reports', icon: null },
-    { label: 'Command Center', href: '#/command-center', icon: null },
+  const mainNav = [
+    { label: 'Chamber',     href: '#/' },
+    { label: 'Registry',    href: '#/documents' },
+    { label: 'Programmes',  href: '#/projects' },
+    { label: 'Analytics',   href: '#/analytics' },
+    { label: 'Command',     href: '#/command-center' },
   ]
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/75">
-      <div className="w-full px-2 sm:px-2 lg:px-3 py-1.5 flex items-center justify-between gap-1.5">
-        {/* Logo */}
-        <a href="#/" className="flex items-center gap-2 flex-shrink-0">
-          <img src="/logo.png" alt="Regional Assembly Logo" className="h-7 w-7 object-contain flex-shrink-0" />
-          <div className="hidden sm:flex flex-col">
-            <h1 className="font-bold text-sm font-display text-foreground leading-tight">
+    <header className="sticky top-0 z-50 border-b border-[color:var(--rule)] bg-[color:var(--paper)]/92 backdrop-blur">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center gap-4">
+        {/* Wordmark */}
+        <a href="#/" className="flex items-center gap-3 flex-shrink-0 group">
+          <span
+            className="inline-block w-4 h-4 rotate-45 border border-[color:var(--kola)]"
+            aria-hidden
+          />
+          <span className="flex flex-col leading-none">
+            <span className="serif text-[1.05rem] tracking-tight text-[color:var(--ink)]">
               GovernIQ
-            </h1>
-            <p className="text-[10px] text-muted-foreground leading-none whitespace-nowrap">Regional Assembly</p>
-          </div>
+            </span>
+            <span className="eyebrow text-[0.6rem] mt-0.5">NW Regional Assembly</span>
+          </span>
         </a>
 
-        {/* Desktop Navigation - Hidden (replaced by sidebar) */}
-        <div className="hidden lg:flex flex-1" />
-
-        {/* Tablet Navigation - Compact Dropdown */}
-        <div className="hidden md:flex lg:hidden">
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
-              <Button variant="ghost" size="sm" className="px-2 h-auto">
-                Menu
-              </Button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content className="w-56 bg-card border border-border rounded-lg shadow-lg p-1" align="end">
-              {mainNavItems.map((item) => (
-                <DropdownMenu.Item key={item.href} asChild>
-                  <a
-                    href={item.href}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-surface-alt rounded cursor-pointer"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.label}
-                  </a>
-                </DropdownMenu.Item>
-              ))}
-              <DropdownMenu.Separator className="h-px bg-border my-1" />
-              {additionalItems.map((item) => (
-                <DropdownMenu.Item key={item.href} asChild>
-                  <a
-                    href={item.href}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-surface-alt rounded cursor-pointer"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.icon && <item.icon size={16} />}
-                    {item.label}
-                  </a>
-                </DropdownMenu.Item>
-              ))}
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
+        {/* Date stamp — desktop only */}
+        <div className="hidden xl:flex items-center gap-2 pl-4 border-l border-[color:var(--rule)] text-[color:var(--sepia)]">
+          <span className="eyebrow text-[0.6rem]">Session of</span>
+          <span className="mono text-xs text-[color:var(--ink)]">{today}</span>
         </div>
 
-        {/* User Profile Menu */}
+        <div className="flex-1" />
+
+        {/* Tablet condensed nav */}
+        <nav className="hidden md:flex items-center gap-1">
+          {mainNav.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="px-3 py-2 text-xs uppercase tracking-widest mono text-[color:var(--sepia)] hover:text-[color:var(--ink)] transition"
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+
+        {/* Search cue */}
+        <button
+          className="hidden lg:flex items-center gap-2 h-9 px-3 border border-[color:var(--rule)] text-[color:var(--sepia)] hover:text-[color:var(--ink)] hover:border-[color:var(--ink)] transition rounded-[2px]"
+          aria-label="Search the registry"
+          onClick={() => (window.location.hash = '#/documents')}
+        >
+          <Search size={14} />
+          <span className="text-xs">Search the registry</span>
+          <span className="mono text-[0.65rem] ml-2 px-1.5 py-0.5 border border-[color:var(--rule)]">⌘K</span>
+        </button>
+
+        {/* User */}
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
-            <Button variant="ghost" size="sm" className="gap-1 px-1.5 h-auto py-1 text-xs sm:text-sm">
-              <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                <User size={12} className="text-primary" />
-              </div>
-              <span className="hidden sm:inline font-semibold truncate max-w-[80px]">
-                {(user?.email?.split('@')[0] || 'User').slice(0, 20)}
-                {(user?.email?.split('@')[0] || 'User').length > 20 ? '…' : ''}
+            <button className="flex items-center gap-2 pl-3 pr-2 h-9 border border-transparent hover:border-[color:var(--rule)] transition rounded-[2px]">
+              <span className="w-7 h-7 border border-[color:var(--ink)] flex items-center justify-center rounded-[1px]">
+                <User size={13} className="text-[color:var(--ink)]" />
               </span>
-            </Button>
+              <span className="hidden sm:flex flex-col items-start leading-tight">
+                <span className="text-xs font-medium text-[color:var(--ink)] max-w-[120px] truncate">
+                  {user?.name || user?.email?.split('@')[0] || 'Honourable Member'}
+                </span>
+                <span className="eyebrow text-[0.55rem]">Councillor</span>
+              </span>
+            </button>
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content className="w-56 bg-card border border-border rounded-lg shadow-lg p-1" align="end">
-            {/* User Info Header */}
-            <div className="px-3 py-3 border-b border-border mb-1">
-              <p className="text-xs text-muted-foreground">Logged in as</p>
-              <p className="font-semibold text-sm text-foreground truncate">{user?.email || 'User'}</p>
+          <DropdownMenu.Content
+            align="end"
+            sideOffset={8}
+            className="w-64 bg-[color:var(--paper)] border border-[color:var(--rule)] rounded-[3px] shadow-[0_20px_50px_-30px_rgba(20,21,15,0.35)] p-1"
+          >
+            <div className="px-3 py-3 border-b border-[color:var(--rule)] mb-1">
+              <p className="eyebrow text-[0.6rem]">Signed in as</p>
+              <p className="text-sm text-[color:var(--ink)] truncate mt-0.5">{user?.email || 'guest'}</p>
             </div>
-
-            {/* User Menu Items */}
-            <DropdownMenu.Item asChild>
-              <a
-                href="#/settings"
-                className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-surface-alt rounded cursor-pointer transition-colors"
-              >
-                <Settings size={16} />
-                Settings
-              </a>
-            </DropdownMenu.Item>
-
-            <DropdownMenu.Item asChild>
-              <a
-                href="#/help"
-                className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-surface-alt rounded cursor-pointer transition-colors"
-              >
-                <LifeBuoy size={16} />
-                Help & Support
-              </a>
-            </DropdownMenu.Item>
-
-            <DropdownMenu.Item asChild>
-              <a
-                href="#/documentation"
-                className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-surface-alt rounded cursor-pointer transition-colors"
-              >
-                <FileText size={16} />
-                Documentation
-              </a>
-            </DropdownMenu.Item>
-
-            <DropdownMenu.Item asChild>
-              <a
-                href="#/activity"
-                className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-surface-alt rounded cursor-pointer transition-colors"
-              >
-                <Clock size={16} />
-                Activity Log
-              </a>
-            </DropdownMenu.Item>
-
-            <DropdownMenu.Separator className="h-px bg-border my-1" />
-
-            {/* Sign Out */}
+            {[
+              { icon: Settings, label: 'Settings', href: '#/settings' },
+              { icon: FileText, label: 'Documentation', href: '#/documents' },
+              { icon: Clock, label: 'Activity Log', href: '#/activity' },
+              { icon: LifeBuoy, label: 'Help & Support', href: '#/help' },
+            ].map((item) => (
+              <DropdownMenu.Item asChild key={item.label}>
+                <a
+                  href={item.href}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-[color:var(--ink)] hover:bg-[color:var(--linen)] rounded-[2px] cursor-pointer"
+                >
+                  <item.icon size={14} className="text-[color:var(--sepia)]" />
+                  {item.label}
+                </a>
+              </DropdownMenu.Item>
+            ))}
+            <div className="h-px bg-[color:var(--rule)] my-1" />
             <DropdownMenu.Item asChild>
               <button
                 onClick={onSignOut}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded cursor-pointer transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[color:var(--rust)] hover:bg-[color:var(--linen)] rounded-[2px] cursor-pointer"
               >
-                <LogOut size={16} />
-                Sign Out
+                <LogOut size={14} />
+                Sign out
               </button>
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Root>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile trigger */}
         <button
-          className="md:hidden p-1 hover:bg-surface-alt rounded-lg transition-colors flex-shrink-0"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
+          className="md:hidden p-2 text-[color:var(--ink)]"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle navigation"
         >
-          {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
 
-      {/* Mobile Menu - Collapsible */}
-      {mobileMenuOpen && (
-        <nav className="md:hidden border-t border-border bg-surface-alt/50 px-3 sm:px-4 py-2 space-y-1 max-h-[calc(100vh-60px)] overflow-y-auto">
-          {/* Main Navigation */}
-          <div className="space-y-1 mb-3">
-            <p className="text-xs font-semibold text-muted-foreground uppercase px-2 mb-2">Navigation</p>
-            {mainNavItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="block px-3 py-2 text-sm font-semibold text-foreground hover:bg-card rounded-lg transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
+      {/* Signature ornament — the woven diamond hairline */}
+      <div className="ornament ornament-draw" aria-hidden />
 
-          {/* Additional Items */}
-          <div className="space-y-1 border-t border-border pt-3">
-            <p className="text-xs font-semibold text-muted-foreground uppercase px-2 mb-2">Operations</p>
-            {additionalItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-foreground hover:bg-card rounded-lg transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.icon && <item.icon size={16} />}
-                {item.label}
-              </a>
-            ))}
-          </div>
-
-          {/* User Menu Items */}
-          <div className="space-y-1 border-t border-border pt-3">
-            <p className="text-xs font-semibold text-muted-foreground uppercase px-2 mb-2">Account</p>
+      {mobileOpen && (
+        <nav className="md:hidden border-t border-[color:var(--rule)] bg-[color:var(--vellum)] px-4 py-4 space-y-1">
+          {mainNav.map((item) => (
             <a
-              href="#/settings"
-              className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-foreground hover:bg-card rounded-lg transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
+              key={item.href}
+              href={item.href}
+              className="block px-3 py-2.5 text-sm text-[color:var(--ink)] hover:bg-[color:var(--linen)] rounded-[2px]"
+              onClick={() => setMobileOpen(false)}
             >
-              <Settings size={16} />
-              Settings
+              {item.label}
             </a>
-            <a
-              href="#/help"
-              className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-foreground hover:bg-card rounded-lg transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <LifeBuoy size={16} />
-              Help
-            </a>
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false)
-                onSignOut()
-              }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm font-semibold text-destructive hover:bg-destructive/10 rounded-lg transition-colors text-left"
-            >
-              <LogOut size={16} />
-              Sign Out
-            </button>
-          </div>
+          ))}
         </nav>
       )}
     </header>

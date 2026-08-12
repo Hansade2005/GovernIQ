@@ -635,14 +635,19 @@ export function ReportsPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="stagger space-y-8">
+      {/* Masthead */}
       <div>
-        <h1 className="text-4xl font-bold font-display text-foreground mb-2">
-          Reports & Archives
+        <div className="flex items-baseline gap-3 mb-3">
+          <p className="eyebrow">Vol. II · Section V</p>
+          <span className="ornament-mark" aria-hidden />
+        </div>
+        <h1 className="serif text-[clamp(2.25rem,4.5vw,4rem)] font-light leading-[0.98] tracking-tight max-w-4xl">
+          Reports of <span className="italic text-[color:var(--highland)]">record</span>.
         </h1>
-        <p className="text-muted-foreground">
-          Complete institutional repository with governance reports, financial accounts, divisional updates, and development project records
+        <div className="ornament ornament-draw mt-6 max-w-md" aria-hidden />
+        <p className="mt-5 text-[color:var(--sepia)] max-w-2xl leading-relaxed">
+          Governance reports, financial accounts, divisional updates, and development records — signed, dated, and preserved.
         </p>
       </div>
 

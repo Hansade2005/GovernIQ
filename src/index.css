@@ -1,145 +1,467 @@
 @import "tailwindcss";
 
-/* Make `dark:` utilities respond to a .dark class on <html> (v4 defaults to media query). */
 @custom-variant dark (&:is(.dark *));
 
-/* Map the semantic design tokens (bg-primary, text-foreground, border-input, …) + the
-   radius scale onto Tailwind's theme. `inline` resolves them against the CSS vars below,
-   so editing :root / .dark re-themes every utility. */
+/* ============================================================
+   GovernIQ — "Hansard of the Grassfields"
+   A parchment-and-ink design system for the North West Regional
+   Assembly. Warm paper base, Bamenda-highland green as institutional
+   voice, kola-nut ochre as the single accent, brass for numerals.
+   Signature ornament: a woven diamond hairline motif inspired by
+   grassfields textile lozenges.
+   ============================================================ */
+
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-surface-alt: var(--surface-alt);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary-light: var(--primary-light);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-archive-spine: var(--archive-spine);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  --color-card: var(--vellum);
+  --color-card-foreground: var(--ink);
+  --color-surface-alt: var(--linen);
+  --color-primary: var(--highland);
+  --color-primary-foreground: var(--paper);
+  --color-primary-light: var(--sage);
+  --color-secondary: var(--brass);
+  --color-secondary-foreground: var(--paper);
+  --color-muted: var(--sepia);
+  --color-muted-foreground: var(--sepia);
+  --color-accent: var(--kola);
+  --color-accent-foreground: var(--paper);
+  --color-archive-spine: var(--brass);
+  --color-destructive: var(--rust);
+  --color-destructive-foreground: var(--paper);
+  --color-border: var(--rule);
+  --color-input: var(--vellum);
+  --color-ring: var(--highland);
+  --radius-lg: 4px;
+  --radius-md: 3px;
+  --radius-sm: 2px;
   --font-display: var(--font-display);
   --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
 }
 
-/* ── Design tokens. Re-theme the whole app by overriding these values. ── */
 :root {
-  /* Refined-minimal institutional aesthetic for Regional Governance */
-  --background: oklch(98% 0.002 262);
-  --foreground: oklch(18% 0.03 262);
-  --card: oklch(96% 0.004 262);
-  --card-foreground: oklch(18% 0.03 262);
-  --surface-alt: oklch(92% 0.006 262);
-  --primary: oklch(42% 0.12 262);
-  --primary-foreground: #ffffff;
-  --primary-light: oklch(72% 0.08 262);
-  --secondary: oklch(55% 0.1 262);
-  --secondary-foreground: #ffffff;
-  --muted: oklch(48% 0.02 262);
-  --muted-foreground: oklch(55% 0.01 262);
-  --accent: oklch(62% 0.18 29);
-  --accent-foreground: #ffffff;
-  --archive-spine: oklch(42% 0.15 33);
-  --destructive: oklch(58% 0.22 27);
-  --destructive-foreground: oklch(98% 0.01 27);
-  --border: oklch(88% 0.008 262);
-  --input: oklch(92% 0.005 262);
-  --ring: oklch(42% 0.12 262);
-  --radius: 0.625rem;
-  
-  /* Institutional typography */
-  --font-display: 'Instrument Serif', serif;
-  --font-body: 'Bricolage Grotesque', sans-serif;
+  /* Palette — warm parchment governance */
+  --paper: #F5F0E4;      /* warm hansard cream */
+  --vellum: #EFE8D6;     /* card surface, one step warmer than paper */
+  --linen: #E8DFC7;      /* alt surface, section highlight */
+  --rule: #C9BFA8;       /* hairline dividers, sepia */
+  --ink: #14150F;        /* inkwell near-black with olive undertone */
+  --sepia: #5A5240;      /* muted supporting text */
+  --highland: #1B3B2F;   /* Bamenda highlands deep forest — PRIMARY */
+  --sage: #6B8B65;       /* positive, completed */
+  --kola: #B54923;       /* kola-nut ochre — SINGLE ACCENT */
+  --brass: #A88028;      /* heritage brass — numerals, small ornaments */
+  --rust: #8C3B1A;       /* destructive / alert */
+
+  --font-display: 'Fraunces', 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Instrument Sans', 'Helvetica Neue', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Signature: woven diamond ornament as SVG data-uri, tuned per theme */
+  --ornament-diamond: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 8' preserveAspectRatio='xMidYMid meet'><g fill='none' stroke='%231B3B2F' stroke-width='0.75' stroke-linejoin='miter'><path d='M0 4 L6 1 L12 4 L6 7 Z'/><path d='M12 4 L18 1 L24 4 L18 7 Z'/><path d='M24 4 L30 1 L36 4 L30 7 Z'/><path d='M36 4 L42 1 L48 4 L42 7 Z'/><line x1='0' y1='4' x2='48' y2='4' stroke='%23C9BFA8' stroke-width='0.4'/></g></svg>");
+  --ornament-diamond-kola: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 8' preserveAspectRatio='xMidYMid meet'><g fill='none' stroke='%23B54923' stroke-width='0.9' stroke-linejoin='miter'><path d='M0 4 L6 1 L12 4 L6 7 Z'/><path d='M12 4 L18 1 L24 4 L18 7 Z'/><path d='M24 4 L30 1 L36 4 L30 7 Z'/><path d='M36 4 L42 1 L48 4 L42 7 Z'/></g></svg>");
+  --ornament-single: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M6 1 L11 6 L6 11 L1 6 Z' fill='none' stroke='%23B54923' stroke-width='1.2'/></svg>");
+
+  /* Radii — kept crisp, ledger-like */
+  --radius: 4px;
 }
 
 .dark {
-  --background: oklch(16% 0.04 262);
-  --foreground: oklch(96% 0.003 262);
-  --card: oklch(22% 0.04 262);
-  --card-foreground: oklch(96% 0.003 262);
-  --surface-alt: oklch(24% 0.04 262);
-  --primary: oklch(62% 0.15 262);
-  --primary-foreground: oklch(16% 0.01 262);
-  --primary-light: oklch(52% 0.1 262);
-  --secondary: oklch(65% 0.12 262);
-  --secondary-foreground: oklch(16% 0.01 262);
-  --muted: oklch(72% 0.02 262);
-  --muted-foreground: oklch(72% 0.02 262);
-  --accent: oklch(72% 0.18 29);
-  --accent-foreground: oklch(16% 0.01 29);
-  --archive-spine: oklch(72% 0.15 33);
-  --destructive: oklch(62% 0.21 25);
-  --destructive-foreground: oklch(96% 0.003 25);
-  --border: oklch(32% 0.04 262);
-  --input: oklch(32% 0.04 262);
-  --ring: oklch(62% 0.15 262);
+  --paper: #14150F;
+  --vellum: #1D1E17;
+  --linen: #262720;
+  --rule: #3A3A2E;
+  --ink: #EFE8D6;
+  --sepia: #A69C82;
+  --highland: #7FB79A;
+  --sage: #A6C69E;
+  --kola: #E36A3E;
+  --brass: #D4B457;
+  --rust: #E36A3E;
+
+  --ornament-diamond: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 8' preserveAspectRatio='xMidYMid meet'><g fill='none' stroke='%237FB79A' stroke-width='0.75' stroke-linejoin='miter'><path d='M0 4 L6 1 L12 4 L6 7 Z'/><path d='M12 4 L18 1 L24 4 L18 7 Z'/><path d='M24 4 L30 1 L36 4 L30 7 Z'/><path d='M36 4 L42 1 L48 4 L42 7 Z'/><line x1='0' y1='4' x2='48' y2='4' stroke='%233A3A2E' stroke-width='0.4'/></g></svg>");
 }
 
-* { border-color: var(--border); }
-html { font-family: var(--font-body); }
-body { 
-  background: var(--background); 
-  color: var(--foreground); 
+/* ────────────────────────────────────────────────────────────
+   Base
+   ──────────────────────────────────────────────────────────── */
+* { border-color: var(--rule); }
+
+html {
+  font-family: var(--font-body);
+  font-feature-settings: 'ss01', 'ss02';
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
   font-size: 15px;
-  line-height: 1.6;
-  letter-spacing: 0.3px;
+  line-height: 1.55;
+  letter-spacing: 0;
+  min-height: 100vh;
+  /* Parchment tooth — extremely subtle radial noise + faint horizontal ruling */
+  background-image:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(168,128,40,0.045), transparent 60%),
+    radial-gradient(ellipse 60% 60% at 90% 90%, rgba(27,59,47,0.04), transparent 60%);
+  background-attachment: fixed;
 }
-h1, h2, h3, h4, h5, h6 { 
+
+.dark body {
+  background-image:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(212,180,87,0.05), transparent 60%),
+    radial-gradient(ellipse 60% 60% at 90% 90%, rgba(127,183,154,0.05), transparent 60%);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Typography
+   ──────────────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  font-weight: 600;
-  line-height: 1.2;
-}
-h1 { font-size: 2.5rem; letter-spacing: -0.02em; }
-h2 { font-size: 2rem; letter-spacing: -0.015em; }
-h3 { font-size: 1.5rem; letter-spacing: -0.01em; }
-
-/* Institutional aesthetic: subtle linen overlay + archive spine accent */
-@supports (backdrop-filter: blur(1px)) {
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 2px,
-      rgba(139, 69, 19, 0.015) 2px,
-      rgba(139, 69, 19, 0.015) 4px
-    );
-    pointer-events: none;
-    z-index: -1;
-  }
-}
-.dark body::before {
-  background: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 2px,
-    rgba(255, 255, 255, 0.008) 2px,
-    rgba(255, 255, 255, 0.008) 4px
-  );
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.08;
+  letter-spacing: -0.018em;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
 }
 
-/* Archive card spine accent */
+h1 {
+  font-size: clamp(2.5rem, 5vw + 1rem, 4.75rem);
+  font-weight: 300;
+  letter-spacing: -0.032em;
+  font-variation-settings: "opsz" 144, "SOFT" 20;
+}
+h2 { font-size: clamp(1.75rem, 2.4vw + 0.6rem, 2.5rem); font-weight: 400; }
+h3 { font-size: clamp(1.25rem, 1.2vw + 0.6rem, 1.5rem); font-weight: 500; }
+h4 { font-size: 1.0625rem; font-weight: 600; font-variation-settings: "opsz" 24; }
+
+/* Utility type roles */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--sepia);
+}
+
+.numeric {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum', 'lnum';
+  font-variant-numeric: tabular-nums;
+}
+
+.serif { font-family: var(--font-display); }
+.mono { font-family: var(--font-mono); }
+
+/* ────────────────────────────────────────────────────────────
+   Signature ornament — the one memorable element
+   ──────────────────────────────────────────────────────────── */
+.ornament {
+  height: 8px;
+  background-image: var(--ornament-diamond);
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  background-position: left center;
+  opacity: 0.9;
+}
+.ornament-kola {
+  height: 8px;
+  background-image: var(--ornament-diamond-kola);
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  opacity: 0.95;
+}
+.ornament-mark {
+  display: inline-block;
+  width: 8px; height: 8px;
+  background-image: var(--ornament-single);
+  background-repeat: no-repeat;
+  background-size: contain;
+  vertical-align: middle;
+}
+.ornament-draw {
+  background-size: 0 100%;
+  animation: ornament-draw 900ms 200ms ease-out forwards;
+}
+@keyframes ornament-draw {
+  from { background-size: 0 100%; }
+  to { background-size: auto 100%; }
+}
+
+/* Section divider — hairline + centered lozenge */
+.rule-hair {
+  height: 1px;
+  background: var(--rule);
+  border: 0;
+}
+.rule-centered {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--sepia);
+}
+.rule-centered::before, .rule-centered::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Ledger card — inset top rule mimics a bound page
+   ──────────────────────────────────────────────────────────── */
+.ledger {
+  position: relative;
+  background: var(--vellum);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+.ledger::before {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px; right: 3px;
+  height: 1px;
+  background: var(--rule);
+  opacity: 0.7;
+}
+.ledger-flush { padding: 0; }
+.ledger-flush::before { display: none; }
+
+/* Record card — kept for backward compatibility, restyled */
 .record-card {
   position: relative;
-  border-left: 3px solid var(--archive-spine);
-  transition: border-left-width 0.2s ease-out, padding-left 0.2s ease-out;
+  border-left: 2px solid var(--brass);
+  transition: border-left-color 240ms ease, transform 240ms ease;
 }
 .record-card:hover {
-  border-left-width: 5px;
-  padding-left: calc(1rem - 2px);
+  border-left-color: var(--kola);
 }
+
+/* ────────────────────────────────────────────────────────────
+   Nav — active marker uses the woven diamond
+   ──────────────────────────────────────────────────────────── */
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem 0.55rem 1.5rem;
+  color: var(--sepia);
+  border-radius: 2px;
+  transition: color 160ms ease, background 160ms ease;
+  font-size: 0.875rem;
+}
+.nav-item:hover { color: var(--ink); background: rgba(168,128,40,0.06); }
+.nav-item[data-active="true"] { color: var(--ink); background: rgba(27,59,47,0.06); }
+.nav-item[data-active="true"]::before {
+  content: '';
+  position: absolute;
+  left: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 6px; height: 6px;
+  background: var(--kola);
+}
+.dark .nav-item:hover { background: rgba(212,180,87,0.08); }
+.dark .nav-item[data-active="true"] { background: rgba(127,183,154,0.08); }
+
+/* ────────────────────────────────────────────────────────────
+   Buttons
+   ──────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  transition: all 180ms ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:focus-visible { outline: 2px solid var(--kola); outline-offset: 2px; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-primary {
+  background: var(--highland);
+  color: var(--paper);
+  border-color: var(--highland);
+}
+.btn-primary:hover:not(:disabled) { background: #12291F; }
+.dark .btn-primary { background: var(--highland); color: var(--ink); }
+.dark .btn-primary:hover:not(:disabled) { background: #99C7AC; }
+
+.btn-outline {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+}
+.btn-outline:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--sepia);
+}
+.btn-ghost:hover:not(:disabled) { color: var(--ink); background: rgba(168,128,40,0.08); }
+
+.btn-accent {
+  background: var(--kola);
+  color: var(--paper);
+  border-color: var(--kola);
+}
+.btn-accent:hover:not(:disabled) { background: #9A3E1E; }
+
+.btn-danger {
+  background: transparent;
+  color: var(--rust);
+  border: 1px solid var(--rust);
+}
+.btn-danger:hover:not(:disabled) { background: var(--rust); color: var(--paper); }
+
+/* ────────────────────────────────────────────────────────────
+   Form inputs
+   ──────────────────────────────────────────────────────────── */
+.field {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-bottom-width: 2px;
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+.field::placeholder { color: var(--sepia); opacity: 0.6; }
+.field:focus {
+  outline: none;
+  border-color: var(--highland);
+  background: rgba(255,255,255,0.4);
+}
+.dark .field:focus { background: rgba(255,255,255,0.03); }
+
+/* ────────────────────────────────────────────────────────────
+   Badges — stamped, hairline outline
+   ──────────────────────────────────────────────────────────── */
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.55rem 0.15rem 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  border: 1px solid currentColor;
+  border-radius: 1px;
+  background: transparent;
+  line-height: 1.5;
+}
+.stamp-solid { border: 0; padding: 0.2rem 0.6rem; }
+
+/* ────────────────────────────────────────────────────────────
+   Progress — hairline, brass fill
+   ──────────────────────────────────────────────────────────── */
+.progress-track {
+  position: relative;
+  height: 2px;
+  background: var(--rule);
+  overflow: hidden;
+}
+.progress-fill {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  background: var(--highland);
+  transition: width 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.progress-fill--accent { background: var(--kola); }
+.progress-fill--brass { background: var(--brass); }
+
+/* ────────────────────────────────────────────────────────────
+   Big numerals — brass ledger figure
+   ──────────────────────────────────────────────────────────── */
+.figure {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-variation-settings: "opsz" 144;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums oldstyle-nums;
+  line-height: 1;
+  color: var(--ink);
+}
+.figure-brass { color: var(--brass); }
+.figure-highland { color: var(--highland); }
+.figure-kola { color: var(--kola); }
+
+/* ────────────────────────────────────────────────────────────
+   Motion — one orchestrated page-load stagger
+   ──────────────────────────────────────────────────────────── */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.stagger > * {
+  opacity: 0;
+  animation: rise 600ms ease-out forwards;
+}
+.stagger > *:nth-child(1) { animation-delay: 40ms; }
+.stagger > *:nth-child(2) { animation-delay: 120ms; }
+.stagger > *:nth-child(3) { animation-delay: 200ms; }
+.stagger > *:nth-child(4) { animation-delay: 280ms; }
+.stagger > *:nth-child(5) { animation-delay: 360ms; }
+.stagger > *:nth-child(6) { animation-delay: 440ms; }
+.stagger > *:nth-child(7) { animation-delay: 520ms; }
+.stagger > *:nth-child(8) { animation-delay: 600ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stagger > *, .ornament-draw { animation: none !important; opacity: 1; background-size: auto 100%; }
+  * { transition: none !important; }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Scrollbar — thin, sepia
+   ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--sepia); }
+
+/* ────────────────────────────────────────────────────────────
+   Selection
+   ──────────────────────────────────────────────────────────── */
+::selection { background: var(--kola); color: var(--paper); }
+
+/* ────────────────────────────────────────────────────────────
+   Recharts theming (used in Analytics/CommandCenter)
+   ──────────────────────────────────────────────────────────── */
+.recharts-cartesian-grid line { stroke: var(--rule); stroke-opacity: 0.6; }
+.recharts-cartesian-axis-tick text { fill: var(--sepia); font-family: var(--font-mono); font-size: 11px; }
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--vellum) !important;
+  border: 1px solid var(--rule) !important;
+  border-radius: 2px !important;
+  font-family: var(--font-body) !important;
+  font-size: 12px !important;
+  color: var(--ink) !important;
+  box-shadow: none !important;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Leaflet map — tone tiles slightly warmer
+   ──────────────────────────────────────────────────────────── */
+.leaflet-container {
+  background: var(--linen) !important;
+  font-family: var(--font-body) !important;
+}
+.leaflet-container .leaflet-tile { filter: sepia(0.15) saturate(0.85) brightness(1.02); }
+.dark .leaflet-container .leaflet-tile { filter: sepia(0.25) saturate(0.7) brightness(0.55) invert(0.9) hue-rotate(180deg); }

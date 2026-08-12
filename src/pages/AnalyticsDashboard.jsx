@@ -31,10 +31,10 @@ export function AnalyticsDashboard() {
   ]
 
   const budgetAllocationData = [
-    { name: 'Infrastructure', value: 8500, fill: '#3B82F6' },
-    { name: 'Health & Education', value: 6200, fill: '#EC4899' },
-    { name: 'Administration', value: 3200, fill: '#F59E0B' },
-    { name: 'Other', value: 2900, fill: '#10B981' },
+    { name: 'Infrastructure',       value: 8500, fill: '#1B3B2F' },  // highland
+    { name: 'Health & Education',   value: 6200, fill: '#B54923' },  // kola
+    { name: 'Administration',       value: 3200, fill: '#A88028' },  // brass
+    { name: 'Other',                value: 2900, fill: '#6B8B65' },  // sage
   ]
 
   const divisionalPerformance = [
@@ -70,10 +70,20 @@ export function AnalyticsDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
+      {/* Masthead */}
       <div>
-        <h1 className="text-4xl font-bold font-display text-foreground mb-2">Analytics Dashboard</h1>
-        <p className="text-muted-foreground">Real-time project performance metrics and comprehensive analysis</p>
+        <div className="flex items-baseline gap-3 mb-3">
+          <p className="eyebrow">Vol. II · Section III</p>
+          <span className="ornament-mark" aria-hidden />
+        </div>
+        <h1 className="serif text-[clamp(2.5rem,4.5vw,4rem)] font-light leading-[0.98] tracking-tight max-w-4xl">
+          Analytics of the <span className="italic text-[color:var(--highland)]">chamber</span>.
+        </h1>
+        <div className="ornament ornament-draw mt-6 max-w-md" aria-hidden />
+        <p className="mt-5 text-[color:var(--sepia)] max-w-2xl leading-relaxed">
+          Evidence for the floor — programme execution, budget efficiency,
+          and divisional performance across the North West.
+        </p>
       </div>
 
       {/* Controls */}
@@ -143,7 +153,7 @@ export function AnalyticsDashboard() {
               </div>
               <div className="flex items-baseline justify-between mb-3">
                 <div className="text-3xl font-bold text-foreground">{metric.value}%</div>
-                <div className="flex items-center gap-1 text-xs text-emerald-600">
+                <div className="flex items-center gap-1 text-xs text-[color:var(--sage)]">
                   <TrendingUp size={14} />
                   {metric.trend}
                 </div>
@@ -183,9 +193,9 @@ export function AnalyticsDashboard() {
                   }}
                 />
                 <Legend />
-                <Line type="monotone" dataKey="roads" stroke="#3B82F6" strokeWidth={2} />
-                <Line type="monotone" dataKey="healthcare" stroke="#EC4899" strokeWidth={2} />
-                <Line type="monotone" dataKey="digital" stroke="#F59E0B" strokeWidth={2} />
+                <Line type="monotone" dataKey="roads" stroke="#1B3B2F" strokeWidth={2} />
+                <Line type="monotone" dataKey="healthcare" stroke="#B54923" strokeWidth={2} />
+                <Line type="monotone" dataKey="digital" stroke="#A88028" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>

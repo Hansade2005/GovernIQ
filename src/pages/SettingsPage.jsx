@@ -45,10 +45,19 @@ export function SettingsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Page Header */}
+      {/* Masthead */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Settings</h1>
-        <p className="text-muted-foreground">Manage your preferences and account settings</p>
+        <div className="flex items-baseline gap-3 mb-3">
+          <p className="eyebrow">Chamber</p>
+          <span className="ornament-mark" aria-hidden />
+        </div>
+        <h1 className="serif text-[clamp(2rem,4vw,3.5rem)] font-light leading-[0.98] tracking-tight">
+          Personal <span className="italic text-[color:var(--highland)]">preferences</span>.
+        </h1>
+        <div className="ornament ornament-draw mt-4 max-w-xs" aria-hidden />
+        <p className="mt-3 text-[color:var(--sepia)] max-w-xl leading-relaxed">
+          Manage account, notifications, and appearance.
+        </p>
       </div>
 
       {/* Profile Settings */}

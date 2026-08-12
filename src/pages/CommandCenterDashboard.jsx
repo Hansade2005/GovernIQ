@@ -52,23 +52,29 @@ export function CommandCenterDashboard() {
         transition={{ duration: 0.5 }}
         className="mb-8"
       >
-        <div className="flex items-center justify-between mb-6 bg-gradient-to-r from-primary/20 to-accent/20 p-6 rounded-2xl border border-primary/30">
+        <div className="flex flex-wrap items-end justify-between gap-6 pb-8 border-b border-[color:var(--rule)]">
           <div>
-            <h1 className="text-5xl font-bold font-display text-foreground">Command Center</h1>
-            <p className="text-lg text-muted-foreground mt-2">Regional Assembly Operations Hub</p>
+            <div className="flex items-baseline gap-3 mb-3">
+              <p className="eyebrow">Live · Operations</p>
+              <span className="ornament-mark" aria-hidden />
+            </div>
+            <h1 className="serif text-[clamp(2.5rem,5vw,4.75rem)] font-light leading-[0.98] tracking-tight">
+              The <span className="italic text-[color:var(--highland)]">Command</span> Centre.
+            </h1>
+            <div className="ornament ornament-draw mt-5 max-w-sm" aria-hidden />
+            <p className="mt-4 text-[color:var(--sepia)] max-w-2xl leading-relaxed">
+              A live tableau of the North West Regional Assembly — flagged items, incidents, and consequential decisions of the hour.
+            </p>
           </div>
-          <motion.div
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="text-right"
-          >
-            <p className="text-4xl font-bold font-display text-primary">
-              {currentTime.toLocaleTimeString()}
+          <div className="text-right">
+            <p className="eyebrow text-[0.6rem]">Chamber time</p>
+            <p className="figure text-5xl mt-2 figure-brass tabular-nums">
+              {currentTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
             </p>
-            <p className="text-lg text-muted-foreground mt-2">
-              {currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            <p className="mono text-[0.7rem] text-[color:var(--sepia)] mt-2">
+              {currentTime.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
             </p>
-          </motion.div>
+          </div>
         </div>
       </motion.div>
 

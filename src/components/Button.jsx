@@ -1,38 +1,37 @@
 import { cn } from '@/lib/utils'
 
-export function Button({ 
-  children, 
-  variant = 'default', 
-  size = 'md', 
+/**
+ * GovernIQ Button — ledger-style. Crisp 2px corners, sober weight, kola
+ * focus ring. Variants map to the shared .btn-* classes so the visual
+ * language stays in one place (index.css).
+ */
+export function Button({
+  children,
+  variant = 'default',
+  size = 'md',
   className,
   disabled,
-  ...props 
+  ...props
 }) {
-  const variants = {
-    default: 'bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95',
-    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/90 active:scale-95',
-    accent: 'bg-accent text-accent-foreground hover:bg-accent/90 active:scale-95',
-    outline: 'border border-border bg-background text-foreground hover:bg-surface-alt active:scale-95',
-    ghost: 'text-foreground hover:bg-surface-alt active:scale-95',
-    destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90 active:scale-95',
-  }
-  
-  const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg',
-  }
-  
+  const variantClass = {
+    default: 'btn-primary',
+    primary: 'btn-primary',
+    secondary: 'btn-outline',
+    outline: 'btn-outline',
+    ghost: 'btn-ghost',
+    accent: 'btn-accent',
+    destructive: 'btn-danger',
+  }[variant] || 'btn-primary'
+
+  const sizeClass = {
+    sm: 'text-xs px-3 py-1.5',
+    md: 'text-sm px-4 py-2',
+    lg: 'text-[0.95rem] px-6 py-3',
+  }[size] || 'text-sm px-4 py-2'
+
   return (
     <button
-      className={cn(
-        'font-semibold rounded-lg transition-all duration-200 flex items-center gap-2',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-        'disabled:opacity-50 disabled:cursor-not-allowed',
-        variants[variant],
-        sizes[size],
-        className
-      )}
+      className={cn('btn', variantClass, sizeClass, className)}
       disabled={disabled}
       {...props}
     >

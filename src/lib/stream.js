@@ -291,3 +291,99 @@ export function formatBytes(n) {
   if (!n) return '—'
   return n < 1024 ? `${n} B` : `${(n / 1024).toFixed(0)} KB`
 }
+
+/* ── A camera that is not a camera ─────────────────────────────── */
+
+/**
+ * Build a synthetic MediaStream for rehearsal.
+ *
+ * `startBroadcast` only wants a MediaStream, and a canvas can produce one
+ * through `captureStream`. So a demo source draws real North West site
+ * photographs onto a canvas with a slow pan, a running clock, and a
+ * standing SIMULATED mark, and hands that over exactly as a camera would.
+ *
+ * This exists because a walkthrough cannot otherwise be rehearsed: the
+ * feature needs a camera, and the laptop on the podium may not have one
+ * pointed at anything useful. Every frame is watermarked and the lobby
+ * payload is flagged, so a simulated stream can never be mistaken for a
+ * real one — on the board or in a screenshot of it.
+ *
+ * The photographs are served with `Access-Control-Allow-Origin: *`, which
+ * is what keeps the canvas untainted and `toDataURL` working.
+ *
+ * @param {string[]} imageUrls  photographs to cycle through
+ * @returns {Promise<{ stream: MediaStream, stop: () => void }>}
+ */
+export async function createSyntheticStream(imageUrls = [], { fps = 8, secondsEach = 6 } = {}) {
+  if (!imageUrls.length) throw new Error('No photographs available for the demo source.')
+
+  const load = (src) => new Promise((resolve) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'   // without this the canvas taints and toDataURL throws
+    img.onload = () => resolve(img)
+    img.onerror = () => resolve(null)
+    img.src = src
+  })
+
+  const images = (await Promise.all(imageUrls.slice(0, 8).map(load))).filter(Boolean)
+  if (!images.length) throw new Error('The demo photographs could not be loaded.')
+
+  const canvas = document.createElement('canvas')
+  canvas.width = 1280
+  canvas.height = 720
+  const ctx = canvas.getContext('2d')
+
+  let raf
+  const t0 = performance.now()
+
+  const draw = () => {
+    const elapsed = (performance.now() - t0) / 1000
+    const idx = Math.floor(elapsed / secondsEach) % images.length
+    const phase = (elapsed % secondsEach) / secondsEach
+    const img = images[idx]
+
+    // Slow zoom, so the picture reads as a camera being carried rather
+    // than a slideshow.
+    const zoom = 1.06 + phase * 0.06
+    const iw = img.width, ih = img.height
+    const scale = Math.max(canvas.width / iw, canvas.height / ih) * zoom
+    const w = iw * scale, h = ih * scale
+    const dx = (canvas.width - w) / 2 - (phase - 0.5) * 40
+    const dy = (canvas.height - h) / 2
+
+    ctx.fillStyle = '#12130E'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.drawImage(img, dx, dy, w, h)
+
+    // Running clock — proves to a viewer that the picture is moving.
+    const stamp = new Date().toLocaleTimeString('en-GB')
+    ctx.font = '600 26px "JetBrains Mono", monospace'
+    ctx.textBaseline = 'bottom'
+    ctx.fillStyle = 'rgba(18,19,14,0.65)'
+    ctx.fillRect(18, canvas.height - 60, ctx.measureText(stamp).width + 28, 42)
+    ctx.fillStyle = '#F3EFE3'
+    ctx.fillText(stamp, 32, canvas.height - 26)
+
+    // The standing mark. Never optional.
+    const mark = 'SIMULATED — REHEARSAL SOURCE'
+    ctx.font = '700 22px "Instrument Sans", system-ui, sans-serif'
+    ctx.textBaseline = 'top'
+    const mw = ctx.measureText(mark).width
+    ctx.fillStyle = 'rgba(176,67,31,0.92)'
+    ctx.fillRect(canvas.width - mw - 46, 18, mw + 28, 38)
+    ctx.fillStyle = '#FFFFFF'
+    ctx.fillText(mark, canvas.width - mw - 32, 26)
+
+    raf = requestAnimationFrame(draw)
+  }
+  draw()
+
+  const stream = canvas.captureStream(fps)
+  return {
+    stream,
+    stop: () => {
+      cancelAnimationFrame(raf)
+      stream.getTracks().forEach((t) => t.stop())
+    },
+  }
+}

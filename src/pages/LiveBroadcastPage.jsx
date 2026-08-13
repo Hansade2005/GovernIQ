@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Video, VideoOff, Radio, AlertTriangle, Loader, Signal } from 'lucide-react'
+import { Video, VideoOff, Radio, AlertTriangle, Loader, Signal, MonitorPlay } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
 import { Card } from '@/components/Card'
 import { Badge } from '@/components/Badge'
@@ -9,7 +9,7 @@ import { Loading, LoadFailure } from '@/components/QueryState'
 import { useQuery } from '@/lib/useRegistry'
 import { useSession } from '@/lib/SessionContext'
 import { listProjects } from '@/lib/registry'
-import { openCamera, startBroadcast, formatBytes } from '@/lib/stream'
+import { openCamera, startBroadcast, createSyntheticStream, formatBytes } from '@/lib/stream'
 
 /**
  * Live walkthrough — the supervisor's end.
@@ -39,6 +39,8 @@ export function LiveBroadcastPage() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [stat, setStat] = useState(null)
+  const [simulated, setSimulated] = useState(false)
+  const syntheticRef = useRef(null)
   const [sentFrames, setSentFrames] = useState(0)
   const [sentBytes, setSentBytes] = useState(0)
   const [skipped, setSkipped] = useState(0)
@@ -52,10 +54,13 @@ export function LiveBroadcastPage() {
   /* The camera must be released on unmount, or it stays on after the page
      is left — a light still burning on someone's phone. */
   const closeCamera = useCallback(() => {
+    syntheticRef.current?.stop()
+    syntheticRef.current = null
     streamRef.current?.getTracks().forEach((t) => t.stop())
     streamRef.current = null
     if (videoRef.current) videoRef.current.srcObject = null
     setCameraOn(false)
+    setSimulated(false)
   }, [])
 
   useEffect(() => () => {
@@ -85,6 +90,26 @@ export function LiveBroadcastPage() {
     finally { setBusy(false) }
   }
 
+  /* The rehearsal source plays the same North West site photographs that
+     sit on the programme cards, so a walkthrough can be practised — and
+     shown on a laptop with no camera — without inventing imagery. */
+  const enableDemoSource = async () => {
+    setBusy(true); setError('')
+    try {
+      const photos = (data ?? []).map((p) => p.image_url).filter(Boolean)
+      if (!photos.length) throw new Error('No programme photographs are available to play.')
+      const synth = await createSyntheticStream(photos)
+      syntheticRef.current = synth
+      streamRef.current = synth.stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = synth.stream
+        await videoRef.current.play().catch(() => {})
+      }
+      setCameraOn(true); setSimulated(true)
+    } catch (err) { setError(err.message) }
+    finally { setBusy(false) }
+  }
+
   const goLive = async () => {
     if (!projectId) { setError('Choose the site you are showing.'); return }
     setBusy(true); setError('')
@@ -97,6 +122,7 @@ export function LiveBroadcastPage() {
           projectName: chosen?.name,
           division: chosen?.division,
           supervisor: profile?.full_name || profile?.email || 'Site supervisor',
+          simulated,
         },
         onStat: (s) => {
           setStat(s)
@@ -163,6 +189,11 @@ export function LiveBroadcastPage() {
               <span className="mono text-[0.6rem]">LIVE</span>
             </span>
           )}
+          {simulated && (
+            <span className="absolute bottom-3 left-3 px-2 py-1 rounded-[3px] bg-[color:var(--ink)]/80 text-white mono text-[0.6rem]">
+              Rehearsal source — not a camera
+            </span>
+          )}
         </div>
       </Card>
 
@@ -210,10 +241,16 @@ export function LiveBroadcastPage() {
 
           <div className="flex flex-wrap gap-2 pt-1">
             {!cameraOn ? (
-              <Button onClick={enableCamera} disabled={busy} className="py-3 text-base">
-                {busy ? <Loader size={15} className="animate-spin" /> : <Video size={15} />}
-                Turn on the camera
-              </Button>
+              <>
+                <Button onClick={enableCamera} disabled={busy} className="py-3 text-base">
+                  {busy ? <Loader size={15} className="animate-spin" /> : <Video size={15} />}
+                  Turn on the camera
+                </Button>
+                <Button variant="outline" onClick={enableDemoSource} disabled={busy} className="py-3">
+                  <MonitorPlay size={15} />
+                  Use the rehearsal source
+                </Button>
+              </>
             ) : !onAir ? (
               <>
                 <Button onClick={goLive} disabled={busy} className="py-3 text-base">

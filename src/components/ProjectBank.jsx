@@ -50,12 +50,11 @@ export function ProjectBank() {
     let filtered = projects
 
     if (searchTerm) {
+      // Contractor and location are nullable on the registry row, so a
+      // programme entered without them must not break the search.
       const term = searchTerm.toLowerCase()
-      filtered = filtered.filter(p =>
-        p.name.toLowerCase().includes(term) ||
-        p.contractor.toLowerCase().includes(term) ||
-        p.location.toLowerCase().includes(term)
-      )
+      const has = (v) => String(v || '').toLowerCase().includes(term)
+      filtered = filtered.filter(p => has(p.name) || has(p.contractor) || has(p.location))
     }
 
     if (selectedDivision) {
@@ -73,17 +72,22 @@ export function ProjectBank() {
     setFilteredProjects(filtered)
   }, [searchTerm, selectedDivision, selectedStatus, selectedCategory, projects])
 
-  // Calculate statistics
+  /* Budget is a bigint in FCFA on the registry row, not the free-text
+     string this component was written against, so it is summed directly.
+     Execution is derived from what has actually been disbursed rather
+     than read from a column that no longer exists. */
+  const totalBudget = projects.reduce((sum, p) => sum + Number(p.budget_fcfa || 0), 0)
+  const totalSpent = projects.reduce((sum, p) => sum + Number(p.spent_fcfa || 0), 0)
+
   const stats = {
     total: projects.length,
     completed: projects.filter(p => p.status === 'completed').length,
-    inProgress: projects.filter(p => p.status === 'in-progress').length,
-    avgProgress: Math.round(projects.reduce((sum, p) => sum + (p.progress || 0), 0) / projects.length || 0),
-    totalBudget: projects.reduce((sum, p) => {
-      const match = p.budget.match(/(\d+)/)
-      return sum + (match ? parseInt(match[1]) : 0)
-    }, 0),
-    avgExecution: Math.round(projects.reduce((sum, p) => sum + (p.execution || 0), 0) / projects.length || 0)
+    inProgress: projects.filter(p => p.status === 'ongoing').length,
+    avgProgress: projects.length
+      ? Math.round(projects.reduce((sum, p) => sum + (p.progress || 0), 0) / projects.length)
+      : 0,
+    totalBudget,
+    avgExecution: totalBudget ? Math.round((totalSpent / totalBudget) * 100) : 0,
   }
 
   const divisions = [...new Set(projects.map(p => p.division))].sort()
@@ -140,7 +144,7 @@ export function ProjectBank() {
         </Card>
         <Card className="p-4 bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20">
           <div className="text-xs font-semibold text-muted-foreground uppercase mb-1">Total Budget</div>
-          <div className="text-2xl font-bold text-purple-600">{stats.totalBudget}M</div>
+          <div className="text-2xl font-bold text-purple-600">{formatFcfa(stats.totalBudget)}</div>
         </Card>
         <Card className="p-4 bg-gradient-to-br from-teal-500/10 to-transparent border-teal-500/20">
           <div className="text-xs font-semibold text-muted-foreground uppercase mb-1">Avg Execution</div>
@@ -287,13 +291,17 @@ export function ProjectBank() {
                   </div>
                   <div>
                     <div className="text-xs text-muted-foreground font-semibold mb-1">BUDGET</div>
-                    <div className="text-lg font-bold text-foreground">{project.budget}</div>
+                    <div className="text-lg font-bold text-foreground">{formatFcfa(project.budget_fcfa)}</div>
                     <div className="text-xs text-muted-foreground">Total allocation</div>
                   </div>
                   <div>
                     <div className="text-xs text-muted-foreground font-semibold mb-1">SPENT</div>
-                    <div className="text-lg font-bold text-foreground">{project.spent}</div>
-                    <div className="text-xs text-muted-foreground">{project.execution}% utilized</div>
+                    <div className="text-lg font-bold text-foreground">{formatFcfa(project.spent_fcfa)}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {project.budget_fcfa
+                        ? Math.round((Number(project.spent_fcfa || 0) / Number(project.budget_fcfa)) * 100)
+                        : 0}% utilised
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs text-muted-foreground font-semibold mb-1">CATEGORY</div>
@@ -311,14 +319,14 @@ export function ProjectBank() {
                         <div className="text-xs font-semibold text-muted-foreground mb-1">START DATE</div>
                         <div className="text-sm text-foreground flex items-center gap-2">
                           <Clock className="w-4 h-4" />
-                          {new Date(project.startDate).toLocaleDateString()}
+                          {project.start_date ? new Date(project.start_date).toLocaleDateString('en-GB') : '—'}
                         </div>
                       </div>
                       <div>
                         <div className="text-xs font-semibold text-muted-foreground mb-1">END DATE</div>
                         <div className="text-sm text-foreground flex items-center gap-2">
                           <Clock className="w-4 h-4" />
-                          {new Date(project.endDate).toLocaleDateString()}
+                          {project.end_date ? new Date(project.end_date).toLocaleDateString('en-GB') : '—'}
                         </div>
                       </div>
                     </div>
@@ -329,10 +337,10 @@ export function ProjectBank() {
                     </div>
 
                     <div>
-                      <div className="text-xs font-semibold text-muted-foreground mb-1">CURRENT PHASE</div>
+                      <div className="text-xs font-semibold text-muted-foreground mb-1">RISK NOTED</div>
                       <div className="text-sm text-foreground flex items-center gap-2">
                         <TrendingUp className="w-4 h-4 text-primary" />
-                        {project.phase}
+                        {project.risks || 'None noted.'}
                       </div>
                     </div>
 

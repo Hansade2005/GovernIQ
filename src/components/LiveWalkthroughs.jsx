@@ -111,6 +111,11 @@ export function LiveWalkthroughs() {
                   <span className="w-1 h-1 rounded-full bg-white animate-pulse" />
                   <span className="mono text-[0.55rem]">LIVE</span>
                 </span>
+                {s.about.simulated && (
+                  <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-[2px] bg-[color:var(--ink)]/80 text-white mono text-[0.5rem]">
+                    REHEARSAL
+                  </span>
+                )}
                 <span className="absolute bottom-2 right-2 p-1 rounded-[2px] bg-[color:var(--ink)]/70 text-white opacity-0 group-hover:opacity-100 transition">
                   <Maximize2 size={12} />
                 </span>

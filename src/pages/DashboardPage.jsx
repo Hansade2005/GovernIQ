@@ -231,6 +231,7 @@ export function DashboardPage() {
                     src={p.image_url}
                     alt=""
                     className="w-full h-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                    loading="lazy"
                     onError={(e) => { e.target.style.display = 'none' }}
                   />
                 )}
@@ -239,6 +240,13 @@ export function DashboardPage() {
                     {p.status === 'completed' ? 'Completed' : 'In session'}
                   </Badge>
                 </div>
+                {/* A photograph on a transparency platform must not be mistaken
+                    for evidence of these particular works. */}
+                {p.image_is_illustrative && (
+                  <span className="absolute bottom-0 inset-x-0 px-2 py-1 bg-[color:var(--ink)]/70 text-white/90 mono text-[0.55rem] leading-snug">
+                    Illustrative · {p.image_credit?.split(' — ')[0]}
+                  </span>
+                )}
               </div>
               <p className="mono text-[0.65rem] text-[color:var(--sepia)] mt-3">
                 {String(idx + 1).padStart(2, '0')} · {p.division} Division

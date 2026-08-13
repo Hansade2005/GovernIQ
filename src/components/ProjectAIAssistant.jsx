@@ -1,51 +1,36 @@
-import { useState, useRef, useEffect } from 'react'
-import { Card } from './Card'
-import { Button } from './Button'
-import { Input } from './Input'
-import { Badge } from './Badge'
-import { Sparkles, Send, X, BarChart3, AlertTriangle, CheckCircle2, Clock, MessageCircle } from 'lucide-react'
-import { pp } from '@/lib/pipilot'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { Sparkles, Send, X } from 'lucide-react'
+import { MarkdownMessage } from './MarkdownMessage'
+import { getPortfolioSummary, formatFcfa } from '@/lib/registry'
 
-// Fallback project data
-const fallbackProjectData = [
-  { id: 1, name: 'Wum District Hospital Fence', status: 'completed', progress: 100, contractor: 'Lake Nyos Survival CO LTD', division: 'Mezam Division' },
-  { id: 2, name: 'GHS Lip (Mbiame) - 3 Classrooms + 2 Offices', status: 'in-progress', progress: 85, contractor: 'ACONSEP CO LTD', division: 'Momo Division' },
-  { id: 3, name: 'GHS Mbiame - 3 Classrooms + 2 Offices', status: 'in-progress', progress: 80, contractor: 'ACONSEP CO LTD', division: 'Momo Division' },
-  { id: 4, name: 'Science Lab GHS Weh', status: 'in-progress', progress: 70, contractor: 'Lake Nyos Survival CO LTD', division: 'Mezam Division' },
-  { id: 5, name: 'GTHS Nkambe - 3 Classrooms + 2 Offices', status: 'in-progress', progress: 50, contractor: 'AFUHCAM ENGINEERING COMPANY LTD', division: 'Mezam Division' },
-  { id: 6, name: 'GTHS Ndop - 3 Classrooms + 2 Offices', status: 'in-progress', progress: 60, contractor: 'Ashimenyi Enterprise', division: 'Momo Division' },
-  { id: 7, name: 'Batibo District Hospital Medical Ward', status: 'completed', progress: 100, contractor: 'Ets. Denzel', division: 'Menchum Division' },
-  { id: 8, name: 'Batibo District Hospital Nursing Home', status: 'completed', progress: 100, contractor: 'Ets. Denzel', division: 'Menchum Division' },
-  { id: 9, name: 'Ngomgham Health Center - Excavation & Roofing', status: 'in-progress', progress: 55, contractor: 'Mile90 Project', division: 'Boyo Division' },
-  { id: 10, name: 'GTHS Misaje - Building Workshop', status: 'in-progress', progress: 40, contractor: 'Regional Construction', division: 'Mezam Division' }
-]
 
 export function ProjectAIAssistant() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [projectData, setProjectData] = useState(fallbackProjectData)
+  const [projectData, setProjectData] = useState([])
   const messagesEndRef = useRef(null)
+  const panelRef = useRef(null)
 
-  // Load projects from database on mount
+  const close = useCallback(() => setIsOpen(false), [])
+
+  // Escape closes the panel from anywhere, including while typing.
   useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        if (!pp) return
-        
-        const data = await pp.from('projects').select({ limit: 100 })
-        if (data && data.length > 0) {
-          setProjectData(data)
-          console.log(`Loaded ${data.length} projects for AI Assistant`)
-        }
-      } catch (err) {
-        console.error('Error loading projects for AI:', err)
-        // Use fallback data
-      }
-    }
+    if (!isOpen) return
+    const onKey = (e) => { if (e.key === 'Escape') close() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen, close])
 
-    loadProjects()
+  // The assistant answers from the registry, so its figures always match
+  // what a member sees on the Programmes page.
+  useEffect(() => {
+    let alive = true
+    getPortfolioSummary()
+      .then((s) => { if (alive) setProjectData(s.projects) })
+      .catch((err) => console.warn('[assistant] could not load programmes:', err.message))
+    return () => { alive = false }
   }, [])
 
   const scrollToBottom = () => {
@@ -56,223 +41,175 @@ export function ProjectAIAssistant() {
     scrollToBottom()
   }, [messages])
 
+  /**
+   * Answers are composed from the registry rows already in state, so every
+   * figure the assistant quotes can be checked against the Programmes page.
+   */
   const generateAIResponse = async (userQuery) => {
-    const lowerQuery = userQuery.toLowerCase()
-    
-    // Quick command patterns with live data
-    if (lowerQuery.includes('overview') || lowerQuery.includes('summary')) {
-      const completed = projectData.filter(p => p.status === 'completed').length
-      const inProgress = projectData.filter(p => p.status === 'in-progress').length
-      const avgProgress = Math.round(projectData.reduce((sum, p) => sum + (p.progress || 0), 0) / projectData.length)
-      
-      return `📊 **Project Portfolio Overview**
-
-**Total Projects:** ${projectData.length}
-- ✅ Completed: ${completed}
-- 🔄 In Progress: ${inProgress}
-
-**Portfolio Health:**
-- Average Progress: ${avgProgress}%
-- Completion Rate: ${Math.round(completed / projectData.length * 100)}%
-- On-Time Delivery: ${Math.round((projectData.filter(p => p.status === 'completed').length / projectData.length) * 100)}%
-
-**Key Metrics:**
-- Total Infrastructure Investment: 1,016M FCFA
-- Budget Utilization: ${Math.round(projectData.reduce((sum, p) => sum + (p.execution || 0), 0) / projectData.length)}%
-- Active Contractors: ${new Set(projectData.map(p => p.contractor)).size}`
+    const q = userQuery.toLowerCase()
+    const rows = projectData
+    if (!rows.length) {
+      return 'The programme roll has not loaded yet. Give it a moment and ask again.'
     }
 
-    if (lowerQuery.includes('completed') || lowerQuery.includes('finish')) {
-      const completed = projectData.filter(p => p.status === 'completed')
-      return `✅ **Completed Projects** (${completed.length})
+    const pct = (n, d) => (d ? Math.round((n / d) * 100) : 0)
+    const completed = rows.filter((p) => p.status === 'completed')
+    const ongoing = rows.filter((p) => p.status === 'ongoing')
+    const budget = rows.reduce((s, p) => s + Number(p.budget_fcfa || 0), 0)
+    const spent = rows.reduce((s, p) => s + Number(p.spent_fcfa || 0), 0)
+    const avgProgress = Math.round(rows.reduce((s, p) => s + (p.progress || 0), 0) / rows.length)
 
-${completed.map(p => `• **${p.name}**
-  - Contractor: ${p.contractor}
-  - Division: ${p.division}
-  - Status: 100% Complete`).join('\n\n')}
-
-**Impact:** These ${completed.length} projects have been successfully delivered, enhancing infrastructure across the region.`
+    const groupBy = (key) => {
+      const out = {}
+      for (const p of rows) {
+        const k = p[key] || 'Unassigned'
+        out[k] ??= { count: 0, completed: 0, progress: 0, budget: 0 }
+        out[k].count += 1
+        out[k].progress += p.progress || 0
+        out[k].budget += Number(p.budget_fcfa || 0)
+        if (p.status === 'completed') out[k].completed += 1
+      }
+      return out
     }
 
-    if (lowerQuery.includes('progress') || lowerQuery.includes('status')) {
-      const byDivision = {}
-      projectData.forEach(p => {
-        if (!byDivision[p.division]) byDivision[p.division] = []
-        byDivision[p.division].push(p)
-      })
-      
-      return `📈 **Project Progress by Division**
+    if (q.includes('overview') || q.includes('summary') || q.includes('portfolio')) {
+      return `## Portfolio overview
 
-${Object.entries(byDivision).map(([division, projects]) => {
-        const avgProgress = Math.round(projects.reduce((sum, p) => sum + (p.progress || 0), 0) / projects.length)
-        const completed = projects.filter(p => p.status === 'completed').length
-        return `**${division}**
-- Projects: ${projects.length} (${completed} completed, ${projects.length - completed} active)
-- Average Progress: ${avgProgress}%
-- Key Projects: ${projects.slice(0, 2).map(p => p.name).join(', ')}`
-      }).join('\n\n')}
+| Measure | Figure |
+|---|---|
+| Programmes on the roll | ${rows.length} |
+| Completed | ${completed.length} |
+| In session | ${ongoing.length} |
+| Average progress | ${avgProgress}% |
+| Total budget | ${formatFcfa(budget)} |
+| Disbursed | ${formatFcfa(spent)} (${pct(spent, budget)}%) |
 
-**Overall Portfolio Health:** ${Math.round(projectData.reduce((sum, p) => sum + (p.progress || 0), 0) / projectData.length)}% average progress`
+**Contractors engaged:** ${new Set(rows.map((p) => p.contractor)).size}
+**Divisions covered:** ${new Set(rows.map((p) => p.division)).size}`
     }
 
-    if (lowerQuery.includes('risk') || lowerQuery.includes('challenge') || lowerQuery.includes('delay')) {
-      const atRisk = projectData.filter(p => p.progress < 50 && p.status === 'in-progress')
-      return `⚠️ **Risk Assessment & Challenges**
+    if (q.includes('completed') || q.includes('finish') || q.includes('delivered')) {
+      return `## Completed programmes (${completed.length})
 
-**Projects at Risk (Below 50% Progress):** ${atRisk.length}
-${atRisk.map(p => `• **${p.name}** (${p.progress}%)
-  - Contractor: ${p.contractor}
-  - Location: ${p.division}`).join('\n')}
+${completed.map((p) => `- **${p.name}** — ${p.contractor}, ${p.division} Division. ${formatFcfa(p.budget_fcfa)}.`).join('\n')}
 
-**Key Challenges Identified:**
-- Material Supply: Delayed shipments affecting roofing projects
-- Labor: Shortage of skilled workers on multiple sites
-- Weather: Seasonal rainfall impacting construction schedules
-- Logistics: Road conditions affecting equipment transport
-
-**Recommended Actions:**
-1. Increase contractor support for at-risk projects
-2. Expedite material procurement
-3. Consider schedule extensions where appropriate
-4. Monitor compliance and reporting`
+Delivered across ${new Set(completed.map((p) => p.division)).size} divisions.`
     }
 
-    if (lowerQuery.includes('contractor') || lowerQuery.includes('performance')) {
-      const contractors = {}
-      projectData.forEach(p => {
-        if (!contractors[p.contractor]) {
-          contractors[p.contractor] = { count: 0, completed: 0, avgProgress: 0, projects: [] }
-        }
-        contractors[p.contractor].count += 1
-        contractors[p.contractor].projects.push(p)
-        if (p.status === 'completed') contractors[p.contractor].completed += 1
-        contractors[p.contractor].avgProgress += p.progress || 0
-      })
+    if (q.includes('risk') || q.includes('challenge') || q.includes('delay') || q.includes('behind')) {
+      const atRisk = ongoing.filter((p) => (p.progress || 0) < 50)
+      if (!atRisk.length) {
+        return `## Risk assessment\n\nNo programme currently sits below 50% while in session. The lowest is **${
+          ongoing.sort((a, b) => a.progress - b.progress)[0]?.name
+        }** at ${ongoing.sort((a, b) => a.progress - b.progress)[0]?.progress}%.`
+      }
+      return `## Programmes at risk (${atRisk.length})
 
-      Object.keys(contractors).forEach(c => {
-        contractors[c].avgProgress = Math.round(contractors[c].avgProgress / contractors[c].count)
-      })
+${atRisk.map((p) => `- **${p.name}** — ${p.progress}%, ${p.contractor} (${p.division}). ${p.risks || 'No risk noted.'}`).join('\n')}
 
-      return `👷 **Contractor Performance Analysis**
-
-${Object.entries(contractors).map(([name, data]) => {
-        const performanceRating = data.avgProgress >= 80 ? '⭐⭐⭐⭐⭐' : data.avgProgress >= 60 ? '⭐⭐⭐⭐' : '⭐⭐⭐'
-        return `**${name}**
-- Projects Assigned: ${data.count}
-- Completed: ${data.completed} | In Progress: ${data.count - data.completed}
-- Average Progress: ${data.avgProgress}%
-- Performance Rating: ${performanceRating}`
-      }).join('\n\n')}
-
-**Top Performers:** Lake Nyos Survival CO LTD, Ets. Denzel
-**Needs Support:** Regional Construction (40% on Misaje workshop)`
+**Recommended:** raise contractor support on the lowest two, and confirm whether a schedule extension is warranted before the next sitting.`
     }
 
-    if (lowerQuery.includes('budget') || lowerQuery.includes('financial') || lowerQuery.includes('cost')) {
-      const totalBudget = projectData.reduce((sum, p) => {
-        const match = p.budget?.match(/(\d+)/)
-        return sum + (match ? parseInt(match[1]) : 0)
-      }, 0)
-      
-      const totalSpent = projectData.reduce((sum, p) => {
-        const match = p.spent?.match(/(\d+)/)
-        return sum + (match ? parseInt(match[1]) : 0)
-      }, 0)
+    if (q.includes('contractor') || q.includes('performance')) {
+      const byContractor = groupBy('contractor')
+      return `## Contractor performance
 
-      return `💰 **Financial Report & Budget Analysis**
-
-**Total Portfolio Budget:** ${totalBudget}M FCFA
-**Total Spent to Date:** ${totalSpent}M FCFA
-**Budget Utilization:** ${Math.round(totalSpent / totalBudget * 100)}%
-**Remaining Budget:** ${totalBudget - totalSpent}M FCFA
-
-**Budget Allocation by Category:**
-- Education Infrastructure: ~520M FCFA
-- Health Infrastructure: ~496M FCFA
-
-**Cost Efficiency:**
-- Average Project Budget: ${Math.round(totalBudget / projectData.length)}M FCFA
-- Average Project Spend: ${Math.round(totalSpent / projectData.length)}M FCFA
-- Portfolio Efficiency: ${Math.round(totalSpent / totalBudget * 100)}%
-
-**Forecast:** On track for completion within 2026 fiscal year`
+| Contractor | Programmes | Completed | Avg. progress |
+|---|---|---|---|
+${Object.entries(byContractor)
+  .sort((a, b) => b[1].count - a[1].count)
+  .map(([n, d]) => `| ${n} | ${d.count} | ${d.completed} | ${Math.round(d.progress / d.count)}% |`)
+  .join('\n')}`
     }
 
-    if (lowerQuery.includes('education') || lowerQuery.includes('school') || lowerQuery.includes('classroom')) {
-      const educationProjects = projectData.filter(p => p.category?.includes('Education') || p.name.includes('GHS') || p.name.includes('GTHS'))
-      return `🎓 **Education Infrastructure Projects** (${educationProjects.length})
+    if (q.includes('budget') || q.includes('financial') || q.includes('cost') || q.includes('treasury')) {
+      const byCat = groupBy('category')
+      return `## Financial position
 
-${educationProjects.map(p => `• **${p.name}**
-  - Progress: ${p.progress}%
-  - Status: ${p.status === 'completed' ? '✅ Complete' : '🔄 ' + p.progress + '% Done'}
-  - Division: ${p.division}`).join('\n\n')}
+**Total budget:** ${formatFcfa(budget)}
+**Disbursed:** ${formatFcfa(spent)} — ${pct(spent, budget)}% utilisation
+**Uncommitted:** ${formatFcfa(budget - spent)}
 
-**Impact:** Modernizing educational facilities across ${new Set(educationProjects.map(p => p.division)).size} divisions`
+### By category
+
+| Category | Programmes | Budget |
+|---|---|---|
+${Object.entries(byCat)
+  .sort((a, b) => b[1].budget - a[1].budget)
+  .map(([n, d]) => `| ${n} | ${d.count} | ${formatFcfa(d.budget)} |`)
+  .join('\n')}`
     }
 
-    if (lowerQuery.includes('health') || lowerQuery.includes('hospital') || lowerQuery.includes('clinic')) {
-      const healthProjects = projectData.filter(p => p.category?.includes('Health') || p.name.includes('Hospital') || p.name.includes('Health Center'))
-      return `🏥 **Health Infrastructure Projects** (${healthProjects.length})
+    if (q.includes('division') || q.includes('progress') || q.includes('status')) {
+      const byDivision = groupBy('division')
+      return `## Progress by division
 
-${healthProjects.map(p => `• **${p.name}**
-  - Progress: ${p.progress}%
-  - Status: ${p.status === 'completed' ? '✅ Complete' : '🔄 ' + p.progress + '% Done'}
-  - Division: ${p.division}`).join('\n\n')}
+| Division | Programmes | Completed | Avg. progress |
+|---|---|---|---|
+${Object.entries(byDivision)
+  .sort((a, b) => b[1].count - a[1].count)
+  .map(([n, d]) => `| ${n} | ${d.count} | ${d.completed} | ${Math.round(d.progress / d.count)}% |`)
+  .join('\n')}
 
-**Impact:** Strengthening healthcare delivery across the region`
+**Portfolio average:** ${avgProgress}%`
     }
 
-    // Default response
-    return `🤖 **AI Project Assistant**
+    if (q.includes('education') || q.includes('school') || q.includes('classroom')) {
+      const edu = rows.filter((p) => p.category === 'Education')
+      return `## Education programmes (${edu.length})
 
-I can help you analyze the 2026 NWRA BIP project portfolio. Try asking me about:
+${edu.map((p) => `- **${p.name}** — ${p.progress}%, ${p.division}. ${formatFcfa(p.budget_fcfa)}.`).join('\n')}
 
-📊 **Portfolio Queries:**
-- "Give me an overview" or "Portfolio summary"
-- "Which projects are completed?"
-- "What's the current progress?"
+Total commitment: ${formatFcfa(edu.reduce((s, p) => s + Number(p.budget_fcfa || 0), 0))}.`
+    }
 
-⚠️ **Risk Management:**
-- "Show me at-risk projects"
-- "What are the main challenges?"
-- "Identify delays and bottlenecks"
+    if (q.includes('health') || q.includes('hospital') || q.includes('clinic')) {
+      const health = rows.filter((p) => p.category === 'Health')
+      return `## Health programmes (${health.length})
 
-👷 **Contractor Analysis:**
-- "How are contractors performing?"
-- "Contractor workload distribution"
+${health.map((p) => `- **${p.name}** — ${p.progress}%, ${p.division}. ${formatFcfa(p.budget_fcfa)}.`).join('\n')}
 
-💰 **Financial Analysis:**
-- "Budget report" or "Cost analysis"
-- "Budget utilization status"
+Total commitment: ${formatFcfa(health.reduce((s, p) => s + Number(p.budget_fcfa || 0), 0))}.`
+    }
 
-📂 **Category Specific:**
-- "Education infrastructure projects"
-- "Health infrastructure projects"
-- "Projects by division"
+    return `I can answer from the programme roll — ${rows.length} programmes across ${
+      new Set(rows.map((p) => p.division)).size
+    } divisions. Try:
 
-Ask any question and I'll provide data-driven insights!`
+- **Portfolio overview** — the headline position
+- **At-risk programmes** — anything below half-way while in session
+- **Contractor performance** — programmes and progress by firm
+- **Budget report** — commitment, disbursement, and utilisation
+- **Progress by division** — where the work stands
+- **Education** or **health programmes** — by sector`
   }
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault()
-    if (!input.trim()) return
+  const sendQuery = async (query) => {
+    const userMessage = query.trim()
+    if (!userMessage) return
 
-    const userMessage = input.trim()
     setInput('')
-    
     setMessages(prev => [...prev, { role: 'user', content: userMessage }])
     setIsLoading(true)
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise(resolve => setTimeout(resolve, 400))
       const response = await generateAIResponse(userMessage)
       setMessages(prev => [...prev, { role: 'assistant', content: response }])
     } catch (error) {
       console.error('Error generating response:', error)
-      setMessages(prev => [...prev, { role: 'assistant', content: '❌ Error generating response. Please try again.' }])
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'That query could not be answered. Rephrase it, or ask for a portfolio overview to start.',
+      }])
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleSendMessage = (e) => {
+    e.preventDefault()
+    sendQuery(input)
   }
 
   const quickQuestions = [
@@ -286,107 +223,161 @@ Ask any question and I'll provide data-driven insights!`
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Launcher */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group z-40"
+          aria-label="Open the project assistant"
+          className="fixed bottom-6 right-6 h-12 pl-4 pr-5 rounded-full bg-[color:var(--highland)] text-white shadow-[0_12px_28px_-12px_rgba(20,21,15,0.55)] hover:bg-[color:var(--highland-2)] transition flex items-center gap-2 z-40"
         >
-          <Sparkles className="w-7 h-7 text-white group-hover:scale-110 transition-transform" />
+          <Sparkles className="w-4 h-4" />
+          <span className="text-sm font-medium">Ask the assistant</span>
         </button>
       )}
 
-      {/* Chat Panel */}
+      {/* Panel */}
       {isOpen && (
-        <div className="fixed bottom-8 right-8 w-96 h-[600px] bg-card border border-border rounded-lg shadow-2xl flex flex-col z-50">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-primary/10 to-accent/10">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
-              <h3 className="font-bold text-foreground">Project AI Assistant</h3>
-            </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-1 hover:bg-background rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5 text-muted-foreground" />
-            </button>
-          </div>
+        <>
+          {/* Click-away layer — closing should never require hunting for a control */}
+          <div
+            className="fixed inset-0 z-40 bg-[color:var(--ink)]/10"
+            onClick={close}
+            aria-hidden
+          />
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center">
-                <BarChart3 className="w-12 h-12 text-primary/50 mb-3" />
-                <p className="text-sm font-semibold text-foreground mb-4">Project Intelligence</p>
-                <p className="text-xs text-muted-foreground mb-6">Ask me anything about your project portfolio</p>
-                
-                <div className="space-y-2 w-full">
-                  {quickQuestions.map((q, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setInput(q)}
-                      className="w-full px-3 py-2 text-xs text-primary hover:bg-primary/10 rounded border border-primary/20 transition-colors text-left"
-                    >
-                      💡 {q}
-                    </button>
-                  ))}
+          <div
+            ref={panelRef}
+            role="dialog"
+            aria-modal="false"
+            aria-label="Project assistant"
+            className="fixed bottom-6 right-6 w-[min(26rem,calc(100vw-3rem))] h-[min(38rem,calc(100vh-6rem))] bg-[color:var(--card-bg)] border border-[color:var(--rule-firm)] rounded-[6px] shadow-[0_28px_64px_-24px_rgba(20,21,15,0.5)] flex flex-col z-50 overflow-hidden"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between gap-2 px-4 h-12 border-b border-[color:var(--rule)] flex-shrink-0">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="w-2.5 h-2.5 rotate-45 bg-[color:var(--kola)] flex-shrink-0" aria-hidden />
+                <div className="min-w-0">
+                  <p className="text-[0.8125rem] font-semibold leading-none truncate">Project assistant</p>
+                  <p className="eyebrow text-[0.5rem] mt-1">{projectData.length} programmes loaded</p>
                 </div>
               </div>
-            ) : (
-              <>
-                {messages.map((msg, idx) => (
-                  <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div
-                      className={`max-w-xs px-4 py-3 rounded-lg ${
-                        msg.role === 'user'
-                          ? 'bg-primary text-primary-foreground rounded-br-none'
-                          : 'bg-muted text-foreground rounded-bl-none'
-                      }`}
-                    >
-                      <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                        {msg.content}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-muted px-4 py-3 rounded-lg rounded-bl-none">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-foreground rounded-full animate-bounce" />
-                        <div className="w-2 h-2 bg-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                        <div className="w-2 h-2 bg-foreground rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </>
-            )}
-          </div>
 
-          {/* Input Form */}
-          <form onSubmit={handleSendMessage} className="border-t border-border p-4 bg-background rounded-b-lg">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about projects..."
-                disabled={isLoading}
-                className="flex-1 px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || isLoading}
-                className="p-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors disabled:opacity-50"
-              >
-                <Send className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {messages.length > 0 && (
+                  <button
+                    onClick={() => setMessages([])}
+                    className="btn btn-ghost text-[0.7rem] px-2 py-1"
+                    title="Clear the conversation"
+                  >
+                    Clear
+                  </button>
+                )}
+                <button
+                  onClick={close}
+                  aria-label="Close the assistant"
+                  title="Close (Esc)"
+                  className="w-8 h-8 flex items-center justify-center rounded-[3px] border border-[color:var(--rule-firm)] text-[color:var(--sepia)] hover:text-[color:var(--paper)] hover:bg-[color:var(--rust)] hover:border-[color:var(--rust)] transition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-          </form>
-        </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+              {messages.length === 0 ? (
+                <div className="h-full flex flex-col justify-center">
+                  <p className="eyebrow mb-1">Project intelligence</p>
+                  <p className="text-[color:var(--sepia)] mb-5 leading-relaxed">
+                    Ask about the portfolio — execution, risk, contractors, or budget.
+                  </p>
+                  <div className="space-y-1.5">
+                    {quickQuestions.map((q) => (
+                      <button
+                        key={q}
+                        onClick={() => sendQuery(q)}
+                        className="w-full px-3 py-2 text-[0.8125rem] text-left rounded-[3px] border border-[color:var(--rule)] text-[color:var(--ink)] hover:border-[color:var(--ink)] hover:bg-[color:var(--linen)] transition"
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {messages.map((msg, idx) =>
+                    msg.role === 'user' ? (
+                      /* Member — filled bubble, inverts with the theme */
+                      <div key={idx} className="flex justify-end">
+                        <div className="max-w-[85%] px-3.5 py-2.5 rounded-[10px] rounded-br-[3px] bg-[color:var(--highland)] text-white dark:text-[color:var(--paper)]">
+                          <p className="text-[0.8125rem] leading-relaxed whitespace-pre-wrap break-words">
+                            {msg.content}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Assistant — no bubble; the reply sits on the panel itself */
+                      <div key={idx} className="flex justify-start">
+                        <div className="max-w-full w-full">
+                          <div className="flex items-center gap-1.5 mb-1.5">
+                            <span className="w-1.5 h-1.5 rotate-45 bg-[color:var(--kola)]" aria-hidden />
+                            <span className="eyebrow text-[0.5rem]">Assistant</span>
+                          </div>
+                          <MarkdownMessage
+                            content={msg.content}
+                            className="text-[0.8125rem] text-[color:var(--ink)]"
+                          />
+                        </div>
+                      </div>
+                    )
+                  )}
+
+                  {isLoading && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="eyebrow text-[0.5rem]">Assistant</span>
+                      <span className="flex gap-1">
+                        {[0, 0.15, 0.3].map((d) => (
+                          <span
+                            key={d}
+                            className="w-1.5 h-1.5 rounded-full bg-[color:var(--sepia)] animate-bounce"
+                            style={{ animationDelay: `${d}s` }}
+                          />
+                        ))}
+                      </span>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </>
+              )}
+            </div>
+
+            {/* Composer */}
+            <form
+              onSubmit={handleSendMessage}
+              className="border-t border-[color:var(--rule)] p-3 flex-shrink-0"
+            >
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask about the portfolio…"
+                  disabled={isLoading}
+                  className="field flex-1 text-[0.8125rem]"
+                />
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  aria-label="Send"
+                  className="btn btn-primary px-3"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="eyebrow text-[0.5rem] mt-2">Esc to close</p>
+            </form>
+          </div>
+        </>
       )}
     </>
   )

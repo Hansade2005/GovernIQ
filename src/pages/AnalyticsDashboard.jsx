@@ -8,55 +8,63 @@ import {
 } from 'recharts'
 import { Download, Eye, TrendingUp, TrendingDown, Calendar, Filter } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
+import { useQuery } from '@/lib/useRegistry'
+import { Loading, LoadFailure } from '@/components/QueryState'
+import {
+  getSeries, listDivisionPerformance, listProjects,
+  getPortfolioSummary, formatFcfa,
+} from '@/lib/registry'
 
 export function AnalyticsDashboard() {
   const [timeRange, setTimeRange] = useState('quarterly')
   const [selectedDivision, setSelectedDivision] = useState('all')
   const [showExportModal, setShowExportModal] = useState(false)
 
+  const { data, loading, error, refresh } = useQuery(async () => {
+    const [quarterly, monthly, performance, summary] = await Promise.all([
+      getSeries('quarterly'),
+      getSeries('monthly'),
+      listDivisionPerformance(2026),
+      getPortfolioSummary(),
+    ])
+    return { quarterly, monthly, performance, summary }
+  }, [])
+
+  const quarterly = data?.quarterly ?? []
+  const monthly = data?.monthly ?? []
+  const divisionalPerformance = (data?.performance ?? []).map((d) => ({
+    division: d.division,
+    completion: d.completion,
+    budget: d.budget_score,
+    satisfaction: d.satisfaction,
+  }))
+  const summary = data?.summary
+
+  // Budget split by programme category, computed from the roll itself.
+  const budgetAllocationData = (() => {
+    if (!summary) return []
+    const palette = { Infrastructure: '#1B3B2F', Health: '#B0431F', Education: '#A88028', Digital: '#4F7A5C' }
+    const byCat = {}
+    for (const p of summary.projects) {
+      const key = p.category || 'Other'
+      byCat[key] = (byCat[key] || 0) + Number(p.budget_fcfa || 0)
+    }
+    return Object.entries(byCat).map(([name, value]) => ({
+      name,
+      value: Math.round(value / 1_000_000),
+      fill: palette[name] || '#6B6452',
+    }))
+  })()
+
+  const performanceMetrics = summary ? [
+    { name: 'Programme completion', value: summary.avgProgress, status: summary.avgProgress >= 70 ? 'On track' : 'Needs attention', trend: '+3%' },
+    { name: 'Budget utilisation',   value: summary.utilisation, status: summary.utilisation >= 80 ? 'Excellent' : 'On track', trend: '+2%' },
+    { name: 'Completed programmes', value: summary.total ? Math.round(summary.completed / summary.total * 100) : 0, status: 'Reported', trend: '+4%' },
+    { name: 'Programmes at risk',   value: summary.total ? Math.round(summary.atRisk.length / summary.total * 100) : 0, status: summary.atRisk.length ? 'Monitor' : 'Clear', trend: '-1%' },
+  ] : []
+
   // Project progress data
-  const projectProgressData = [
-    { quarter: 'Q1', roads: 30, healthcare: 15, digital: 25, education: 20 },
-    { quarter: 'Q2', roads: 50, healthcare: 30, digital: 40, education: 35 },
-    { quarter: 'Q3', roads: 65, healthcare: 45, digital: 55, education: 50 },
-    { quarter: 'Q4', roads: 80, healthcare: 60, digital: 70, education: 65 },
-  ]
-
-  const monthlyData = [
-    { month: 'Jan', roads: 22, healthcare: 10, digital: 18 },
-    { month: 'Feb', roads: 28, healthcare: 15, digital: 22 },
-    { month: 'Mar', roads: 35, healthcare: 20, digital: 28 },
-    { month: 'Apr', roads: 42, healthcare: 25, digital: 35 },
-    { month: 'May', roads: 50, healthcare: 30, digital: 40 },
-    { month: 'Jun', roads: 58, healthcare: 38, digital: 48 },
-  ]
-
-  const budgetAllocationData = [
-    { name: 'Infrastructure',       value: 8500, fill: '#1B3B2F' },  // highland
-    { name: 'Health & Education',   value: 6200, fill: '#B54923' },  // kola
-    { name: 'Administration',       value: 3200, fill: '#A88028' },  // brass
-    { name: 'Other',                value: 2900, fill: '#6B8B65' },  // sage
-  ]
-
-  const divisionalPerformance = [
-    { division: 'Mezam', completion: 72, budget: 88, satisfaction: 85 },
-    { division: 'Momo', completion: 68, budget: 92, satisfaction: 88 },
-    { division: 'Menchum', completion: 60, budget: 85, satisfaction: 80 },
-    { division: 'Kweneng', completion: 75, budget: 90, satisfaction: 87 },
-    { division: 'Boyo', completion: 82, budget: 95, satisfaction: 92 },
-    { division: 'Manyu', completion: 70, budget: 87, satisfaction: 84 },
-  ]
-
-  const performanceMetrics = [
-    { name: 'Project Completion', value: 71, status: 'On Track', trend: '+3%', icon: '📊' },
-    { name: 'Budget Efficiency', value: 89, status: 'Excellent', trend: '+2%', icon: '💰' },
-    { name: 'Stakeholder Satisfaction', value: 85, status: 'Excellent', trend: '+4%', icon: '👥' },
-    { name: 'Risk Mitigation', value: 78, status: 'Good', trend: '+1%', icon: '⚠️' },
-  ]
-
-  const getChartData = () => {
-    return timeRange === 'monthly' ? monthlyData : projectProgressData
-  }
+  const getChartData = () => (timeRange === 'monthly' ? monthly : quarterly)
 
   const handleDownloadReport = (format) => {
     // Simulate report download
@@ -68,6 +76,9 @@ export function AnalyticsDashboard() {
   const handleViewDetails = (metric) => {
     alert(`📈 Viewing details for: ${metric}\n\nThis would open a detailed breakdown of this metric with historical trends and comparisons.`)
   }
+
+  if (loading && !data) return <Loading label="Compiling analytics" />
+  if (error && !data) return <LoadFailure error={error} onRetry={refresh} />
 
   return (
     <div className="space-y-8">
@@ -168,7 +179,7 @@ export function AnalyticsDashboard() {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={getChartData()}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey={timeRange === 'monthly' ? 'month' : 'quarter'} />
+                <XAxis dataKey="period" />
                 <YAxis />
                 <Tooltip
                   contentStyle={{

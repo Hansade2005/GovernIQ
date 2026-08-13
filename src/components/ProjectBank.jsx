@@ -3,291 +3,12 @@ import { Card } from './Card'
 import { Badge } from './Badge'
 import { Button } from './Button'
 import { Sparkles, TrendingUp, AlertTriangle, CheckCircle2, Clock, MapPin, Building2, Users, FileText, ChevronDown, ChevronUp, Loader } from 'lucide-react'
-import { pp } from '@/lib/pipilot'
+import { listProjects, formatFcfa } from '@/lib/registry'
 
-// Fallback data in case database is unavailable
-const fallbackProjectData = [
-  {
-    id: 1,
-    name: 'Wum District Hospital Fence',
-    division: 'Mezam',
-    contractor: 'Lake Nyos Survival CO LTD',
-    status: 'completed',
-    progress: 100,
-    budget: '45M FCFA',
-    spent: '44.8M FCFA',
-    execution: 99.6,
-    startDate: '2025-10-15',
-    endDate: '2026-03-20',
-    description: 'Perimeter fence construction for Wum District Hospital',
-    location: 'Wum, Mezam',
-    category: 'Health Infrastructure',
-    updates: [
-      { date: '2026-06-13', status: 'Phase 2 ongoing with high-quality execution' },
-      { date: '2026-05-28', status: 'Resumption of works after stop-work resolution' },
-      { date: '2026-04-27', status: 'Advanced construction phase' }
-    ],
-    risks: 'Resolved - Stop-work order lifted',
-    phase: 'Completed'
-  },
-  {
-    id: 2,
-    name: 'GHS Lip (Mbiame) - 3 Classrooms + 2 Offices',
-    division: 'Momo',
-    contractor: 'ACONSEP CO LTD',
-    status: 'in-progress',
-    progress: 85,
-    budget: '120M FCFA',
-    spent: '102M FCFA',
-    execution: 85,
-    startDate: '2026-04-05',
-    endDate: '2026-12-31',
-    description: 'Construction of classroom block with office spaces',
-    location: 'Lip, Mbiame, Momo Division',
-    category: 'Education Infrastructure',
-    updates: [
-      { date: '2026-07-14', status: 'Painting ongoing - network challenges' },
-      { date: '2026-06-15', status: 'Finishing works, environmental landscaping complete' },
-      { date: '2026-05-25', status: 'Roofing complete' }
-    ],
-    risks: 'Network connectivity issues affecting operations',
-    phase: 'Phase 3 - Final finishing'
-  },
-  {
-    id: 3,
-    name: 'GHS Mbiame - 3 Classrooms + 2 Offices',
-    division: 'Momo',
-    contractor: 'ACONSEP CO LTD',
-    status: 'in-progress',
-    progress: 80,
-    budget: '125M FCFA',
-    spent: '100M FCFA',
-    execution: 80,
-    startDate: '2026-03-15',
-    endDate: '2026-11-30',
-    description: 'Classroom block and administrative office construction',
-    location: 'Mbiame, Momo Division',
-    category: 'Education Infrastructure',
-    updates: [
-      { date: '2026-07-10', status: 'Interior finishing in progress' },
-      { date: '2026-06-20', status: 'Roofing completed successfully' },
-      { date: '2026-05-15', status: 'Wall construction advancing' }
-    ],
-    risks: 'Delayed material deliveries impacting schedule',
-    phase: 'Phase 3 - Interior work ongoing'
-  },
-  {
-    id: 4,
-    name: 'Science Lab GHS Weh',
-    division: 'Mezam',
-    contractor: 'Lake Nyos Survival CO LTD',
-    status: 'in-progress',
-    progress: 70,
-    budget: '85M FCFA',
-    spent: '59.5M FCFA',
-    execution: 70,
-    startDate: '2026-02-01',
-    endDate: '2026-10-31',
-    description: 'State-of-the-art science laboratory facility',
-    location: 'Weh, Mezam',
-    category: 'Education Infrastructure',
-    updates: [
-      { date: '2026-07-12', status: 'Equipment installation ongoing' },
-      { date: '2026-06-25', status: 'Structural work completed' },
-      { date: '2026-05-20', status: 'Foundation and framing complete' }
-    ],
-    risks: 'Equipment procurement delays',
-    phase: 'Phase 3 - Equipment installation'
-  },
-  {
-    id: 5,
-    name: 'GTHS Nkambe - 3 Classrooms + 2 Offices',
-    division: 'Donga-Mantung',
-    contractor: 'AFUHCAM ENGINEERING COMPANY LTD',
-    status: 'in-progress',
-    progress: 50,
-    budget: '130M FCFA',
-    spent: '65M FCFA',
-    execution: 50,
-    startDate: '2026-01-10',
-    endDate: '2026-12-15',
-    description: 'Government Technical High School classroom and office block',
-    location: 'Nkambe, Donga-Mantung',
-    category: 'Education Infrastructure',
-    updates: [
-      { date: '2026-07-08', status: 'Concrete pouring at intermediate stage' },
-      { date: '2026-06-15', status: 'Foundation work ongoing' },
-      { date: '2026-05-10', status: 'Site preparation completed' }
-    ],
-    risks: 'Labor shortage affecting progress velocity',
-    phase: 'Phase 2 - Foundation & framing'
-  },
-  {
-    id: 6,
-    name: 'GTHS Ndop - 3 Classrooms + 2 Offices',
-    division: 'Momo',
-    contractor: 'Ashimenyi Enterprise',
-    status: 'in-progress',
-    progress: 60,
-    budget: '128M FCFA',
-    spent: '76.8M FCFA',
-    execution: 60,
-    startDate: '2026-02-15',
-    endDate: '2026-11-15',
-    description: 'Classroom block with administrative offices for GTHS Ndop',
-    location: 'Ndop, Momo Division',
-    category: 'Education Infrastructure',
-    updates: [
-      { date: '2026-07-09', status: 'Wall construction progressing steadily' },
-      { date: '2026-06-18', status: 'Concrete foundation completed' },
-      { date: '2026-05-12', status: 'Site mobilization complete' }
-    ],
-    risks: 'Weather conditions affecting construction timeline',
-    phase: 'Phase 2 - Wall construction'
-  },
-  {
-    id: 7,
-    name: 'Batibo District Hospital Medical Ward',
-    division: 'Menchum',
-    contractor: 'Ets. Denzel',
-    status: 'completed',
-    progress: 100,
-    budget: '95M FCFA',
-    spent: '94.2M FCFA',
-    execution: 99.2,
-    startDate: '2025-09-20',
-    endDate: '2026-04-15',
-    description: 'Medical ward renovation and expansion for Batibo District Hospital',
-    location: 'Batibo, Menchum Division',
-    category: 'Health Infrastructure',
-    updates: [
-      { date: '2026-05-30', status: 'Project handover completed' },
-      { date: '2026-04-20', status: 'Final inspection passed' },
-      { date: '2026-03-15', status: 'Medical equipment installation complete' }
-    ],
-    risks: 'None - Successfully completed',
-    phase: 'Completed'
-  },
-  {
-    id: 8,
-    name: 'Batibo District Hospital Nursing Home',
-    division: 'Menchum',
-    contractor: 'Ets. Denzel',
-    status: 'completed',
-    progress: 100,
-    budget: '75M FCFA',
-    spent: '74.5M FCFA',
-    execution: 99.3,
-    startDate: '2025-10-05',
-    endDate: '2026-03-30',
-    description: 'Nursing home accommodation facilities construction',
-    location: 'Batibo, Menchum Division',
-    category: 'Health Infrastructure',
-    updates: [
-      { date: '2026-04-10', status: 'Handover and staff orientation complete' },
-      { date: '2026-03-25', status: 'Final furnishing completed' },
-      { date: '2026-02-28', status: 'Construction phase complete' }
-    ],
-    risks: 'None - Successfully completed',
-    phase: 'Completed'
-  },
-  {
-    id: 9,
-    name: 'Ngomgham Health Center - Excavation & Roofing',
-    division: 'Boyo',
-    contractor: 'Mile90 Project',
-    status: 'in-progress',
-    progress: 55,
-    budget: '55M FCFA',
-    spent: '30.25M FCFA',
-    execution: 55,
-    startDate: '2026-03-01',
-    endDate: '2026-10-31',
-    description: 'Health center construction with excavation and roofing',
-    location: 'Ngomgham, Boyo Division',
-    category: 'Health Infrastructure',
-    updates: [
-      { date: '2026-07-06', status: 'Roofing frame installation ongoing' },
-      { date: '2026-06-20', status: 'Wall construction phase' },
-      { date: '2026-05-15', status: 'Excavation works completed' }
-    ],
-    risks: 'Supply chain delays for roofing materials',
-    phase: 'Phase 2 - Roofing'
-  },
-  {
-    id: 10,
-    name: 'GTHS Misaje - Building Workshop',
-    division: 'Mezam',
-    contractor: 'Regional Construction',
-    status: 'in-progress',
-    progress: 40,
-    budget: '68M FCFA',
-    spent: '27.2M FCFA',
-    execution: 40,
-    startDate: '2026-04-01',
-    endDate: '2026-12-20',
-    description: 'Workshop building for technical training at GTHS Misaje',
-    location: 'Misaje, Mezam',
-    category: 'Education Infrastructure',
-    updates: [
-      { date: '2026-07-05', status: 'Foundation and base work in progress' },
-      { date: '2026-06-15', status: 'Site preparation ongoing' },
-      { date: '2026-05-20', status: 'Initial mobilization' }
-    ],
-    risks: 'Project delayed - limited contractor resources',
-    phase: 'Phase 1 - Foundation work'
-  },
-  {
-    id: 11,
-    name: 'Bui District Hospital Maternity Ward',
-    division: 'Bui',
-    contractor: 'Healthcare Build Solutions',
-    status: 'in-progress',
-    progress: 65,
-    budget: '110M FCFA',
-    spent: '71.5M FCFA',
-    execution: 65,
-    startDate: '2026-02-20',
-    endDate: '2026-11-20',
-    description: 'Maternity ward expansion for Bui District Hospital',
-    location: 'Kumbo, Bui',
-    category: 'Health Infrastructure',
-    updates: [
-      { date: '2026-07-10', status: 'Interior fitting ongoing' },
-      { date: '2026-06-25', status: 'Roofing structure complete' },
-      { date: '2026-05-18', status: 'Wall construction advancing' }
-    ],
-    risks: 'Weather delays affecting schedule',
-    phase: 'Phase 3 - Interior works'
-  },
-  {
-    id: 12,
-    name: 'District Secondary School - Classroom Extension',
-    division: 'Ngo-Ketunjia',
-    contractor: 'Construction Excellence Ltd',
-    status: 'in-progress',
-    progress: 75,
-    budget: '140M FCFA',
-    spent: '105M FCFA',
-    execution: 75,
-    startDate: '2026-01-15',
-    endDate: '2026-10-31',
-    description: 'Classroom block extension for improved student capacity',
-    location: 'Ndop, Ngo-Ketunjia',
-    category: 'Education Infrastructure',
-    updates: [
-      { date: '2026-07-12', status: 'Final finishing and painting' },
-      { date: '2026-06-20', status: 'Roofing completed' },
-      { date: '2026-05-25', status: 'Structural work progressing' }
-    ],
-    risks: 'Budget constraints for additional finishing work',
-    phase: 'Phase 3 - Final finishing'
-  }
-]
 
 export function ProjectBank() {
-  const [projects, setProjects] = useState(fallbackProjectData)
-  const [filteredProjects, setFilteredProjects] = useState(fallbackProjectData)
+  const [projects, setProjects] = useState([])
+  const [filteredProjects, setFilteredProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -306,7 +27,7 @@ export function ProjectBank() {
           return
         }
 
-        const data = await pp.from('projects').select({ limit: 100 })
+        const data = await listProjects({ limit: 200 })
         
         if (data && data.length > 0) {
           setProjects(data)
@@ -314,14 +35,14 @@ export function ProjectBank() {
           console.log(`Loaded ${data.length} projects from database`)
         } else {
           console.info('No projects found in database, using fallback data')
-          setProjects(fallbackProjectData)
-          setFilteredProjects(fallbackProjectData)
+          setProjects([])
+          setFilteredProjects([])
         }
       } catch (err) {
         console.error('Error loading projects:', err)
         setError('Could not load projects from database, using fallback data')
-        setProjects(fallbackProjectData)
-        setFilteredProjects(fallbackProjectData)
+        setProjects([])
+        setFilteredProjects([])
       } finally {
         setLoading(false)
       }

@@ -8,45 +8,45 @@ import {
   FileText, CheckCircle, MapPin, ArrowUpRight, ArrowDownRight,
   Calendar, ChevronRight,
 } from 'lucide-react'
-
-const metrics = [
-  { label: 'Budget Execution',  value: '97.5',  unit: '%',    delta: '+2.3 pts',  dir: 'up',   note: 'Against FY 2025 baseline' },
-  { label: 'Programmes Active', value: '31',    unit: '',     delta: '+5 mo/mo',  dir: 'up',   note: 'Across seven divisions' },
-  { label: 'Registered Divisions', value: '07', unit: '',     delta: 'Full quorum', dir: 'flat', note: 'Plus House of Chiefs' },
-  { label: 'Budget FY 2026',    value: '20.8',  unit: 'B FCFA', delta: '+8.4% y/y', dir: 'up',   note: '18.1B investment · 2.7B operations' },
-]
-
-/* Ten divisional representatives are returned from each of the seven
-   divisions (Law No. 024 of 24 December 2019), alongside 20 traditional
-   rulers in the House of Chiefs. */
-const divisions = [
-  { name: 'Mezam',         seat: 'Bamenda',  reps: 10, projects: 5, exec: 0.94 },
-  { name: 'Menchum',       seat: 'Wum',      reps: 10, projects: 4, exec: 0.81 },
-  { name: 'Momo',          seat: 'Mbengwi',  reps: 10, projects: 3, exec: 0.78 },
-  { name: 'Bui',           seat: 'Kumbo',    reps: 10, projects: 1, exec: 0.68 },
-  { name: 'Boyo',          seat: 'Fundong',  reps: 10, projects: 1, exec: 0.72 },
-  { name: 'Donga-Mantung', seat: 'Nkambe',   reps: 10, projects: 1, exec: 0.65 },
-  { name: 'Ngoketunjia',   seat: 'Ndop',     reps: 10, projects: 1, exec: 0.70 },
-]
-
-const featured = [
-  { id: 1, name: 'Wum District Hospital · Perimeter Fence',   division: 'Menchum',  contractor: 'Lake Nyos Survival',  status: 'Completed', progress: 100, budget: '45 M', image: '/projects/wum-hospital-fence-1.jpg' },
-  { id: 2, name: 'Government High School · Classroom Blocks', division: 'Momo',     contractor: 'ACONSEP Co. Ltd',      status: 'Completed', progress: 100, budget: '120 M', image: '/projects/ghs-roofing-1.jpg' },
-  { id: 3, name: 'Regional Science Laboratory',               division: 'Mezam',    contractor: 'Regional Contractor', status: 'In session', progress: 75,  budget: '85 M',  image: '/projects/ghs-roofing-2.jpg' },
-  { id: 4, name: 'Batibo Hospital Rehabilitation',            division: 'Menchum',  contractor: 'Infrastructure Ptrs', status: 'In session', progress: 60,  budget: '95 M',  image: '/projects/batibo-hospital-1.jpg' },
-]
-
-const sessions = [
-  { date: '12 March 2026',    type: 'Full Assembly',      items: 8,  note: 'Ratification of the Q1 execution report' },
-  { date: '15 February 2026', type: 'Committee Hearing',  items: 12, note: 'Finance, Budget & Investment' },
-  { date: '28 January 2026',  type: 'Special Session',    items: 5,  note: 'Emergency roads programme' },
-]
+import { useQuery } from '@/lib/useRegistry'
+import { Loading, LoadFailure } from '@/components/QueryState'
+import {
+  listKpis, listDivisions, getPortfolioSummary, listSessions,
+  listBudgetLines, listDivisionPerformance, formatFcfa,
+} from '@/lib/registry'
 
 export function DashboardPage() {
   const [openDiv, setOpenDiv] = useState(null)
   const today = new Date().toLocaleDateString('en-GB', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   })
+
+  // Everything on this page comes from the registry, so the figures on the
+  // floor always agree with the roll.
+  const { data, loading, error, refresh } = useQuery(async () => {
+    const [kpis, divisions, summary, sessions, budget, performance] = await Promise.all([
+      listKpis(),
+      listDivisions(),
+      getPortfolioSummary(),
+      listSessions({ limit: 3 }),
+      listBudgetLines(2026),
+      listDivisionPerformance(2026),
+    ])
+    return { kpis, divisions, summary, sessions, budget, performance }
+  }, [])
+
+  if (loading && !data) return <Loading label="Opening the chamber" />
+  if (error && !data) return <LoadFailure error={error} onRetry={refresh} />
+
+  const { kpis, divisions, summary, sessions, budget, performance } = data
+  const execByDivision = Object.fromEntries(
+    performance.map((p) => [p.division, Number(p.execution_rate)])
+  )
+  const countByDivision = Object.fromEntries(
+    summary.byDivision.map((d) => [d.division, d.count])
+  )
+  const featured = summary.projects.slice(0, 4)
+  const totalBudget = budget.reduce((s, b) => s + Number(b.allocated_fcfa), 0)
 
   return (
     <div className="stagger space-y-14">
@@ -94,19 +94,19 @@ export function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 border-t border-b border-[color:var(--rule)]">
-          {metrics.map((m, idx) => (
+          {kpis.map((m, idx) => (
             <div
-              key={m.label}
-              className={`px-5 py-6 ${idx < metrics.length - 1 ? 'lg:border-r' : ''} ${idx < 2 ? 'border-b lg:border-b-0' : ''} ${idx % 2 === 0 ? 'border-r lg:border-r' : ''} border-[color:var(--rule)]`}
+              key={m.slug}
+              className={`px-5 py-6 ${idx < kpis.length - 1 ? 'lg:border-r' : ''} ${idx < 2 ? 'border-b lg:border-b-0' : ''} ${idx % 2 === 0 ? 'border-r lg:border-r' : ''} border-[color:var(--rule)]`}
             >
               <p className="eyebrow text-[0.6rem]">{m.label}</p>
               <div className="mt-3 flex items-baseline gap-1.5">
                 <span className="figure-serif text-[clamp(2.25rem,3.6vw,3rem)] text-[color:var(--ink)]">{m.value}</span>
                 <span className="mono text-xs text-[color:var(--sepia)] pb-1.5">{m.unit}</span>
               </div>
-              <div className={`mt-2 flex items-center gap-1.5 mono text-[0.7rem] ${m.dir === 'up' ? 'text-[color:var(--sage)]' : m.dir === 'down' ? 'text-[color:var(--rust)]' : 'text-[color:var(--sepia)]'}`}>
-                {m.dir === 'up' && <ArrowUpRight size={12} strokeWidth={2} />}
-                {m.dir === 'down' && <ArrowDownRight size={12} strokeWidth={2} />}
+              <div className={`mt-2 flex items-center gap-1.5 mono text-[0.7rem] ${m.direction === 'up' ? 'text-[color:var(--sage)]' : m.direction === 'down' ? 'text-[color:var(--rust)]' : 'text-[color:var(--sepia)]'}`}>
+                {m.direction === 'up' && <ArrowUpRight size={12} strokeWidth={2} />}
+                {m.direction === 'down' && <ArrowDownRight size={12} strokeWidth={2} />}
                 {m.delta}
               </div>
               <p className="text-[0.7rem] text-[color:var(--sepia)] mt-1.5 leading-snug">{m.note}</p>
@@ -124,44 +124,48 @@ export function DashboardPage() {
             aside="+ House of Chiefs"
           />
           <div className="space-y-0">
-            {divisions.map((d, idx) => (
-              <div
-                key={d.name}
-                className={`grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 py-3 ${idx !== 0 ? 'border-t border-[color:var(--rule)]' : ''}`}
-              >
-                <span className="mono text-[0.7rem] text-[color:var(--sepia)] w-8">
-                  {String(idx + 1).padStart(2, '0')}
-                </span>
-                <div className="min-w-0">
-                  <p className="serif text-base leading-tight">
-                    {d.name}
-                    <span className="text-[color:var(--sepia)] text-sm ml-2">· {d.seat}</span>
-                  </p>
-                  <div className="flex items-center gap-3 mt-1.5">
-                    <div className="progress-track flex-1 max-w-[220px]">
-                      <div
-                        className="progress-fill progress-fill--brass"
-                        style={{ width: `${d.exec * 100}%` }}
-                      />
-                    </div>
-                    <span className="mono text-[0.7rem] text-[color:var(--sepia)]">
-                      {(d.exec * 100).toFixed(0)}% executed
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="mono text-lg text-[color:var(--ink)]">{d.projects}</p>
-                  <p className="eyebrow text-[0.55rem]">programmes</p>
-                </div>
-                <button
-                  onClick={() => setOpenDiv(openDiv === idx ? null : idx)}
-                  className="text-[color:var(--sepia)] hover:text-[color:var(--kola)] transition p-1"
-                  aria-label={`Details for ${d.name}`}
+            {divisions.map((d, idx) => {
+              const exec = execByDivision[d.name] ?? 0
+              const count = countByDivision[d.name] ?? 0
+              return (
+                <div
+                  key={d.id}
+                  className={`grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 py-3 ${idx !== 0 ? 'border-t border-[color:var(--rule)]' : ''}`}
                 >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-            ))}
+                  <span className="mono text-[0.7rem] text-[color:var(--sepia)] w-8">
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[0.9375rem] font-semibold leading-tight">
+                      {d.name}
+                      <span className="text-[color:var(--sepia)] font-normal text-sm ml-2">· {d.seat}</span>
+                    </p>
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <div className="progress-track flex-1 max-w-[220px]">
+                        <div
+                          className="progress-fill progress-fill--brass"
+                          style={{ width: `${exec * 100}%` }}
+                        />
+                      </div>
+                      <span className="mono text-[0.7rem] text-[color:var(--sepia)]">
+                        {(exec * 100).toFixed(0)}% executed
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="mono text-lg text-[color:var(--ink)]">{count}</p>
+                    <p className="eyebrow text-[0.55rem]">programmes</p>
+                  </div>
+                  <button
+                    onClick={() => setOpenDiv(openDiv === idx ? null : idx)}
+                    className="text-[color:var(--sepia)] hover:text-[color:var(--kola)] transition p-1"
+                    aria-label={`Details for ${d.name}`}
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              )
+            })}
           </div>
         </Card>
 
@@ -169,11 +173,18 @@ export function DashboardPage() {
           <CardMasthead
             eyebrow="Treasury"
             title="FY 2026 disposition"
-            aside="20.8 B FCFA"
+            aside={formatFcfa(totalBudget)}
           />
 
-          <TreasuryLine label="Investment programmes" value="87.31" figure="18.1 B" tone="highland" />
-          <TreasuryLine label="Ordinary operations"    value="12.69" figure="2.7 B" tone="brass" />
+          {budget.map((line, i) => (
+            <TreasuryLine
+              key={line.id}
+              label={line.category}
+              value={((Number(line.allocated_fcfa) / totalBudget) * 100).toFixed(2)}
+              figure={formatFcfa(line.allocated_fcfa)}
+              tone={i === 0 ? 'highland' : 'brass'}
+            />
+          ))}
 
           <div className="mt-6 pt-6 border-t border-[color:var(--rule)]">
             <p className="eyebrow text-[0.6rem]">FY 2025 execution — closed</p>
@@ -212,40 +223,39 @@ export function DashboardPage() {
         <SectionHead eyebrow="Roll of programmes" title="Currently before the chamber" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featured.map((p) => (
+          {featured.map((p, idx) => (
             <article key={p.id} className="group">
               <div className="relative aspect-[4/3] overflow-hidden border border-[color:var(--rule)] bg-[color:var(--linen)]">
-                <img
-                  src={p.image}
-                  alt={p.name}
-                  className="w-full h-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                  style={{ filter: 'sepia(0.2) contrast(1.05)' }}
-                  onError={(e) => {
-                    e.target.style.display = 'none'
-                  }}
-                />
+                {p.image_url && (
+                  <img
+                    src={p.image_url}
+                    alt=""
+                    className="w-full h-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                    onError={(e) => { e.target.style.display = 'none' }}
+                  />
+                )}
                 <div className="absolute top-2 left-2">
-                  <Badge variant={p.status === 'Completed' ? 'success' : 'accent'}>
-                    {p.status}
+                  <Badge variant={p.status === 'completed' ? 'success' : 'accent'}>
+                    {p.status === 'completed' ? 'Completed' : 'In session'}
                   </Badge>
                 </div>
               </div>
               <p className="mono text-[0.65rem] text-[color:var(--sepia)] mt-3">
-                {String(p.id).padStart(2, '0')} · {p.division} Division
+                {String(idx + 1).padStart(2, '0')} · {p.division} Division
               </p>
-              <h3 className="serif text-lg leading-tight mt-1">{p.name}</h3>
+              <h3 className="text-[0.9375rem] font-semibold leading-snug mt-1">{p.name}</h3>
               <p className="text-xs text-[color:var(--sepia)] mt-1">{p.contractor}</p>
               <div className="mt-3 flex items-center gap-3">
                 <div className="progress-track flex-1">
                   <div
-                    className={`progress-fill ${p.status === 'Completed' ? '' : 'progress-fill--accent'}`}
+                    className={`progress-fill ${p.status === 'completed' ? '' : 'progress-fill--accent'}`}
                     style={{ width: `${p.progress}%` }}
                   />
                 </div>
                 <span className="mono text-[0.7rem] text-[color:var(--sepia)]">{p.progress}%</span>
               </div>
               <div className="mt-2 flex items-center justify-between text-xs">
-                <span className="mono text-[color:var(--brass)]">{p.budget} FCFA</span>
+                <span className="mono text-[color:var(--brass-ink)]">{formatFcfa(p.budget_fcfa)}</span>
                 <a
                   href="#/projects"
                   className="text-[color:var(--sepia)] hover:text-[color:var(--kola)] flex items-center gap-1"
@@ -266,21 +276,23 @@ export function DashboardPage() {
           <div className="space-y-0">
             {sessions.map((s, idx) => (
               <div
-                key={idx}
+                key={s.id}
                 className={`grid grid-cols-[auto_1fr_auto_auto] items-center gap-6 py-4 ${idx !== 0 ? 'border-t border-[color:var(--rule)]' : ''}`}
               >
                 <div className="mono text-xs text-[color:var(--sepia)] w-32">
-                  {s.date}
+                  {new Date(s.sat_on).toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'long', year: 'numeric',
+                  })}
                 </div>
                 <div>
-                  <p className="serif text-base leading-tight">{s.type}</p>
+                  <p className="text-[0.9375rem] font-semibold leading-tight">{s.kind}</p>
                   <p className="text-xs text-[color:var(--sepia)] mt-0.5">{s.note}</p>
                 </div>
                 <div className="text-right">
                   <p className="mono text-lg text-[color:var(--ink)]">{s.items}</p>
                   <p className="eyebrow text-[0.55rem]">items</p>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => console.log('View session:', idx)}>
+                <Button variant="ghost" size="sm" onClick={() => (window.location.hash = '#/reports')}>
                   <FileText size={13} /> Minutes
                 </Button>
               </div>

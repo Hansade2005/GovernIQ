@@ -4,13 +4,13 @@ import { Button } from '@/components/Button'
 import { Badge } from '@/components/Badge'
 import { Input } from '@/components/Input'
 import { Upload, Loader, Check, AlertCircle, FileText } from 'lucide-react'
-import { pp } from '@/lib/pipilot'
 import { extractDocumentText } from '@/lib/ocr'
+import { uploadDocument, DOCUMENT_CATEGORIES } from '@/lib/documentStore'
 
 export function DocumentUploadForm({ onUploadSuccess, user }) {
   const [file, setFile] = useState(null)
   const [title, setTitle] = useState('')
-  const [documentType, setDocumentType] = useState('report')
+  const [documentType, setDocumentType] = useState('Report')
   const [description, setDescription] = useState('')
   const [accessLevel, setAccessLevel] = useState('confidential')
   const [loading, setLoading] = useState(false)
@@ -20,14 +20,7 @@ export function DocumentUploadForm({ onUploadSuccess, user }) {
   const [success, setSuccess] = useState(false)
   const fileInputRef = useRef(null)
 
-  const documentTypes = [
-    { value: 'report', label: 'Report' },
-    { value: 'minutes', label: 'Session Minutes' },
-    { value: 'resolution', label: 'Resolution' },
-    { value: 'policy', label: 'Policy Document' },
-    { value: 'financial', label: 'Financial Report' },
-    { value: 'project', label: 'Project Status' },
-  ]
+  const documentTypes = DOCUMENT_CATEGORIES.map((c) => ({ value: c, label: c }))
 
   const accessLevels = [
     { value: 'public', label: 'Public' },
@@ -111,58 +104,33 @@ export function DocumentUploadForm({ onUploadSuccess, user }) {
       setExtractingStatus('')
       setExtracting(false)
 
-      // 2. Upload file to PiPilot storage
-      const timestamp = Date.now()
-      const storagePath = `documents/${timestamp}-${file.name}`
-      const downloadUrl = await pp.storage.upload(storagePath, file)
+      // 2. Store the file in the Supabase `documents` bucket and record its
+      //    metadata in one step — uploadDocument rolls the object back if
+      //    the metadata write fails, so no orphans are left behind.
+      const indexed =
+        extractedText.length > 50 && !extractedText.includes('[Document uploaded but')
 
-      // 3. Save document metadata + extracted text to database
-      const userId = user?.userId || user?.id || 'demo-user'
-      const documentRecord = {
+      const saved = await uploadDocument({
+        file,
         title: title.trim(),
-        type: documentType,
-        status: 'active',
-        size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-        uploadDate: new Date().toISOString(),
-        modifiedDate: new Date().toISOString(),
-        owner_id: userId,
-        storagePath,
-        downloadUrl,
-        extracted_text: extractedText,
-        text_indexed: extractedText.length > 50 && !extractedText.includes('[Document uploaded but'),
-        metadata: {
-          fileName: file.name,
-          fileType: file.type,
-          fileSize: file.size,
-          description: description.trim(),
-          tags: [documentType, 'indexed'],
-        },
-        accessLevel,
-      }
+        category: documentType,
+        description: description.trim(),
+        ocrText: indexed ? extractedText : '',
+        uploadedBy: user?.email || user?.userId || user?.id || 'unknown',
+        onProgress: setExtractingStatus,
+      })
 
-      // Insert into documents table
-      const { ids } = await pp.from('documents').insert(documentRecord)
-      const docId = ids?.[0]
-
-      if (!docId) {
-        throw new Error('Failed to save document to database')
-      }
+      setExtractingStatus('')
 
       // Reset form and show success
       setFile(null)
       setTitle('')
       setDescription('')
-      setDocumentType('report')
+      setDocumentType('Report')
       setAccessLevel('confidential')
       setSuccess(true)
 
-      // Notify parent
-      if (onUploadSuccess) {
-        onUploadSuccess({
-          id: docId,
-          ...documentRecord,
-        })
-      }
+      if (onUploadSuccess) onUploadSuccess(saved)
 
       // Clear success message after 5 seconds
       setTimeout(() => setSuccess(false), 5000)

@@ -5,7 +5,10 @@ import { Button } from '@/components/Button'
 import { Input } from '@/components/Input'
 import { Badge } from '@/components/Badge'
 import { AuthContext } from '@/lib/auth/AuthContext'
-import { pp } from '@/lib/pipilot'
+import {
+  listProgress, createProgress, updateProgress, deleteProgress,
+  uploadProgressPhoto, listProjects,
+} from '@/lib/registry'
 
 export function ProjectProgressPage() {
   const { user } = useContext(AuthContext)
@@ -35,7 +38,7 @@ export function ProjectProgressPage() {
       setLoading(true)
       // Try to load progress reports, fallback to empty array
       try {
-        const data = await pp.from('project_progress').select()
+        const data = await listProgress()
         setProjects(data || [])
       } catch (err) {
         console.error('Failed to load from project_progress:', err)
@@ -86,8 +89,7 @@ export function ProjectProgressPage() {
           
           try {
             // Upload to storage
-            await pp.storage.upload(fileName, file)
-            const imageUrl = await pp.storage.getUrl(fileName)
+            const { url: imageUrl } = await uploadProgressPhoto(file)
             
             setFormData(prev => ({
               ...prev,
@@ -136,11 +138,11 @@ export function ProjectProgressPage() {
 
       if (selectedProject) {
         // Update existing
-        await pp.from('project_progress').update(selectedProject.id, progressData)
+        await updateProgress(selectedProject.id, progressData)
       } else {
         // Create new
         progressData.createdAt = new Date().toISOString()
-        await pp.from('project_progress').insert(progressData)
+        await createProgress(progressData)
       }
 
       setShowModal(false)
@@ -160,7 +162,7 @@ export function ProjectProgressPage() {
 
     try {
       setLoading(true)
-      await pp.from('project_progress').delete(id)
+      await deleteProgress(id)
       loadProjects()
     } catch (err) {
       console.error('Failed to delete progress:', err)

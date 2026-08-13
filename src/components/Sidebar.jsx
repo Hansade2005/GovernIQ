@@ -1,7 +1,7 @@
 import {
   ChevronRight, ChevronLeft,
   LayoutDashboard, FileText, FolderOpen, BarChart3,
-  Map, Settings, LogOut, TrendingUp, Radio, Upload,
+  Map, Settings, LogOut, TrendingUp, Radio, Upload, MessageSquare,
 } from 'lucide-react'
 
 /**
@@ -11,13 +11,14 @@ import {
  */
 export function Sidebar({
   onSignOut, currentPage,
-  isCollapsed = false, onToggleCollapse = () => {},
+  isCollapsed = false, onToggleCollapse = () => {}, onNavigate,
 }) {
   const groups = [
     {
       label: 'Chamber',
       items: [
         { id: 'dashboard',      label: 'Overview',       icon: LayoutDashboard, href: '#/' },
+        { id: 'assistant',      label: 'Ask the Assembly', icon: MessageSquare, href: '#/assistant' },
         { id: 'command-center', label: 'Command centre', icon: Radio,           href: '#/command-center' },
       ],
     },
@@ -76,6 +77,7 @@ export function Sidebar({
                     data-active={currentPage === item.id}
                     title={isCollapsed ? item.label : undefined}
                     style={collapsedStyle}
+                    onClick={onNavigate}
                   >
                     <Icon size={16} strokeWidth={1.85} className="flex-shrink-0" />
                     {!isCollapsed && <span className="truncate">{item.label}</span>}
@@ -94,6 +96,7 @@ export function Sidebar({
           data-active={currentPage === 'settings'}
           style={collapsedStyle}
           title={isCollapsed ? 'Settings' : undefined}
+          onClick={onNavigate}
         >
           <Settings size={16} strokeWidth={1.85} className="flex-shrink-0" />
           {!isCollapsed && <span>Settings</span>}

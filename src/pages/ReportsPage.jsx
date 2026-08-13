@@ -7,8 +7,9 @@ import { Button } from '@/components/Button'
 import { 
   FileText, Download, Calendar, Users, Sparkles, ChevronDown, ChevronUp,
   BarChart3, Clock, CheckCircle, AlertCircle, MapPin, BookOpen, Award, Users2,
-  Archive, Mail, DollarSign, FolderOpen, Database
+  Archive, Mail, DollarSign, FolderOpen, Database, Loader
 } from 'lucide-react'
+import { MarkdownMessage } from '@/components/MarkdownMessage'
 import { pp } from '@/lib/pipilot'
 
 export function ReportsPage() {
@@ -17,6 +18,58 @@ export function ReportsPage() {
   const [aiSummaries, setAiSummaries] = useState({})
   const [loadingSummary, setLoadingSummary] = useState(null)
   const [expandedArchiveSection, setExpandedArchiveSection] = useState(null)
+
+  /**
+   * Summarise a report with PiPilot AI.
+   *
+   * Everything the model sees is already on the card, so the summary can
+   * be checked against the record in front of the member. If the service
+   * is unreachable, the card says so plainly rather than failing silently
+   * — the previous button had no handler at all and simply did nothing.
+   */
+  const summariseReport = async (report) => {
+    if (aiSummaries[report.id] || loadingSummary) return
+    setLoadingSummary(report.id)
+
+    const facts = [
+      `Title: ${report.title}`,
+      report.date && `Date: ${report.date}`,
+      report.description && `Description: ${report.description}`,
+      report.executionRate && `Execution rate: ${report.executionRate}`,
+      report.highlights?.length && `Highlights: ${report.highlights.join('; ')}`,
+      report.keyDecisions?.length && `Key decisions: ${report.keyDecisions.join('; ')}`,
+      report.size && `File size: ${report.size}`,
+    ].filter(Boolean).join('\n')
+
+    try {
+      if (!pp?.ai?.generate) throw new Error('The assistant is not available on this deployment.')
+
+      const res = await pp.ai.generate({
+        system:
+          'You brief members of the North West Regional Assembly of Cameroon. ' +
+          'Summarise the record below in at most four short bullet points, then ' +
+          'one line headed "What this means". Use only the facts given — never ' +
+          'invent figures, names, or dates. Write in plain British English, in ' +
+          'markdown, with no preamble.',
+        messages: [{ role: 'user', content: facts }],
+        maxTokens: 400,
+      })
+
+      const text = res?.text?.trim()
+      if (!text) throw new Error('The assistant returned an empty summary.')
+      setAiSummaries((prev) => ({ ...prev, [report.id]: text }))
+    } catch (err) {
+      console.error('Report summary failed:', err)
+      setAiSummaries((prev) => ({
+        ...prev,
+        [report.id]:
+          `**Summary unavailable.** ${err.message || 'The assistant could not be reached.'}\n\n` +
+          `Open the report itself for the full record.`,
+      }))
+    } finally {
+      setLoadingSummary(null)
+    }
+  }
 
   // Archive storage categories with real institutional documents
   const archiveCategories = {
@@ -493,12 +546,43 @@ export function ReportsPage() {
                     </div>
 
                     <button
-                      className="p-2 hover:bg-accent/10 rounded-lg transition text-accent"
-                      title="AI Summary"
+                      onClick={() => summariseReport(report)}
+                      disabled={loadingSummary === report.id}
+                      className="p-2 rounded-[3px] text-[color:var(--sepia)] hover:text-[color:var(--kola)] hover:bg-[color:var(--linen)] transition disabled:opacity-50 flex-shrink-0"
+                      title="Summarise this report"
+                      aria-label={`Summarise ${report.title}`}
                     >
-                      <Sparkles className="w-5 h-5" />
+                      {loadingSummary === report.id
+                        ? <Loader className="w-4 h-4 animate-spin" />
+                        : <Sparkles className="w-4 h-4" />}
                     </button>
                   </div>
+
+                  {/* AI summary */}
+                  {aiSummaries[report.id] && (
+                    <div className="mt-3 pt-3 border-t border-[color:var(--rule)]">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rotate-45 bg-[color:var(--kola)]" aria-hidden />
+                          <span className="eyebrow text-[0.5rem]">Assistant summary</span>
+                        </div>
+                        <button
+                          onClick={() => setAiSummaries((prev) => {
+                            const next = { ...prev }
+                            delete next[report.id]
+                            return next
+                          })}
+                          className="eyebrow text-[0.5rem] text-[color:var(--sepia)] hover:text-[color:var(--ink)]"
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                      <MarkdownMessage
+                        content={aiSummaries[report.id]}
+                        className="text-[0.8125rem]"
+                      />
+                    </div>
+                  )}
 
                   {report.highlights && (
                     <div className="bg-primary/5 border border-primary/10 rounded-lg p-3">

@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Card } from './Card'
 import { Badge } from './Badge'
+import { listDivisions, listDivisionPerformance, getPortfolioSummary } from '@/lib/registry'
 
 /**
  * Regional atlas — a real map, in three dimensions.
@@ -37,9 +38,9 @@ const BBOX = { west: 9.6, east: 11.2, south: 5.6, north: 7.1 }
 
 const WORLD_PER_TILE = 30
 
-/* Division headquarters, by true coordinate. Programme counts and
-   execution rates mirror the figures reported on the Chamber overview. */
-const DIVISIONS = [
+/* Coordinates of last resort. The live list comes from the registry, but
+   the atlas must still draw if the database is briefly unreachable. */
+const FALLBACK_DIVISIONS = [
   { name: 'Mezam',         seat: 'Bamenda', lat: 5.9631, lon: 10.1591, projects: 5, exec: 0.94, capital: true },
   { name: 'Momo',          seat: 'Mbengwi', lat: 5.9308, lon:  9.9997, projects: 3, exec: 0.78 },
   { name: 'Menchum',       seat: 'Wum',     lat: 6.3833, lon: 10.0667, projects: 4, exec: 0.81 },
@@ -106,9 +107,38 @@ function makeLabel(text, sub) {
 
 export function ThreeDVisualization() {
   const mountRef = useRef(null)
-  const [status, setStatus] = useState('loading') // loading | ready | error
+  const [status, setStatus] = useState('loading') // loading | ready | nomap
   const [tilesLoaded, setTilesLoaded] = useState(0)
   const [selected, setSelected] = useState(null)
+  const [DIVISIONS, setDivisions] = useState(FALLBACK_DIVISIONS)
+
+  // Pull the real divisions, their coordinates, and their live programme
+  // counts and execution rates out of the registry.
+  useEffect(() => {
+    let alive = true
+    ;(async () => {
+      try {
+        const [rows, performance, summary] = await Promise.all([
+          listDivisions(), listDivisionPerformance(2026), getPortfolioSummary(),
+        ])
+        if (!alive || !rows.length) return
+        const execBy = Object.fromEntries(performance.map((p) => [p.division, Number(p.execution_rate)]))
+        const countBy = Object.fromEntries(summary.byDivision.map((d) => [d.division, d.count]))
+        setDivisions(rows.map((d) => ({
+          name: d.name,
+          seat: d.seat,
+          lat: d.latitude,
+          lon: d.longitude,
+          capital: d.is_capital,
+          projects: countBy[d.name] ?? 0,
+          exec: execBy[d.name] ?? 0,
+        })))
+      } catch (err) {
+        console.warn('[atlas] using fallback coordinates:', err.message)
+      }
+    })()
+    return () => { alive = false }
+  }, [])
 
   /* Tile grid covering the bounding box. */
   const grid = useMemo(() => {
@@ -388,7 +418,7 @@ export function ThreeDVisualization() {
       renderer.dispose()
       if (renderer.domElement.parentNode === mount) mount.removeChild(renderer.domElement)
     }
-  }, [grid, totalTiles])
+  }, [grid, totalTiles, DIVISIONS])
 
   return (
     <Card>

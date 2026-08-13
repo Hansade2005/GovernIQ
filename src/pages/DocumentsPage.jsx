@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card } from '@/components/Card'
 import { Badge } from '@/components/Badge'
 import { Button } from '@/components/Button'
 import { DocumentUploadForm } from '@/components/DocumentUploadForm'
 import { FileText, Download, Calendar, Users, Search, Filter, Archive, Sparkles, Trash2, Eye } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
-import { pp } from '@/lib/pipilot'
-import { searchText } from '@/lib/ocr'
+import {
+  listDocuments, searchDocuments, deleteDocument,
+  getPublicUrl, formatBytes, DOCUMENT_CATEGORIES,
+} from '@/lib/documentStore'
 import { useAuth } from '@/lib/auth/useAuth'
 
 export function DocumentsPage() {
@@ -19,105 +21,63 @@ export function DocumentsPage() {
   const [showUploadForm, setShowUploadForm] = useState(false)
   const [error, setError] = useState('')
 
-  // Fetch documents from BaaS with timeout
-  useEffect(() => {
-    const fetchDocuments = async () => {
-      try {
-        setLoading(true)
-        
-        // Set a 10-second timeout for loading documents
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => {
-            reject(new Error('Document loading timed out (10s). Please refresh the page.'))
-          }, 10000)
-        })
-
-        const docsPromise = pp.from('documents').select({ limit: 100 })
-        const docs = await Promise.race([docsPromise, timeoutPromise])
-        
-        setDocuments(docs || [])
-        setError('')
-      } catch (err) {
-        console.error('Failed to fetch documents:', err)
-        setError(err.message || 'Failed to load documents. Please try again.')
-      } finally {
-        setLoading(false)
-      }
+  // Load the registry from Supabase. Search runs server-side so results
+  // reflect the whole archive, not just the page already in memory.
+  const refresh = useCallback(async (term = '') => {
+    try {
+      setLoading(true)
+      const docs = term.trim().length >= 2
+        ? await searchDocuments(term)
+        : await listDocuments()
+      setDocuments(docs)
+      setError('')
+    } catch (err) {
+      console.error('Failed to load documents:', err)
+      setError(err.message || 'Could not load the registry.')
+    } finally {
+      setLoading(false)
     }
-
-    fetchDocuments()
   }, [])
 
-  // Get unique document types
-  const documentTypes = [
-    'All Types',
-    ...new Set(documents.map((d) => d.type || 'other')),
-  ]
+  useEffect(() => { refresh() }, [refresh])
 
-  // Perform full-text search with relevance ranking
-  const searchResults =
-    searchTerm.length >= 2 ? searchText(documents, searchTerm) : []
+  // Debounce search so each keystroke doesn't hit the database.
+  useEffect(() => {
+    const t = setTimeout(() => { refresh(searchTerm) }, 300)
+    return () => clearTimeout(t)
+  }, [searchTerm, refresh])
 
-  // Filter documents
-  const filtered = documents.filter((doc) => {
-    const matchType = selectedType === 'All Types' || doc.type === selectedType
-    const matchSearch =
-      searchTerm.length < 2 ||
-      searchResults.some((result) => result.id === doc.id)
-    return matchType && matchSearch
-  })
+  const documentTypes = ['All Types', ...DOCUMENT_CATEGORIES]
 
-  // Sort by search relevance if searching, otherwise by date
-  const displayDocuments =
-    searchTerm.length >= 2
-      ? filtered.sort((a, b) => {
-          const aResult = searchResults.find((r) => r.id === a.id)
-          const bResult = searchResults.find((r) => r.id === b.id)
-          return (bResult?.score || 0) - (aResult?.score || 0)
-        })
-      : filtered.sort(
-          (a, b) =>
-            new Date(b.uploadDate || 0) - new Date(a.uploadDate || 0)
-        )
+  const searchResults = searchTerm.length >= 2 ? documents : []
+
+  const displayDocuments = documents.filter(
+    (doc) => selectedType === 'All Types' || doc.category === selectedType
+  )
 
   const handleUploadSuccess = (newDoc) => {
     setDocuments((prev) => [newDoc, ...prev])
     setShowUploadForm(false)
   }
 
-  const handleDelete = async (docId) => {
-    if (!window.confirm('Are you sure you want to delete this document?')) {
-      return
-    }
-
+  const handleDelete = async (doc) => {
+    if (!window.confirm(`Delete “${doc.title}”? This also removes the stored file.`)) return
     try {
-      await pp.from('documents').delete(docId)
-      setDocuments((prev) => prev.filter((d) => d.id !== docId))
+      await deleteDocument(doc)
+      setDocuments((prev) => prev.filter((d) => d.id !== doc.id))
       setExpandedDoc(null)
     } catch (err) {
       console.error('Delete failed:', err)
-      setError('Failed to delete document.')
+      setError(err.message || 'Could not delete the document.')
     }
   }
 
-  const getTypeColor = (type) => {
-    const colors = {
-      report: 'bg-blue-100 text-blue-700',
-      minutes: 'bg-purple-100 text-purple-700',
-      resolution: 'bg-green-100 text-green-700',
-      policy: 'bg-orange-100 text-orange-700',
-      financial: 'bg-green-100 text-green-700',
-      project: 'bg-amber-100 text-amber-700',
-    }
-    return colors[type] || 'bg-gray-100 text-gray-700'
-  }
-
-  if (loading) {
+  if (loading && documents.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-foreground font-semibold">Loading documents...</p>
+          <div className="w-3.5 h-3.5 rotate-45 border border-[color:var(--kola)] mx-auto mb-4 animate-pulse" />
+          <p className="eyebrow">Opening the registry</p>
         </div>
       </div>
     )
@@ -242,112 +202,84 @@ export function DocumentsPage() {
           </Card>
         ) : (
           displayDocuments.map((doc) => (
-            <Card
-              key={doc.id}
-              className="p-6 border-l-4 border-l-primary hover:shadow-lg transition"
-            >
-              {/* Main Info */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <FileText className="w-5 h-5 text-accent flex-shrink-0" />
-                    <h3 className="text-lg font-bold text-foreground">{doc.title}</h3>
-                    {doc.text_indexed && (
-                      <Badge
-                        label="✓ Indexed"
-                        className="bg-green-100 text-green-700"
-                      />
-                    )}
+            <Card key={doc.id} className="record-card">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-[0.9375rem] font-semibold text-[color:var(--ink)]">
+                      {doc.title}
+                    </h3>
+                    <Badge variant="secondary">{doc.category || 'Other'}</Badge>
+                    {doc.text_indexed && <Badge variant="success">Indexed</Badge>}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 mt-3">
-                    <Badge label={doc.type || 'document'} variant="secondary" />
-                    {doc.metadata?.description && (
-                      <p className="text-sm text-muted-foreground">
-                        {doc.metadata.description}
-                      </p>
-                    )}
-                  </div>
+                  {doc.description && (
+                    <p className="text-[color:var(--sepia)] mt-1.5 leading-relaxed">
+                      {doc.description}
+                    </p>
+                  )}
 
-                  <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(doc.uploadDate).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2.5 mono text-[0.7rem] text-[color:var(--sepia-soft)]">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {new Date(doc.created_at).toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'short', year: 'numeric',
                       })}
-                    </div>
-                    <div>{doc.size || 'Unknown size'}</div>
-                    <Badge label={doc.accessLevel || 'internal'} />
+                    </span>
+                    <span>{formatBytes(doc.file_size)}</span>
+                    {doc.file_name && <span className="truncate max-w-[220px]">{doc.file_name}</span>}
                   </div>
                 </div>
 
-                {/* AI Assistant Button */}
                 {doc.text_indexed && (
                   <button
-                    onClick={() => window.location.hash = `#/chat/${doc.id}`}
-                    className="ml-4 p-2 hover:bg-accent/10 rounded-lg transition text-accent"
-                    title="Open AI Chat"
+                    onClick={() => (window.location.hash = `#/chat/${doc.id}`)}
+                    className="p-2 rounded-[3px] text-[color:var(--sepia)] hover:text-[color:var(--kola)] hover:bg-[color:var(--linen)] transition flex-shrink-0"
+                    title="Interrogate this document"
+                    aria-label="Interrogate this document"
                   >
-                    <Sparkles className="w-6 h-6" />
+                    <Sparkles className="w-4 h-4" />
                   </button>
                 )}
               </div>
 
-              {/* Expanded Details */}
               {expandedDoc === doc.id && (
-                <div className="mt-6 pt-6 border-t border-border space-y-4">
-                  {doc.metadata?.fileName && (
+                <div className="mt-4 pt-4 border-t border-[color:var(--rule)] space-y-4">
+                  {doc.ocr_text && (
                     <div>
-                      <p className="text-sm font-semibold text-foreground mb-1">
-                        File Name
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {doc.metadata.fileName}
+                      <p className="eyebrow text-[0.55rem] mb-1.5">Extracted text</p>
+                      <p className="text-[color:var(--sepia)] leading-relaxed">
+                        {doc.ocr_text.slice(0, 400)}
+                        {doc.ocr_text.length > 400 ? '…' : ''}
                       </p>
                     </div>
                   )}
 
-                  {doc.extracted_text && !doc.extracted_text.includes('[') && (
-                    <div>
-                      <p className="text-sm font-semibold text-foreground mb-2">
-                        Text Preview
-                      </p>
-                      <p className="text-sm text-muted-foreground line-clamp-3">
-                        {doc.extracted_text.substring(0, 300)}...
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="flex gap-3 pt-4">
-                    {doc.downloadUrl && (
+                  <div className="flex flex-wrap gap-2">
+                    {getPublicUrl(doc.storage_path) && (
                       <a
-                        href={doc.downloadUrl}
-                        download={doc.title}
-                        className="flex-1 px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition flex items-center justify-center gap-2"
+                        href={getPublicUrl(doc.storage_path)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-outline"
                       >
-                        <Download className="w-4 h-4" />
+                        <Download className="w-3.5 h-3.5" />
                         Download
                       </a>
                     )}
-                    <button
-                      onClick={() => handleDelete(doc.id)}
-                      className="flex-1 px-4 py-2 rounded-lg border border-destructive text-destructive font-medium hover:bg-destructive/10 transition flex items-center justify-center gap-2"
-                    >
-                      <Trash2 className="w-4 h-4" />
+                    <button onClick={() => handleDelete(doc)} className="btn btn-danger">
+                      <Trash2 className="w-3.5 h-3.5" />
                       Delete
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Expand Toggle */}
               <button
                 onClick={() => setExpandedDoc(expandedDoc === doc.id ? null : doc.id)}
-                className="mt-4 text-sm text-primary hover:text-primary/80 font-medium transition"
+                className="mt-3 text-[0.75rem] font-medium text-[color:var(--kola)] hover:opacity-80 transition"
               >
-                {expandedDoc === doc.id ? 'Show Less' : 'Show More'}
+                {expandedDoc === doc.id ? 'Show less' : 'Show more'}
               </button>
             </Card>
           ))

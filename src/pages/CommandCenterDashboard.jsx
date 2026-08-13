@@ -4,30 +4,63 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/Card'
 import { Badge } from '@/components/Badge'
 import { BarChart, Bar, LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { AlertCircle, TrendingUp, Users, Clock, Flag } from 'lucide-react'
+import { listAlerts, getPortfolioSummary, getSeries } from '@/lib/registry'
 
 export function CommandCenterDashboard() {
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [alerts, setAlerts] = useState([
-    { id: 1, level: 'critical', message: 'Healthcare budget at 67% spend', project: 'Healthcare Access' },
-    { id: 2, level: 'warning', message: 'Infrastructure Q4 checkpoint due', project: 'Regional Roads' },
-    { id: 3, level: 'info', message: 'Digital gov platform 55% complete', project: 'Digital Initiative' },
-  ])
+  const [alerts, setAlerts] = useState([])
+  const [projectData, setProjectData] = useState([])
+  const [chartData, setChartData] = useState([])
 
-  const projectData = [
-    { name: 'Roads', progress: 80, status: 'On Track', team: 18 },
-    { name: 'Healthcare', progress: 60, status: 'At Risk', team: 12 },
-    { name: 'Digital', progress: 70, status: 'On Track', team: 24 },
-    { name: 'Agriculture', progress: 100, status: 'Completed', team: 8 },
-  ]
+  // The command centre reads the same registry as every other view, so
+  // what it flags is what the roll actually says.
+  useEffect(() => {
+    let alive = true
+    ;(async () => {
+      try {
+        const [alertRows, summary, series] = await Promise.all([
+          listAlerts(), getPortfolioSummary(), getSeries('monthly'),
+        ])
+        if (!alive) return
 
-  const chartData = [
-    { month: 'Jan', budget: 2000, spent: 1200 },
-    { month: 'Feb', budget: 2000, spent: 1400 },
-    { month: 'Mar', budget: 2000, spent: 1600 },
-    { month: 'Apr', budget: 2000, spent: 1800 },
-    { month: 'May', budget: 2000, spent: 2100 },
-    { month: 'Jun', budget: 2000, spent: 2300 },
-  ]
+        setAlerts(alertRows.map((a) => ({
+          id: a.id,
+          level: a.level,
+          message: a.message || a.title,
+          project: a.source || a.title,
+        })))
+
+        // Roll the portfolio up by category for the status bars.
+        const byCat = {}
+        for (const p of summary.projects) {
+          const k = p.category || 'Other'
+          byCat[k] ??= { name: k, progress: 0, count: 0 }
+          byCat[k].progress += p.progress || 0
+          byCat[k].count += 1
+        }
+        setProjectData(Object.values(byCat).map((c) => {
+          const progress = Math.round(c.progress / c.count)
+          return {
+            name: c.name,
+            progress,
+            status: progress >= 100 ? 'Completed' : progress >= 65 ? 'On Track' : 'At Risk',
+            team: c.count,
+          }
+        }))
+
+        // Budget against disbursement, in millions of FCFA.
+        const budgetM = Math.round(summary.budget / 1_000_000)
+        setChartData(series.map((row, i) => ({
+          month: row.period,
+          budget: budgetM,
+          spent: Math.round((summary.spent / 1_000_000) * ((i + 1) / series.length)),
+        })))
+      } catch (err) {
+        console.warn('[command centre]', err.message)
+      }
+    })()
+    return () => { alive = false }
+  }, [])
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)

@@ -482,3 +482,28 @@ table.data .num { font-family: var(--font-mono); font-variant-numeric: tabular-n
    ──────────────────────────────────────────────────────────── */
 .leaflet-container { background: var(--linen) !important; font-family: var(--font-body) !important; }
 .dark .leaflet-container .leaflet-tile { filter: brightness(0.6) invert(0.92) hue-rotate(180deg) saturate(0.6); }
+
+/* ────────────────────────────────────────────────────────────
+   App shell — the sidebar rail width, published as a custom
+   property so viewport-fixed elements (e.g. the assistant's
+   composer) can sit clear of it without duplicating breakpoints.
+   Zero below `lg`, where the sidebar is an off-canvas drawer.
+   ──────────────────────────────────────────────────────────── */
+.app-shell { --rail-w: 0px; }
+
+@media (min-width: 1024px) {
+  .app-shell[data-rail="expanded"]  { --rail-w: 16rem; }
+  .app-shell[data-rail="collapsed"] { --rail-w: 5rem; }
+}
+
+/* Composer pinned to the bottom of the viewport, clear of the rail. */
+.composer-dock {
+  position: fixed;
+  left: var(--rail-w);
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
+  transition: left 200ms ease;
+}

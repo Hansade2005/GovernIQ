@@ -12,7 +12,7 @@ import { useTheme } from '@/lib/theme'
  * No ornament here: it appeared on every page and became noise. The
  * ornament is reserved for sign-in and the Chamber hero.
  */
-export function Header({ user, onSignOut }) {
+export function Header({ user, onSignOut, onOpenNav }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const { preference, setPreference } = useTheme()
 
@@ -25,6 +25,7 @@ export function Header({ user, onSignOut }) {
   const mainNav = [
     { label: 'Chamber',        href: '#/' },
     { label: 'Registry',       href: '#/documents' },
+    { label: 'Ask the Assembly', href: '#/assistant' },
     { label: 'Programmes',     href: '#/projects' },
     { label: 'Analytics',      href: '#/analytics' },
     { label: 'Command centre', href: '#/command-center' },
@@ -197,12 +198,11 @@ export function Header({ user, onSignOut }) {
         </DropdownMenu.Root>
 
         <button
-          className="lg:hidden p-2 text-[color:var(--ink)]"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle navigation"
-          aria-expanded={mobileOpen}
+          className="lg:hidden p-2 -mr-1 text-[color:var(--ink)] rounded-[3px] hover:bg-[color:var(--linen)] transition"
+          onClick={() => (onOpenNav ? onOpenNav() : setMobileOpen(!mobileOpen))}
+          aria-label="Open navigation"
         >
-          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+          <Menu size={18} />
         </button>
       </div>
 

@@ -4,108 +4,11 @@ import { Badge } from '@/components/Badge'
 import { Button } from '@/components/Button'
 import { ProjectBank } from '@/components/ProjectBank'
 import { PageHeader } from '@/components/PageHeader'
+import { useQuery } from '@/lib/useRegistry'
+import { Loading, LoadFailure } from '@/components/QueryState'
+import { listProjects, listDivisions, formatFcfa } from '@/lib/registry'
 import { Search, Filter, Download, MapPin, DollarSign, Calendar, CheckCircle, AlertCircle, Eye, Edit, Trash2 } from 'lucide-react'
 
-const projectsData = [
-  {
-    id: 1,
-    name: 'Wum District Hospital Fence',
-    division: 'Mezam Division',
-    contractor: 'Lake Nyos Survival',
-    status: 'completed',
-    progress: 100,
-    budget: '45M FCFA',
-    spent: '44.8M FCFA',
-    startDate: '2025-10-15',
-    endDate: '2026-03-20',
-    description: 'Perimeter fence rehabilitation for Wum District Hospital to enhance security and containment',
-    location: 'Wum, Mezam Division',
-    contact: 'Proj. Mgr: Dr. Atem Joseph',
-    risks: 'None - Completed successfully'
-  },
-  {
-    id: 2,
-    name: 'GHS Classroom Blocks Roofing',
-    division: 'Momo Division',
-    contractor: 'ACONSEP CO LTD',
-    status: 'completed',
-    progress: 100,
-    budget: '120M FCFA',
-    spent: '119.5M FCFA',
-    startDate: '2025-11-10',
-    endDate: '2026-05-30',
-    description: 'Construction and roofing of new classroom blocks at Government High School Bamenda',
-    location: 'Bamenda, Momo Division',
-    contact: 'Proj. Mgr: Engr. Njikam Paul',
-    risks: 'None - Completed with quality assurance'
-  },
-  {
-    id: 3,
-    name: 'Science Laboratory Construction',
-    division: 'Mezam Division',
-    contractor: 'Regional Construction',
-    status: 'ongoing',
-    progress: 75,
-    budget: '85M FCFA',
-    spent: '63.75M FCFA',
-    startDate: '2026-01-20',
-    endDate: '2026-08-15',
-    description: 'State-of-the-art science lab facilities for secondary schools in the region',
-    location: 'Bamenda, Mezam Division',
-    contact: 'Proj. Mgr: Engr. Mboufe Cyril',
-    risks: 'Minor: Equipment procurement slightly delayed'
-  },
-  {
-    id: 4,
-    name: 'Batibo Health Centre Rehabilitation',
-    division: 'Menchum Division',
-    contractor: 'Infrastructure Partners',
-    status: 'ongoing',
-    progress: 60,
-    budget: '95M FCFA',
-    spent: '57M FCFA',
-    startDate: '2025-12-01',
-    endDate: '2026-09-30',
-    description: 'Complete rehabilitation of Batibo health facilities including ward renovation and equipment upgrade',
-    location: 'Batibo, Menchum Division',
-    contact: 'Proj. Mgr: Dr. Ekani Marcus',
-    risks: 'Moderate: Contractor requesting schedule extension'
-  },
-  {
-    id: 5,
-    name: 'Misaje Workshop Construction',
-    division: 'Mezam Division',
-    contractor: 'Regional Builders',
-    status: 'ongoing',
-    progress: 50,
-    budget: '65M FCFA',
-    spent: '32.5M FCFA',
-    startDate: '2026-02-15',
-    endDate: '2026-10-31',
-    description: 'Technical training workshop at Misaje for vocational skills development',
-    location: 'Misaje, Mezam Division',
-    contact: 'Proj. Mgr: Engr. Fontem Grace',
-    risks: 'Low: On track for completion'
-  },
-  {
-    id: 6,
-    name: 'Ndop Health Facility Upgrade',
-    division: 'Momo Division',
-    contractor: 'Health Solutions Ltd',
-    status: 'pending',
-    progress: 15,
-    budget: '78M FCFA',
-    spent: '11.7M FCFA',
-    startDate: '2026-04-01',
-    endDate: '2026-11-30',
-    description: 'Upgrade of healthcare delivery infrastructure at Ndop health facility',
-    location: 'Ndop, Momo Division',
-    contact: 'Proj. Mgr: Dr. Fombad Ange',
-    risks: 'Pending final approvals'
-  },
-]
-
-const divisions = ['All', 'Mezam Division', 'Momo Division', 'Menchum Division', 'Kweneng Division', 'Boyo Division', 'Manyu Division']
 const statusFilters = ['All', 'completed', 'ongoing', 'pending']
 
 export function ProjectsPage() {
@@ -115,10 +18,18 @@ export function ProjectsPage() {
   const [selectedProject, setSelectedProject] = useState(null)
   const [showFilters, setShowFilters] = useState(false)
 
+  const { data, loading, error, refresh } = useQuery(async () => {
+    const [projects, divisionRows] = await Promise.all([listProjects(), listDivisions()])
+    return { projects, divisionRows }
+  }, [])
+
+  const projectsData = data?.projects ?? []
+  const divisions = ['All', ...(data?.divisionRows ?? []).map((d) => d.name)]
+
   // Filter projects
   const filteredProjects = projectsData.filter(project => {
-    const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         project.contractor.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesSearch = (project.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (project.contractor || '').toLowerCase().includes(searchQuery.toLowerCase())
     const matchesDivision = selectedDivision === 'All' || project.division === selectedDivision
     const matchesStatus = selectedStatus === 'All' || project.status === selectedStatus
 
@@ -171,6 +82,9 @@ export function ProjectsPage() {
   const handleDeleteProject = (projectId) => {
     alert(`🗑️ Delete confirmation for project ID: ${projectId}\n\nIn a real app, this would require admin confirmation before deletion.`)
   }
+
+  if (loading && !data) return <Loading label="Loading programmes" />
+  if (error && !data) return <LoadFailure error={error} onRetry={refresh} />
 
   return (
     <div className="stagger space-y-8">
@@ -335,7 +249,7 @@ export function ProjectsPage() {
                     <DollarSign size={16} className="text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Budget</p>
-                      <p className="text-foreground font-medium">{project.budget}</p>
+                      <p className="text-foreground font-medium">{formatFcfa(project.budget_fcfa)}</p>
                     </div>
                   </div>
 
@@ -371,11 +285,11 @@ export function ProjectsPage() {
                 <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-border">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Spent</p>
-                    <p className="text-lg font-bold text-foreground">{project.spent}</p>
+                    <p className="text-lg font-bold text-foreground">{formatFcfa(project.spent_fcfa)}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Budget</p>
-                    <p className="text-lg font-bold text-foreground">{project.budget}</p>
+                    <p className="text-lg font-bold text-foreground">{formatFcfa(project.budget_fcfa)}</p>
                   </div>
                 </div>
 
@@ -476,11 +390,11 @@ export function ProjectsPage() {
                 <div className="grid grid-cols-3 gap-4">
                   <div className="bg-surface-alt/50 p-3 rounded-lg">
                     <p className="text-xs text-muted-foreground">Budget</p>
-                    <p className="font-semibold text-foreground">{selectedProject.budget}</p>
+                    <p className="font-semibold text-foreground">{formatFcfa(selectedProject.budget_fcfa)}</p>
                   </div>
                   <div className="bg-surface-alt/50 p-3 rounded-lg">
                     <p className="text-xs text-muted-foreground">Spent</p>
-                    <p className="font-semibold text-foreground">{selectedProject.spent}</p>
+                    <p className="font-semibold text-foreground">{formatFcfa(selectedProject.spent_fcfa)}</p>
                   </div>
                   <div className="bg-surface-alt/50 p-3 rounded-lg">
                     <p className="text-xs text-muted-foreground">Progress</p>

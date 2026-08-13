@@ -61,6 +61,11 @@ export const ROLES = {
     description: 'Reads the registry and puts questions to the assistant.',
     rank: 20,
   },
+  citizen: {
+    label: 'Citizen',
+    description: 'Follows the public works and gives feedback on them. Sees no internal register.',
+    rank: 10,
+  },
 }
 
 export const ROLE_KEYS = Object.keys(ROLES)
@@ -78,11 +83,13 @@ const GRANTS = {
     'treasury.read', 'treasury.write',
     'reports.read', 'reports.write',
     'command.read',
+    'feedback.submit', 'feedback.read', 'feedback.respond',
   ],
   clerk: [
     'registry.read', 'registry.write',
     'minutes.read', 'minutes.write', 'minutes.adopt',
     'programmes.read', 'treasury.read', 'reports.read', 'command.read',
+    'feedback.read',
   ],
   finance: [
     'registry.read',
@@ -91,16 +98,25 @@ const GRANTS = {
     'treasury.read', 'treasury.write',
     'reports.read', 'reports.write',
     'command.read',
+    'feedback.read',
   ],
   programmes: [
     'registry.read',
     'minutes.read',
     'programmes.read', 'programmes.write',
     'treasury.read', 'reports.read', 'command.read',
+    'feedback.read', 'feedback.respond',
   ],
   member: [
     'registry.read', 'minutes.read', 'programmes.read',
     'treasury.read', 'reports.read',
+    'feedback.read',
+  ],
+  // A citizen follows the works and speaks about them. Nothing internal:
+  // no treasury, no minutes, no registry, no command centre.
+  citizen: [
+    'programmes.read',
+    'feedback.submit', 'feedback.read.own',
   ],
 }
 

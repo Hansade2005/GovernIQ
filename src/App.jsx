@@ -19,6 +19,7 @@ import { SettingsPage } from '@/pages/SettingsPage'
 import { AssistantPage } from '@/pages/AssistantPage'
 import { MinutesPage } from '@/pages/MinutesPage'
 import { UsersPage } from '@/pages/UsersPage'
+import { FeedbackPage } from '@/pages/FeedbackPage'
 import { SessionProvider, useSession } from '@/lib/SessionContext'
 import { Loading } from '@/components/QueryState'
 
@@ -97,18 +98,29 @@ function AppContent() {
   /* Each guarded route names the permission it needs. A member who types a
      URL they cannot open is told so plainly rather than shown a blank page. */
   const ROUTE_PERMISSIONS = {
+    // The assistant is grounded on internal alerts and risk notes, so it
+    // follows registry access rather than being open to every capacity.
+    assistant: 'registry.read',
     documents: 'registry.read',
     reports: 'reports.read',
     'upload-reports': 'registry.write',
     projects: 'programmes.read',
     'project-progress': 'programmes.write',
-    analytics: 'programmes.read',
+    // A management dashboard — divisional scores and budget efficiency —
+    // rather than a public one, so it follows registry access.
+    analytics: 'registry.read',
     minutes: 'minutes.read',
     'command-center': 'command.read',
     users: 'users.manage',
   }
 
+  /* Feedback opens for anyone who may write it or read it. */
+  const FEEDBACK_PERMS = ['feedback.read', 'feedback.submit', 'feedback.read.own']
+
   const renderPage = () => {
+    if (currentPage === 'feedback' && !FEEDBACK_PERMS.some((p) => allows(p))) {
+      return <NotPermitted page="feedback" />
+    }
     const need = ROUTE_PERMISSIONS[currentPage]
     if (need && !allows(need)) return <NotPermitted page={currentPage} />
 
@@ -133,6 +145,8 @@ function AppContent() {
         return <MinutesPage />
       case 'users':
         return <UsersPage />
+      case 'feedback':
+        return <FeedbackPage />
       case 'command-center':
         return <CommandCenterDashboard />
       case 'ocr-test':

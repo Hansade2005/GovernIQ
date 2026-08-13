@@ -2,7 +2,7 @@ import {
   ChevronRight, ChevronLeft,
   LayoutDashboard, FileText, FolderOpen, BarChart3,
   Map, Settings, LogOut, TrendingUp, Radio, Upload, MessageSquare,
-  Gavel, Users, Shield,
+  Gavel, Users, Shield, MessagesSquare,
 } from 'lucide-react'
 import { useSession } from '@/lib/SessionContext'
 import { ROLES } from '@/lib/roles'
@@ -25,7 +25,7 @@ export function Sidebar({
       label: 'Chamber',
       items: [
         { id: 'dashboard',      label: 'Overview',       icon: LayoutDashboard, href: '#/' },
-        { id: 'assistant',      label: 'Ask the Assembly', icon: MessageSquare, href: '#/assistant' },
+        { id: 'assistant',      label: 'Ask the Assembly', icon: MessageSquare, href: '#/assistant', need: 'registry.read' },
         { id: 'minutes',        label: 'Minutes',        icon: Gavel,           href: '#/minutes', need: 'minutes.read' },
         { id: 'command-center', label: 'Command centre', icon: Radio,           href: '#/command-center', need: 'command.read' },
       ],
@@ -43,7 +43,13 @@ export function Sidebar({
       items: [
         { id: 'projects',         label: 'Projects',  icon: FolderOpen, href: '#/projects', need: 'programmes.read' },
         { id: 'project-progress', label: 'Execution', icon: TrendingUp, href: '#/project-progress', need: 'programmes.write' },
-        { id: 'analytics',        label: 'Analytics', icon: BarChart3,  href: '#/analytics', need: 'programmes.read' },
+        { id: 'analytics',        label: 'Analytics', icon: BarChart3,  href: '#/analytics', need: 'registry.read' },
+      ],
+    },
+    {
+      label: 'The public',
+      items: [
+        { id: 'feedback', label: 'Feedback', icon: MessagesSquare, href: '#/feedback', needAny: ['feedback.read', 'feedback.submit', 'feedback.read.own'] },
       ],
     },
     {
@@ -53,7 +59,13 @@ export function Sidebar({
       ],
     },
   ]
-    .map((g) => ({ ...g, items: g.items.filter((i) => !i.need || allows(i.need)) }))
+    .map((g) => ({
+      ...g,
+      items: g.items.filter((i) =>
+        (!i.need || allows(i.need)) &&
+        (!i.needAny || i.needAny.some((n) => allows(n)))
+      ),
+    }))
     .filter((g) => g.items.length > 0)
 
   const displayName =

@@ -1,152 +1,105 @@
-import { pp } from '@/lib/pipilot'
+import { supabase, isSupabaseConfigured } from './supabase'
 
 /**
- * Helper to add timeout to a promise
+ * Chat sessions against a registry document.
+ *
+ * These live in Supabase alongside the documents they discuss, not in
+ * PiPilot. PiPilot keeps authentication, realtime and the AI client; the
+ * registry — documents, and now the conversations about them — is one
+ * database, so a chat can be joined to the document it belongs to and a
+ * deleted document takes its conversations with it.
+ *
+ * Filtering and ordering happen in the database rather than over a fetched
+ * page, so a chamber with a thousand conversations still opens the right one.
  */
-function withTimeout(promise, timeoutMs = 10000) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => 
-      setTimeout(() => reject(new Error(`Operation timed out (${timeoutMs}ms)`)), timeoutMs)
-    )
-  ])
-}
 
-/**
- * Create or get a chat session for a document
- */
-export async function getOrCreateChat(documentId, userId) {
-  try {
-    console.log('getOrCreateChat: starting for doc', documentId)
-    
-    // Try to find existing chat for this document
-    const chats = await withTimeout(
-      pp.from('chats').select({ limit: 1 }),
-      8000
-    )
-
-    console.log('getOrCreateChat: fetched chats', chats?.length)
-
-    // Filter locally if needed
-    const existingChat = chats?.find(c => c.document_id === documentId)
-    if (existingChat) {
-      console.log('getOrCreateChat: found existing chat', existingChat.id)
-      return existingChat
-    }
-
-    // Create new chat session
-    const newChat = {
-      document_id: documentId,
-      owner_id: userId,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
-
-    console.log('getOrCreateChat: creating new chat')
-    const result = await withTimeout(
-      pp.from('chats').insert(newChat),
-      8000
-    )
-    
-    const chatId = result.ids[0]
-    console.log('getOrCreateChat: created chat', chatId)
-    return { ...newChat, id: chatId }
-  } catch (err) {
-    console.error('Failed to get or create chat:', err)
-    throw err
+function client() {
+  if (!isSupabaseConfigured || !supabase) {
+    throw new Error('Chat storage is not configured for this deployment.')
   }
+  return supabase
 }
 
-/**
- * Load all messages for a chat session
- */
-export async function loadChatMessages(chatId) {
-  try {
-    console.log('loadChatMessages: starting for chat', chatId)
-    
-    const messages = await withTimeout(
-      pp.from('chat_messages').select({ limit: 100 }),
-      8000
-    )
+/** Find the conversation for a document, or open one. */
+export async function getOrCreateChat(documentId, userId) {
+  const c = client()
 
-    console.log('loadChatMessages: fetched messages', messages?.length)
-    
-    // Filter locally and sort by created_at ascending to maintain order
-    const filtered = (messages || [])
-      .filter(m => m.chat_id === chatId)
-      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-    
-    return filtered
-  } catch (err) {
-    console.error('Failed to load chat messages:', err)
-    // Return empty array instead of throwing so chat can still work
+  const found = await c
+    .from('chats')
+    .select('*')
+    .eq('document_id', documentId)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  if (found.error) throw new Error(`Could not open the conversation: ${found.error.message}`)
+  if (found.data) return found.data
+
+  const created = await c
+    .from('chats')
+    .insert({ document_id: documentId, owner_id: userId || null })
+    .select()
+    .single()
+
+  if (created.error) throw new Error(`Could not open the conversation: ${created.error.message}`)
+  return created.data
+}
+
+/** Every message in a conversation, oldest first. */
+export async function loadChatMessages(chatId) {
+  const { data, error } = await client()
+    .from('chat_messages')
+    .select('*')
+    .eq('chat_id', chatId)
+    .order('created_at', { ascending: true })
+    .limit(500)
+
+  if (error) {
+    // A conversation that cannot be recalled should not stop a new one.
+    console.warn('[chat] could not load history:', error.message)
     return []
   }
+  return data || []
 }
 
 /**
- * Save a message to the chat
+ * Record one turn.
+ *
+ * A failure here is deliberately not thrown: losing the transcript is a
+ * smaller harm than dropping the member's answer on the floor, so the
+ * caller gets a local-only message and the conversation carries on.
  */
 export async function saveChatMessage(chatId, userId, role, content) {
-  const message = {
-    chat_id: chatId,
-    owner_id: userId,
-    role,
-    content,
-    created_at: new Date().toISOString()
-  }
+  const row = { chat_id: chatId, owner_id: userId || null, role, content }
 
-  try {
-    console.log('saveChatMessage: saving', role, 'message')
-    
-    const result = await withTimeout(
-      pp.from('chat_messages').insert(message),
-      8000
-    )
-    
-    console.log('saveChatMessage: saved message', result.ids[0])
-    return { ...message, id: result.ids[0] }
-  } catch (err) {
-    console.error('Failed to save chat message:', err)
-    // Don't throw - log the error but let the chat continue
-    return { ...message, id: 'local-' + Date.now() }
+  const { data, error } = await client()
+    .from('chat_messages')
+    .insert(row)
+    .select()
+    .single()
+
+  if (error) {
+    console.warn('[chat] could not save message:', error.message)
+    return { ...row, id: `local-${Date.now()}`, created_at: new Date().toISOString() }
   }
+  return data
 }
 
-/**
- * Get all chats for the current user (with document info)
- */
-export async function getUserChats() {
-  try {
-    const chats = await pp.from('chats').select({ limit: 100 })
-    return chats || []
-  } catch (err) {
-    console.error('Failed to load user chats:', err)
-    throw err
-  }
+/** Conversations, newest first, for a chat index. */
+export async function getUserChats({ limit = 100 } = {}) {
+  const { data, error } = await client()
+    .from('chats')
+    .select('*, documents(title, category)')
+    .order('updated_at', { ascending: false })
+    .limit(limit)
+
+  if (error) throw new Error(`Could not load conversations: ${error.message}`)
+  return data || []
 }
 
-/**
- * Delete a chat session and all its messages
- */
+/** Remove a conversation. Messages go with it via the foreign key cascade. */
 export async function deleteChat(chatId) {
-  try {
-    // Delete all messages first
-    const messages = await pp.from('chat_messages').select({ 
-      limit: 100,
-      filter: { chat_id: chatId }
-    })
-
-    if (messages && messages.length > 0) {
-      for (const msg of messages) {
-        await pp.from('chat_messages').delete(msg.id)
-      }
-    }
-
-    // Delete the chat
-    await pp.from('chats').delete(chatId)
-  } catch (err) {
-    console.error('Failed to delete chat:', err)
-    throw err
-  }
+  const { error } = await client().from('chats').delete().eq('id', chatId)
+  if (error) throw new Error(`Could not delete the conversation: ${error.message}`)
+  return true
 }

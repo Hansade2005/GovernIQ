@@ -5,7 +5,6 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/Card'
 import { Button } from '@/components/Button'
 import { Input, Label } from '@/components/Input'
 import { Badge } from '@/components/Badge'
-import { pp } from '@/lib/pipilot'
 import { Upload, FileIcon, Trash2, Eye, Download, CheckCircle, AlertCircle, Loader } from 'lucide-react'
 
 export function ReportUploadPage() {

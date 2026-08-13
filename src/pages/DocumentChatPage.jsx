@@ -6,7 +6,7 @@ import { Input } from '@/components/Input'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/Card'
 import { Badge } from '@/components/Badge'
 import { Loader, Send, Sparkles, ArrowLeft, FileText, ChevronDown } from 'lucide-react'
-import { pp } from '@/lib/pipilot'
+import { listDocuments } from '@/lib/documentStore'
 import { generate } from '@/lib/ai'
 import { getOrCreateChat, loadChatMessages, saveChatMessage } from '@/lib/chatService'
 
@@ -55,7 +55,7 @@ export function DocumentChatPage() {
           }, 8000)
         })
 
-        const docsPromise = pp.from('documents').select({ limit: 50 })
+        const docsPromise = listDocuments({ limit: 50 })
         const docs = await Promise.race([docsPromise, timeoutPromise])
         clearTimeout(loadTimeoutRef.current)
 
@@ -71,10 +71,11 @@ export function DocumentChatPage() {
         setDocuments(docs || [])
 
         // Show initial greeting message immediately
-        const hasText = doc.extracted_text && 
-                        doc.extracted_text.trim().length > 100 &&
-                        !doc.extracted_text.includes('[PDF file') &&
-                        !doc.extracted_text.includes('[OCR')
+        const docText = doc.ocr_text || ''
+        const hasText = docText && 
+                        docText.trim().length > 100 &&
+                        !docText.includes('[PDF file') &&
+                        !docText.includes('[OCR')
 
         const initialMsg = hasText
           ? `**Analyzing "${doc.title}"**\n\nI can help you understand this document. What would you like to know?\n\n- **Summarize** — Get a quick overview\n- **Extract Info** — Find key dates, numbers, entities\n- **Analyze** — Understand purpose and recommendations\n- **Classify** — Determine priority and subject area`
@@ -133,10 +134,11 @@ export function DocumentChatPage() {
       // Save user message to database
       await saveChatMessage(currentChatId, userId, 'user', userInput)
 
-      const hasText = currentDoc.extracted_text && 
-                      currentDoc.extracted_text.trim().length > 100 &&
-                      !currentDoc.extracted_text.includes('[PDF file') &&
-                      !currentDoc.extracted_text.includes('[OCR')
+      const currentDocText = currentDoc.ocr_text || ''
+      const hasText = currentDocText && 
+                      currentDocText.trim().length > 100 &&
+                      !currentDocText.includes('[PDF file') &&
+                      !currentDocText.includes('[OCR')
 
       if (!hasText) {
         const errorMsg = `⚠️ This document hasn't been fully indexed yet. I can't analyze it without the extracted text.`
@@ -159,8 +161,8 @@ Document Type: ${currentDoc.type}
 Upload Date: ${new Date(currentDoc.uploadDate).toLocaleDateString()}
 
 DOCUMENT CONTENT:
-${(currentDoc.extracted_text || '').substring(0, 4000)}
-${(currentDoc.extracted_text || '').length > 4000 ? '...[content truncated]' : ''}
+${(currentDocText || '').substring(0, 4000)}
+${(currentDocText || '').length > 4000 ? '...[content truncated]' : ''}
 `.trim()
 
       const systemPrompt = `You are a helpful document analysis assistant. Analyze the provided document and help the user understand its content, extract key information, and classify it. 
@@ -366,7 +368,7 @@ ${docContext}`
                     }`}
                   >
                     <div className="font-medium text-xs">{doc.title}</div>
-                    <div className="text-xs text-muted-foreground">{doc.type}</div>
+                    <div className="text-xs text-muted-foreground">{doc.category}</div>
                   </button>
                 ))}
               </div>

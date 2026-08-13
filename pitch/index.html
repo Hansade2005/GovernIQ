@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GovernIQ — NW Regional Assembly Analytics Platform</title>
+<meta name="description" content="Investment case put to the North West Regional Assembly: FCFA 487.5 million over 30 months for the regional evidence base. The platform is already built and running.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..700&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   THE CHAMBER, PROJECTED
+   Built for a 4.8 × 2.7 m fine-pitch LED wall in a lit room: dark
+   ground so the wall does not become a lamp, brass for ornament,
+   paper-cream for everything that must be read from the back row.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root{
+  --ground:#0A1610;
+  --ground-2:#0F1F17;
+  --panel:#14261C;
+  --panel-2:#1A2E22;
+
+  --paper:#F5F1E4;
+  --paper-2:#DCD8C6;
+  --muted:#9DAB9C;
+
+  --brass:#E0B245;
+  --brass-2:#B98F2C;
+  --brass-ink:#F0CF7E;
+  --kola:#E2724A;
+  --highland:#5FB48C;
+
+  --rule:rgba(224,178,69,.20);
+  --rule-2:rgba(245,241,228,.10);
+
+  --gut: clamp(1.75rem, 4.2vw, 5.5rem);
+  --display:"Fraunces",Georgia,serif;
+  --sans:"Archivo",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ground);
+  color:var(--paper);
+  font-family:var(--sans);
+  font-size:clamp(15px,1.02vw,21px);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* Atmosphere: highland contour lines + a fine grain, both fixed so the
+   deck feels like one printed surface rather than twelve pages. */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 55% at 78% 8%, rgba(224,178,69,.075), transparent 62%),
+    radial-gradient(ellipse 70% 60% at 8% 92%, rgba(95,180,140,.06), transparent 60%),
+    repeating-radial-gradient(circle at 88% 12%,
+      transparent 0 46px, rgba(224,178,69,.028) 46px 47px);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.32;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
+}
+
+/* ── Slides ─────────────────────────────────────────────────────── */
+main{position:relative;z-index:1;scroll-snap-type:y mandatory;height:100vh;overflow-y:scroll}
+.slide{
+  scroll-snap-align:start;scroll-snap-stop:always;
+  min-height:100vh;width:100%;
+  padding:clamp(2.4rem,5vh,4.5rem) var(--gut) clamp(3.6rem,7vh,5rem);
+  display:flex;flex-direction:column;justify-content:center;
+  position:relative;
+}
+.slide>*{max-width:1680px;width:100%;margin-inline:auto}
+
+/* The number sits in the gutter as a brass plate mark. */
+.slide::after{
+  content:attr(data-n);
+  position:absolute;right:calc(var(--gut) * .42);bottom:clamp(1rem,2.6vh,2rem);
+  font-family:var(--display);font-size:clamp(2.6rem,5.4vw,6rem);
+  font-weight:300;font-variation-settings:"opsz" 144,"SOFT" 40;
+  color:transparent;-webkit-text-stroke:1px rgba(224,178,69,.26);
+  line-height:1;letter-spacing:-.03em;pointer-events:none;
+}
+
+/* ── Type ───────────────────────────────────────────────────────── */
+.eyebrow{
+  font-family:var(--mono);font-size:clamp(.6rem,.72vw,.78rem);
+  letter-spacing:.26em;text-transform:uppercase;color:var(--brass);
+  display:flex;align-items:center;gap:.85em;
+}
+.eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--rule),transparent)}
+.eyebrow.tight::after{display:none}
+
+h1,h2{
+  font-family:var(--display);font-weight:400;
+  font-variation-settings:"opsz" 144,"SOFT" 20,"WONK" 1;
+  letter-spacing:-.022em;line-height:1.02;text-wrap:balance;
+}
+h1{font-size:clamp(2.9rem,7.4vw,7.4rem)}
+h2{font-size:clamp(2rem,4.35vw,4.3rem);margin:.5rem 0 .2rem}
+h2 em{font-style:italic;color:var(--brass-ink);font-variation-settings:"opsz" 144,"SOFT" 60,"WONK" 1}
+h3{font-family:var(--sans);font-weight:600;font-size:clamp(.95rem,1.15vw,1.22rem);letter-spacing:-.01em}
+
+.lede{
+  font-size:clamp(1.02rem,1.33vw,1.55rem);line-height:1.5;color:var(--paper-2);
+  max-width:56ch;text-wrap:pretty;
+}
+.small{font-size:clamp(.8rem,.92vw,1rem);color:var(--muted);line-height:1.6}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.fig{
+  font-family:var(--display);font-weight:500;
+  font-variation-settings:"opsz" 144,"SOFT" 0;
+  font-variant-numeric:tabular-nums;letter-spacing:-.035em;line-height:.94;
+  color:var(--brass-ink);
+}
+
+/* The lozenge chain — the Assembly's mark, carried through from the app. */
+.chain{height:9px;width:100%;max-width:340px;margin:1.15rem 0;opacity:.65;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9'%3E%3Cpath d='M8 .8 15.2 4.5 8 8.2.8 4.5Z' fill='none' stroke='%23E0B245' stroke-width='.9'/%3E%3C/svg%3E");
+  background-repeat:repeat-x;background-size:16px 9px;
+}
+
+/* ── Structure ──────────────────────────────────────────────────── */
+.grid{display:grid;gap:clamp(1.1rem,2vw,2.4rem)}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.split{display:grid;gap:clamp(1.6rem,3.4vw,4rem);grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);align-items:center}
+.split.wide-right{grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr)}
+.stack{display:flex;flex-direction:column;gap:clamp(.9rem,1.7vh,1.6rem)}
+
+.panel{
+  background:linear-gradient(160deg,var(--panel),var(--ground-2));
+  border:1px solid var(--rule);border-radius:3px;
+  padding:clamp(1rem,1.5vw,1.7rem);position:relative;
+}
+.panel.k{border-left:2px solid var(--brass)}
+.panel.hot{border-left:2px solid var(--kola)}
+.panel.go{border-left:2px solid var(--highland)}
+
+.stat .fig{font-size:clamp(2.1rem,4vw,3.9rem);display:block}
+.stat .lbl{font-family:var(--mono);font-size:clamp(.56rem,.68vw,.74rem);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--muted);margin-top:.6rem;display:block}
+.stat .sub{font-size:clamp(.74rem,.85vw,.92rem);color:var(--paper-2);margin-top:.35rem;display:block}
+
+ul.marks{list-style:none;display:flex;flex-direction:column;gap:.7rem}
+ul.marks li{position:relative;padding-left:1.5em;color:var(--paper-2);font-size:clamp(.85rem,1vw,1.08rem);line-height:1.5}
+ul.marks li::before{content:"◇";position:absolute;left:0;top:.05em;color:var(--brass);font-size:.8em}
+ul.marks.go li::before{color:var(--highland);content:"✓"}
+ul.marks.no li::before{color:var(--kola);content:"×"}
+ul.marks b{color:var(--paper);font-weight:600}
+
+table{width:100%;border-collapse:collapse;font-size:clamp(.76rem,.92vw,1rem)}
+th{font-family:var(--mono);font-size:clamp(.56rem,.68vw,.72rem);letter-spacing:.18em;
+  text-transform:uppercase;color:var(--brass);text-align:left;font-weight:500;
+  padding:.55rem .75rem;border-bottom:1px solid var(--rule)}
+td{padding:.62rem .75rem;border-bottom:1px solid var(--rule-2);color:var(--paper-2);vertical-align:top}
+td:first-child{color:var(--paper);font-weight:500}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.total td{border-top:1px solid var(--rule);border-bottom:none;color:var(--brass-ink);font-weight:600}
+
+.shot{
+  border:1px solid var(--rule);border-radius:3px;overflow:hidden;
+  box-shadow:0 40px 90px -40px rgba(0,0,0,.9),0 0 0 1px rgba(0,0,0,.4);
+  background:var(--panel);
+}
+.shot img{display:block;width:100%;height:auto}
+.shot.crop{aspect-ratio:16/10}
+.shot.hero img{max-height:50vh;object-fit:cover;object-position:top left}
+.shot.hero.tight img{max-height:34vh}
+.thumbs .shot.crop{aspect-ratio:16/9}
+.shot.crop img{height:100%;object-fit:cover;object-position:top left}
+.caption{font-family:var(--mono);font-size:clamp(.56rem,.68vw,.72rem);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);margin-top:.55rem}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:clamp(.55rem,.66vw,.7rem);
+  letter-spacing:.16em;text-transform:uppercase;padding:.3em .7em;border-radius:2px;
+  border:1px solid var(--rule);color:var(--brass)}
+.tag.go{border-color:rgba(95,180,140,.4);color:var(--highland)}
+.tag.hot{border-color:rgba(226,114,74,.42);color:var(--kola)}
+
+.matrix{background:linear-gradient(160deg,var(--panel),var(--ground-2));
+  border:1px solid var(--rule);border-radius:3px;padding:clamp(1.1rem,1.8vw,1.9rem)}
+.mx-col-heads,.mx-row{display:grid;grid-template-columns:1.6rem minmax(0,1fr) minmax(0,1fr);
+  gap:.75rem;align-items:stretch}
+.mx-col-heads{margin-bottom:.6rem}
+.mx-row+.mx-row{margin-top:.75rem}
+.mx-side{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;
+  font-family:var(--mono);font-size:clamp(.5rem,.6vw,.66rem);letter-spacing:.2em;text-transform:uppercase}
+.mx-cell{border:1px solid var(--rule-2);border-radius:2px;padding:clamp(.7rem,1.1vw,1.1rem);
+  background:rgba(245,241,228,.02)}
+.mx-cell h3{margin-bottom:.4rem}
+.mx-cell.win{border:1.4px solid var(--brass);
+  background:linear-gradient(150deg,rgba(224,178,69,.2),rgba(95,180,140,.07))}
+@media (max-width:900px){.mx-col-heads{display:none}.mx-row{grid-template-columns:1fr}.mx-side{writing-mode:horizontal-tb;transform:none;text-align:left}}
+
+/* ── Navigation furniture ───────────────────────────────────────── */
+.rail{position:fixed;right:clamp(.55rem,1vw,1.15rem);top:50%;transform:translateY(-50%);
+  z-index:40;display:flex;flex-direction:column;gap:.5rem}
+.rail button{width:8px;height:8px;padding:0;border:1px solid var(--rule);background:transparent;
+  border-radius:1px;cursor:pointer;transform:rotate(45deg);transition:.22s}
+.rail button:hover{border-color:var(--brass)}
+.rail button[aria-current="true"]{background:var(--brass);border-color:var(--brass);transform:rotate(45deg) scale(1.4)}
+
+.hud{position:fixed;left:clamp(.9rem,2vw,2rem);bottom:clamp(.7rem,1.6vh,1.3rem);z-index:40;
+  display:flex;align-items:center;gap:1rem;font-family:var(--mono);
+  font-size:clamp(.56rem,.68vw,.72rem);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.hud b{color:var(--brass);font-weight:500}
+.hud kbd{border:1px solid var(--rule);border-radius:2px;padding:.12em .45em;color:var(--paper-2)}
+
+/* Overview — press G. Presenting without a map of your own deck is
+   how you lose the room when someone asks to go back three slides. */
+#map{position:fixed;inset:0;z-index:60;background:rgba(6,14,10,.97);
+  padding:clamp(1.2rem,3vw,2.6rem);overflow-y:auto;display:none}
+#map.on{display:block}
+#map .cards{display:grid;gap:.9rem;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin-top:1.2rem}
+#map button{text-align:left;background:var(--panel);border:1px solid var(--rule);border-radius:3px;
+  padding:.85rem .95rem;color:var(--paper);cursor:pointer;font-family:inherit;transition:.18s}
+#map button:hover{border-color:var(--brass);background:var(--panel-2)}
+#map .n{font-family:var(--mono);font-size:.64rem;letter-spacing:.2em;color:var(--brass)}
+#map .t{font-family:var(--display);font-size:1.05rem;margin-top:.3rem;line-height:1.15}
+
+/* ── Motion: one orchestrated reveal per slide ──────────────────── */
+@media (prefers-reduced-motion:no-preference){
+  .slide .rise{opacity:0;transform:translateY(18px);transition:opacity .62s cubic-bezier(.2,.7,.3,1),transform .62s cubic-bezier(.2,.7,.3,1)}
+  .slide.seen .rise{opacity:1;transform:none}
+  .slide.seen .rise:nth-child(2){transition-delay:.07s}
+  .slide.seen .rise:nth-child(3){transition-delay:.14s}
+  .slide.seen .rise:nth-child(4){transition-delay:.21s}
+  .slide.seen .rise:nth-child(5){transition-delay:.28s}
+  .slide.seen .bar{transition:width 1s cubic-bezier(.2,.7,.3,1) .2s}
+  .slide:not(.seen) .bar{width:0 !important}
+  .draw{stroke-dasharray:1600;stroke-dashoffset:1600}
+  .slide.seen .draw{animation:draw 1.5s cubic-bezier(.3,.7,.3,1) .25s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+}
+
+/* ── Cover ──────────────────────────────────────────────────────── */
+#s1{justify-content:space-between;gap:clamp(1.5rem,4vh,3rem)}
+.cover-body{display:grid;gap:clamp(1.5rem,4vw,4.5rem);
+  grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:end}
+#s1 h1{font-size:clamp(2.6rem,6.2vw,6.4rem)}
+@media (max-width:900px){.cover-body{grid-template-columns:1fr;align-items:start}}
+.crest{display:flex;align-items:center;gap:clamp(.7rem,1.1vw,1.1rem)}
+.crest img{height:clamp(48px,4.6vw,78px);width:auto}
+.crest .wm{font-family:var(--display);font-weight:600;font-size:clamp(1.35rem,2.2vw,2.3rem);letter-spacing:-.02em;line-height:1}
+.crest .sub{font-family:var(--mono);font-size:clamp(.56rem,.68vw,.74rem);letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-top:.4rem}
+.motto{font-family:var(--display);font-style:italic;font-size:clamp(1rem,1.5vw,1.7rem);color:var(--brass-ink)}
+
+.foot{display:flex;flex-wrap:wrap;gap:clamp(1rem,3vw,3.5rem);align-items:flex-end;justify-content:space-between;
+  border-top:1px solid var(--rule);padding-top:clamp(.9rem,1.8vh,1.5rem)}
+.foot .item .k{font-family:var(--mono);font-size:clamp(.53rem,.64vw,.7rem);letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.foot .item .v{font-size:clamp(.82rem,1vw,1.06rem);color:var(--paper);margin-top:.28rem}
+
+a{color:var(--brass-ink);text-underline-offset:.22em;text-decoration-color:var(--rule)}
+a:hover{text-decoration-color:var(--brass)}
+
+/* ── Narrow screens: the deck must still read on a laptop or phone ── */
+@media (max-width:900px){
+  .split,.split.wide-right,.g4,.g3,.g2{grid-template-columns:1fr}
+  main{scroll-snap-type:none;height:auto;overflow:visible}
+  .slide{min-height:auto;padding-block:clamp(2.6rem,7vh,4rem)}
+  .rail{display:none}
+  .hud{position:static;margin:0 auto 2rem;padding-inline:var(--gut);max-width:1680px}
+}
+
+@media print{
+  main{height:auto;overflow:visible;scroll-snap-type:none}
+  .slide{page-break-after:always;min-height:auto}
+  .rail,.hud,#map{display:none}
+  body{background:#fff;color:#15160F}
+}
+</style>
+</head>
+<body>
+
+<main id="deck">
+
+<!-- ═══ 1 · COVER ═══════════════════════════════════════════════ -->
+<section class="slide" id="s1" data-n="01" data-title="Cover">
+  <div class="crest rise">
+    <img src="nwra-logo.png" alt="North West Regional Assembly seal">
+    <div>
+      <div class="wm">GovernIQ</div>
+      <div class="sub">North West Regional Assembly</div>
+    </div>
+  </div>
+
+  <div class="cover-body rise">
+    <div>
+      <div class="eyebrow tight" style="margin-bottom:1rem">Regional Analytics Platform · Project Document v3.0</div>
+      <h1>Seven divisions.<br>One register.<br><em style="font-style:italic;color:var(--brass-ink)">Same day.</em></h1>
+    </div>
+    <div style="padding-bottom:.5rem">
+      <div class="chain" style="margin-top:0"></div>
+      <p class="lede">
+        The regional evidence base for the North West — a data network that
+        works where the crisis is, and a Command Centre wall that puts the
+        whole region on one screen in the Chamber.
+      </p>
+      <p class="small" style="margin-top:1.1rem;color:var(--brass-ink);max-width:44ch">
+        <b>Built and running today.</b> This is not a proposal for software that
+        might one day exist. Every screen in this deck is the live platform.
+      </p>
+    </div>
+  </div>
+
+  <div class="foot rise" style="padding-right:clamp(3rem,7vw,8rem)">
+    <div class="item"><div class="k">The ask</div><div class="v mono">FCFA 487,500,000 · 30 months</div></div>
+    <div class="item"><div class="k">Submitted to</div><div class="v">Prof. Fru Fobuzshi Angwafo III<br><span class="small">President, Regional Executive Council</span></div></div>
+    <div class="item"><div class="k">Project conceptionist</div><div class="v">Wiysenyuy Louis Nyuydzeran</div></div>
+    <div class="item"><div class="k">Where · when</div><div class="v mono">Bamenda · Mandate 2026–2031</div></div>
+    <div class="item motto">« Mi na u, U na mi, wi be wi »</div>
+  </div>
+</section>
+
+<!-- ═══ 2 · PROBLEM ═════════════════════════════════════════════ -->
+<section class="slide" id="s2" data-n="02" data-title="The problem">
+  <div class="eyebrow rise">02 · The problem</div>
+  <div class="split rise" style="margin-top:1rem">
+    <div class="stack">
+      <h2>The Assembly decides on evidence that arrives <em>months after the decision.</em></h2>
+      <p class="lede">
+        Since 2017 the crisis has broken the reporting chain. Field agents cannot
+        move freely. Sectoral delegations file three to nine months late. Six or
+        more sub-divisions — Furu-Awa, Ako, Misaje, Nwa, Menchum Valley, parts of
+        Boyo — are partially unreachable.
+      </p>
+      <div class="panel hot">
+        <p style="font-family:var(--display);font-size:clamp(1rem,1.35vw,1.5rem);line-height:1.35;font-style:italic;color:var(--paper)">
+          A culvert blocks at the Kumbo junction in January. The paper reaches
+          the Chamber in September. By then the rains have taken the road, and
+          the repair costs four times what it would have.
+        </p>
+        <p class="caption" style="margin-top:.7rem">This is the cost of latency — not of bad intentions</p>
+      </div>
+      <p class="small">
+        The Specialised Finance Control Report 2025 and the May 2026 Ordinary
+        Session minutes both call for a regional evidence base. This project
+        is the answer to a request the Assembly has already made of itself.
+      </p>
+    </div>
+
+    <div class="stack">
+      <div class="panel">
+        <div class="eyebrow tight" style="margin-bottom:1.1rem">Reporting lag, field to Chamber</div>
+        <svg viewBox="0 0 520 210" role="img" aria-label="Reporting lag today is 90 to 270 days against a 30 day target" style="width:100%;height:auto">
+          <defs>
+            <linearGradient id="lagbar" x1="0" x2="1">
+              <stop offset="0" stop-color="#E2724A" stop-opacity=".85"/>
+              <stop offset="1" stop-color="#E2724A" stop-opacity=".25"/>
+            </linearGradient>
+          </defs>
+          <g font-family="IBM Plex Mono" font-size="11" fill="#9DAB9C">
+            <text x="0" y="26">TODAY · BEST CASE</text>
+            <rect x="0" y="34" width="150" height="16" fill="url(#lagbar)"/>
+            <text x="160" y="47" fill="#E2724A">90 days</text>
+
+            <text x="0" y="84">TODAY · WORST CASE</text>
+            <rect x="0" y="92" width="450" height="16" fill="url(#lagbar)"/>
+            <text x="460" y="105" fill="#E2724A">270 days</text>
+
+            <text x="0" y="142">WITH GOVERNIQ</text>
+            <rect x="0" y="150" width="50" height="16" fill="#5FB48C"/>
+            <text x="60" y="163" fill="#5FB48C">≤ 30 days</text>
+
+            <line x1="0" y1="188" x2="520" y2="188" stroke="rgba(224,178,69,.2)"/>
+            <text x="0" y="204" fill="#7E8C7E">PDO indicator 2 · baseline 3–9 months · target ≤ 30 days at Y2.5</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="grid g3">
+        <div class="panel stat hot">
+          <span class="fig" style="color:var(--kola)">29<span style="font-size:.5em">%</span></span>
+          <span class="lbl">Divisions on time</span>
+          <span class="sub">2 of 7 file monthly core indicators on schedule</span>
+        </div>
+        <div class="panel stat hot">
+          <span class="fig" style="color:var(--kola)">0<span style="font-size:.42em;letter-spacing:.02em"> of 8</span></span>
+          <span class="lbl">Committees tracked</span>
+          <span class="sub">No standing committee has live progress visibility</span>
+        </div>
+        <div class="panel stat hot">
+          <span class="fig" style="color:var(--kola)">10.33<span style="font-size:.42em">B</span></span>
+          <span class="lbl">FCFA decided blind</span>
+          <span class="sub">Adjusted budget executed without real-time visibility</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 3 · SOLUTION ════════════════════════════════════════════ -->
+<section class="slide" id="s3" data-n="03" data-title="The solution">
+  <div class="eyebrow rise">03 · The solution</div>
+  <div class="rise" style="margin-top:1rem">
+    <h2 style="max-width:24ch">GovernIQ collects the region's data <em>where the crisis is</em>, and puts it on one screen in the Chamber — the same day.</h2>
+    <div class="chain"></div>
+  </div>
+
+  <div class="split wide-right rise" style="margin-top:clamp(1rem,2.5vh,2rem)">
+    <div class="grid" style="gap:1rem">
+      <div class="panel k">
+        <div class="eyebrow tight">01 · People</div>
+        <h3 style="margin:.5rem 0 .4rem">A network, not a vendor</h3>
+        <p class="small">63 trained agents — 1 Regional Data Officer, 7 Divisional Focal Points, 34 Council Correspondents and 21 Community Data Agents <b style="color:var(--paper)">recruited from the communities they report on</b>. An agent who lives in Furu-Awa can file from Furu-Awa on a day when no one can travel there.</p>
+      </div>
+      <div class="panel k">
+        <div class="eyebrow tight">02 · Platform</div>
+        <h3 style="margin:.5rem 0 .4rem">Offline-first, by design</h3>
+        <p class="small">Collection continues through shutdowns and holds up to 30 days, syncing the moment a network returns, with SMS micro-reporting as a further fallback. Postgres with row-level security; encrypted in transit and at rest.</p>
+      </div>
+      <div class="panel k">
+        <div class="eyebrow tight">03 · Presence</div>
+        <h3 style="margin:.5rem 0 .4rem">A wall that cannot be ignored</h3>
+        <p class="small">A 13 m² fine-pitch LED wall in the Assembly building, projecting the live region. Evidence that sits in a database gets ignored; evidence on the wall of the room where decisions are taken does not.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="shot"><img src="shots/chamber.png" alt="The GovernIQ Chamber view — budget execution, active programmes and the seven divisions" loading="lazy"></div>
+      <p class="caption">The Chamber view · live from the regional register</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 4 · MARKET ══════════════════════════════════════════════ -->
+<section class="slide" id="s4" data-n="04" data-title="Scale of the mandate">
+  <div class="eyebrow rise">04 · Scale of the mandate</div>
+  <div class="split rise" style="margin-top:1rem">
+    <div class="stack">
+      <h2>Built for the North West. <em>Structurally identical</em> everywhere decentralisation reached.</h2>
+      <p class="lede">
+        The 2019 General Code of Regional and Local Authorities created ten
+        Regional Assemblies and transferred competences to 360 councils. Every
+        one of them inherited the same reporting obligation and none of them
+        inherited the instrument to meet it.
+      </p>
+      <ul class="marks">
+        <li><b>SND-30</b> makes evidence-based planning a national requirement.</li>
+        <li><b>The PPRD</b> puts reconstruction money into the NW/SW and needs execution evidence to keep putting it there.</li>
+        <li><b>FEICOM, PROLOG and donor windows</b> all condition disbursement on verifiable reporting.</li>
+      </ul>
+      <p class="small">
+        The North West is the hardest case, not the easiest. A platform proven
+        under crisis conditions in Bamenda transfers to any region in the
+        country without a single new assumption.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="eyebrow tight" style="margin-bottom:1.2rem">Bottom-up, from the unit that reports</div>
+      <svg viewBox="0 0 460 330" role="img" aria-label="Beachhead of 7 divisions and 34 councils, widening to 10 regional assemblies and 360 councils nationally" style="width:100%;height:auto">
+        <g font-family="IBM Plex Mono" font-size="10.5">
+          <rect x="4" y="4" width="452" height="322" fill="rgba(224,178,69,.05)" stroke="rgba(224,178,69,.25)"/>
+          <text x="18" y="28" fill="#E0B245" letter-spacing="2">NATIONAL · 10 REGIONS</text>
+          <text x="18" y="46" fill="#DCD8C6" font-size="12">360 councils · 14 city councils · 10 regional assemblies</text>
+
+          <rect x="26" y="66" width="408" height="238" fill="rgba(95,180,140,.06)" stroke="rgba(95,180,140,.3)"/>
+          <text x="40" y="90" fill="#5FB48C" letter-spacing="2">SERVICEABLE · REGIONAL ASSEMBLIES</text>
+          <text x="40" y="108" fill="#DCD8C6" font-size="12">10 assemblies under the same 2019 reporting mandate</text>
+
+          <rect x="48" y="128" width="364" height="154" fill="rgba(224,178,69,.16)" stroke="#E0B245" stroke-width="1.2"/>
+          <text x="64" y="152" fill="#E0B245" letter-spacing="2">BEACHHEAD · THIS CONTRACT</text>
+          <text x="64" y="178" fill="#F5F1E4" font-size="19" font-family="Fraunces">North West Regional Assembly</text>
+          <g fill="#DCD8C6" font-size="11.5">
+            <text x="64" y="204">7 divisions</text>
+            <text x="180" y="204">34 councils</text>
+            <text x="300" y="204">8 committees</text>
+            <text x="64" y="226">90 members</text>
+            <text x="180" y="226">63 data agents</text>
+            <text x="300" y="226">1 command wall</text>
+          </g>
+          <line x1="64" y1="242" x2="396" y2="242" stroke="rgba(224,178,69,.3)"/>
+          <text x="64" y="264" fill="#F0CF7E" font-size="15" font-family="Fraunces">FCFA 20.8 B under management, FY 2026</text>
+          <text x="64" y="278" fill="#7E8C7E" font-size="10">18.1 B investment · 2.7 B operations</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 5 · PRODUCT ═════════════════════════════════════════════ -->
+<section class="slide" id="s5" data-n="05" data-title="The product">
+  <div class="eyebrow rise">05 · The product · already built</div>
+  <div class="rise" style="margin-top:.8rem;display:flex;flex-wrap:wrap;align-items:flex-end;gap:1.5rem;justify-content:space-between">
+    <h2 style="max-width:15ch">Not a mock-up.<br><em>A running system.</em></h2>
+    <p class="small" style="max-width:44ch">
+      Every screen below is the live platform reading the live regional
+      register. One workflow runs end to end: a field agent files from the
+      site, the registry indexes it, the Chamber sees it, the citizen answers back.
+    </p>
+  </div>
+
+  <div class="split wide-right rise" style="margin-top:clamp(.9rem,2vh,1.6rem);align-items:start;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)">
+    <div class="stack" style="gap:.9rem">
+      <div class="panel">
+        <div class="eyebrow tight" style="margin-bottom:.9rem">Built and in use today</div>
+        <ul class="marks go" style="gap:.5rem">
+          <li>Programme register with budget, execution and division</li>
+          <li>Document registry — upload, store, index, full-text search</li>
+          <li>Session minutes: draft, adopt, publish</li>
+          <li>Nine capacities, Superadmin to Citizen, permission-gated</li>
+          <li>Live walkthroughs streamed from a phone at the site</li>
+          <li>Citizen feedback routed to the responsible officer</li>
+          <li>An assistant grounded on the register, not on guesswork</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="eyebrow tight" style="margin-bottom:.9rem">Funded by this round</div>
+        <ul class="marks" style="gap:.5rem">
+          <li>Offline queue and background sync for the field PWA</li>
+          <li>SMS micro-reporting fallback for shutdown conditions</li>
+          <li>Predictive modules and GIS choropleth across 34 councils</li>
+          <li>Eight standing-committee workspaces with drilldown</li>
+          <li>The Command Centre wall, its control room and the open-data portal</li>
+        </ul>
+      </div>
+    </div>
+
+    <div>
+      <div class="shot hero"><img src="shots/situation.png" alt="The Situation Room — reports filed from the sites as they arrive, with silent sites flagged" loading="lazy"></div>
+      <p class="caption">The Situation Room · every site that filed today, and every one that did not</p>
+
+      <div class="grid g3 thumbs" style="margin-top:clamp(.7rem,1.6vh,1.2rem);gap:.9rem">
+        <div><div class="shot crop"><img src="shots/programmes.png" alt="Programme register" loading="lazy"></div><p class="caption">Programme register</p></div>
+        <div><div class="shot crop"><img src="shots/registry.png" alt="Document registry" loading="lazy"></div><p class="caption">Registry, full-text</p></div>
+        <div><div class="shot crop"><img src="shots/analytics.png" alt="Divisional analytics" loading="lazy"></div><p class="caption">Divisional analytics</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 6 · BUSINESS MODEL ══════════════════════════════════════ -->
+<section class="slide" id="s6" data-n="06" data-title="The economics">
+  <div class="eyebrow rise">06 · The economics</div>
+  <div class="split rise" style="margin-top:1rem">
+    <div class="stack">
+      <h2>One point of execution <em>pays for the whole thing.</em></h2>
+      <p class="lede">
+        The Assembly manages an investment budget of FCFA 18.1 billion. A single
+        percentage point of improved execution is FCFA 181 million a year. The
+        platform costs FCFA 48 million a year to run.
+      </p>
+      <div class="panel go">
+        <div class="grid g2" style="gap:1.2rem">
+          <div class="stat">
+            <span class="fig" style="color:var(--highland)">3.8×</span>
+            <span class="lbl">Annual cover</span>
+            <span class="sub">One point of execution against the yearly running cost</span>
+          </div>
+          <div class="stat">
+            <span class="fig" style="color:var(--highland)">2.7<span style="font-size:.42em"> yrs</span></span>
+            <span class="lbl">Capital recovered</span>
+            <span class="sub">Full FCFA 487.5 M envelope, on the same one point</span>
+          </div>
+        </div>
+      </div>
+      <p class="small">
+        This is the conservative case. It assumes the platform improves execution
+        by one point and nothing else — no reduction in duplicated payments, no
+        earlier detection of stalled works, no partner co-financing unlocked by
+        verifiable reporting.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="eyebrow tight" style="margin-bottom:1rem">Cost per unit of governance</div>
+      <table>
+        <thead><tr><th>Measure</th><th class="num">FCFA</th><th class="num">Of budget</th></tr></thead>
+        <tbody>
+          <tr><td>Capital, one time</td><td class="num">487,500,000</td><td class="num">2.34%</td></tr>
+          <tr><td>Recurrent, per year</td><td class="num">48,000,000</td><td class="num">0.23%</td></tr>
+          <tr><td>Per division, per year</td><td class="num">6,857,000</td><td class="num">—</td></tr>
+          <tr><td>Per council, per year</td><td class="num">1,412,000</td><td class="num">—</td></tr>
+          <tr><td>Per data agent, over 30 months</td><td class="num">2,254,000</td><td class="num">—</td></tr>
+          <tr class="total"><td>Cost of doing nothing</td><td class="num">unmeasured</td><td class="num">—</td></tr>
+        </tbody>
+      </table>
+      <p class="caption" style="margin-top:.9rem">Share of budget computed against the FY 2026 envelope of FCFA 20.8 B</p>
+
+      <div class="chain" style="margin:1.2rem 0 1rem;max-width:100%"></div>
+      <div class="eyebrow tight" style="margin-bottom:.7rem">How it sustains itself after handover</div>
+      <ul class="marks">
+        <li>An annual line in the NWRA operating budget — <b>FCFA 48 M</b>, institutionally anchored</li>
+        <li>Open-data portal that makes partner co-financing auditable, and therefore renewable</li>
+        <li>Replication to the other nine assemblies, with the NWRA as origin and reference</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 7 · TRACTION ════════════════════════════════════════════ -->
+<section class="slide" id="s7" data-n="07" data-title="Traction">
+  <div class="eyebrow rise">07 · Traction</div>
+  <div class="rise" style="margin-top:.8rem;display:flex;flex-wrap:wrap;align-items:flex-end;gap:1.5rem;justify-content:space-between">
+    <h2 style="max-width:20ch">Most bidders bring slides. <em>This one brings a login.</em></h2>
+    <span class="tag go">Live · counted from the register at the hour of this sitting</span>
+  </div>
+
+  <div class="grid g4 rise" style="margin-top:clamp(1rem,2.4vh,1.8rem)">
+    <div class="panel stat k"><span class="fig">12</span><span class="lbl">Programmes tracked</span><span class="sub">FCFA 1.118 B across all seven divisions</span></div>
+    <div class="panel stat k"><span class="fig">11</span><span class="lbl">Documents indexed</span><span class="sub">Stored, searchable on body text, not only titles</span></div>
+    <div class="panel stat k"><span class="fig">07</span><span class="lbl">Divisions live</span><span class="sub">Performance and execution recorded for each</span></div>
+    <div class="panel stat k"><span class="fig">09</span><span class="lbl">Capacities enforced</span><span class="sub">Superadmin through Citizen, permission-gated</span></div>
+  </div>
+
+  <div class="split wide-right rise" style="margin-top:clamp(1rem,2.2vh,1.7rem);align-items:start">
+    <div class="panel">
+      <div class="eyebrow tight" style="margin-bottom:1rem">Execution rate by division · FY 2026, from the live register</div>
+      <svg viewBox="0 0 500 318" role="img" aria-label="Execution rate by division: Mezam 94 percent, Menchum 81, Momo 78, Boyo 72, Ngoketunjia 70, Bui 68, Donga-Mantung 65" style="width:100%;height:auto">
+        <g font-family="IBM Plex Mono" font-size="11">
+          <line x1="128" y1="8" x2="128" y2="258" stroke="rgba(245,241,228,.12)"/>
+          <line x1="450" y1="8" x2="450" y2="258" stroke="rgba(224,178,69,.28)" stroke-dasharray="3 3"/>
+          <text x="450" y="278" fill="#E0B245" text-anchor="middle">100%</text>
+          <text x="128" y="278" fill="#7E8C7E" text-anchor="middle">0</text>
+
+          <g fill="#DCD8C6">
+            <text x="120" y="30" text-anchor="end">MEZAM</text>
+            <rect class="bar" x="128" y="18" width="302.68" height="17" fill="#5FB48C"/>
+            <text x="440" y="30" text-anchor="end" fill="#0A1610" font-weight="600">94%</text>
+
+            <text x="120" y="65" text-anchor="end">MENCHUM</text>
+            <rect class="bar" x="128" y="53" width="260.82" height="17" fill="#5FB48C" opacity=".85"/>
+            <text x="380" y="65" text-anchor="end" fill="#0A1610" font-weight="600">81%</text>
+
+            <text x="120" y="100" text-anchor="end">MOMO</text>
+            <rect class="bar" x="128" y="88" width="251.16" height="17" fill="#5FB48C" opacity=".78"/>
+            <text x="371" y="100" text-anchor="end" fill="#0A1610" font-weight="600">78%</text>
+
+            <text x="120" y="135" text-anchor="end">BOYO</text>
+            <rect class="bar" x="128" y="123" width="231.84" height="17" fill="#E0B245" opacity=".8"/>
+            <text x="352" y="135" text-anchor="end" fill="#0A1610" font-weight="600">72%</text>
+
+            <text x="120" y="170" text-anchor="end">NGOKETUNJIA</text>
+            <rect class="bar" x="128" y="158" width="225.4" height="17" fill="#E0B245" opacity=".8"/>
+            <text x="346" y="170" text-anchor="end" fill="#0A1610" font-weight="600">70%</text>
+
+            <text x="120" y="205" text-anchor="end">BUI</text>
+            <rect class="bar" x="128" y="193" width="218.96" height="17" fill="#E0B245" opacity=".8"/>
+            <text x="339" y="205" text-anchor="end" fill="#0A1610" font-weight="600">68%</text>
+
+            <text x="120" y="240" text-anchor="end">DONGA-MANTUNG</text>
+            <rect class="bar" x="128" y="228" width="209.3" height="17" fill="#E2724A" opacity=".85"/>
+            <text x="330" y="240" text-anchor="end" fill="#0A1610" font-weight="600">65%</text>
+          </g>
+          <text x="128" y="296" fill="#7E8C7E" font-size="9.5">A 29-point spread between the best and worst division —</text>
+          <text x="128" y="308" fill="#7E8C7E" font-size="9.5">invisible to the Chamber until this register existed.</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="stack">
+      <div class="shot hero tight"><img src="shots/execution.png" alt="Execution register — each programme with its site narrative, photograph and citizen testimony" loading="lazy"></div>
+      <p class="caption">Execution register · site narrative, photograph and citizen testimony, per programme</p>
+      <div class="panel">
+        <ul class="marks go" style="gap:.5rem">
+          <li>5 committee reports filed and retrievable</li>
+          <li>3 sittings minuted, drafted through to adoption</li>
+          <li>6 field site reports filed from the ground</li>
+          <li>5 citizen submissions received and routed</li>
+          <li>Live snapshot streaming proven from a phone at a site</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 8 · GO TO MARKET ════════════════════════════════════════ -->
+<section class="slide" id="s8" data-n="08" data-title="Deployment">
+  <div class="eyebrow rise">08 · Deployment and adoption</div>
+  <div class="rise" style="margin-top:.8rem;display:flex;flex-wrap:wrap;align-items:flex-end;gap:1.5rem;justify-content:space-between">
+    <h2 style="max-width:22ch">Adoption rides on <em>structures that already exist.</em></h2>
+    <p class="small" style="max-width:42ch">
+      No new institution is created. Every Focal Point sits in a Senior
+      Divisional Officer's office that is already there; every Correspondent
+      sits in a council that already reports. We are wiring an existing chain,
+      not building a parallel one.
+    </p>
+  </div>
+
+  <div class="grid g4 rise" style="margin-top:clamp(1rem,2.4vh,1.9rem)">
+    <div class="panel k">
+      <span class="tag">Q1 – Q3</span>
+      <h3 style="margin:.7rem 0 .45rem">Anchor</h3>
+      <p class="small">PMU stood up under the Secretary General. RDO recruited, 7 Divisional Focal Points trained and in post. Procurement plan approved.</p>
+      <p class="caption" style="margin-top:.8rem">Milestone · baseline collection opens in all 7 divisions</p>
+    </div>
+    <div class="panel k">
+      <span class="tag">Q3 – Q5</span>
+      <h3 style="margin:.7rem 0 .45rem">Reach</h3>
+      <p class="small">34 Council Correspondents and 21 Community Data Agents recruited locally, equipped with offline tablets and solar chargers under the crisis per-diem framework.</p>
+      <p class="caption" style="margin-top:.8rem">Milestone · the hard-to-reach sub-divisions start reporting</p>
+    </div>
+    <div class="panel k">
+      <span class="tag">Q4 – Q6</span>
+      <h3 style="margin:.7rem 0 .45rem">Pull</h3>
+      <p class="small">Command Centre commissioned. Eight committee workspaces roll out. The wall is what converts a reporting duty into a reporting habit — nobody wants their division blank on it.</p>
+      <p class="caption" style="margin-top:.8rem">Milestone · reporting lag falls below 30 days</p>
+    </div>
+    <div class="panel k">
+      <span class="tag">Q7 – Q10</span>
+      <h3 style="margin:.7rem 0 .45rem">Open</h3>
+      <p class="small">Public open-data portal. Citizen feedback loop live. Independent audit, handover, and the FCFA 48 M annual line written into the operating budget.</p>
+      <p class="caption" style="margin-top:.8rem">Milestone · ≥ 90% of divisions reporting on time</p>
+    </div>
+  </div>
+
+  <div class="grid g3 rise" style="margin-top:clamp(1rem,2.2vh,1.7rem)">
+    <div class="panel stat"><span class="fig">2.25<span style="font-size:.4em"> M</span></span><span class="lbl">FCFA per agent onboarded</span><span class="sub">Component 1 across 63 agents over 30 months, all-in</span></div>
+    <div class="panel stat"><span class="fig">63</span><span class="lbl">Agents, 34 councils</span><span class="sub">One correspondent per council — full coverage, not a sample</span></div>
+    <div class="panel stat"><span class="fig">30<span style="font-size:.42em"> days</span></span><span class="lbl">Offline endurance</span><span class="sub">Collection survives a month-long shutdown without loss</span></div>
+  </div>
+</section>
+
+<!-- ═══ 9 · COMPETITION ═════════════════════════════════════════ -->
+<section class="slide" id="s9" data-n="09" data-title="Alternatives">
+  <div class="eyebrow rise">09 · The alternatives, honestly</div>
+  <div class="split rise" style="margin-top:1rem">
+    <div class="matrix">
+      <div class="mx-col-heads">
+        <span></span>
+        <span class="eyebrow tight" style="color:var(--highland)">Works without connectivity</span>
+        <span class="eyebrow tight" style="color:var(--kola)">Assumes connectivity</span>
+      </div>
+
+      <div class="mx-row">
+        <span class="mx-side" style="color:var(--kola)">Owned elsewhere</span>
+        <div class="mx-cell">
+          <h3>Donor project MIS</h3>
+          <p class="small">Offline-capable, but scoped to one programme — and it leaves when the programme closes.</p>
+        </div>
+        <div class="mx-cell">
+          <h3>Generic BI suites</h3>
+          <p class="small">Power BI, Tableau. Need clean feeds and a live connection. The licence renews forever.</p>
+        </div>
+      </div>
+
+      <div class="mx-row">
+        <span class="mx-side" style="color:var(--highland)">Owned by the Assembly</span>
+        <div class="mx-cell win">
+          <h3 style="font-family:var(--display);font-size:clamp(1.3rem,1.9vw,2rem);font-weight:400;color:var(--brass-ink)">GovernIQ</h3>
+          <p class="small" style="color:var(--paper)">Offline-first — and the code, the data and the people all stay inside the Assembly.</p>
+        </div>
+        <div class="mx-cell">
+          <h3>Consultant dashboards</h3>
+          <p class="small">Beautiful for the launch. Stale by the second quarter. Nobody inside can change them.</p>
+        </div>
+      </div>
+
+      <p class="small" style="margin-top:1rem;color:var(--muted)">
+        And the incumbent: paper and Excel. Institutionally owned and offline by
+        nature — but not aggregatable, and months late.
+      </p>
+    </div>
+
+    <div class="stack">
+      <h2>The advantage is <em>structural</em>, not technical.</h2>
+      <p class="lede">
+        Anyone can build a dashboard. What cannot be copied by a competing bid
+        is a data collection network that is part of the region's governance
+        rather than part of a supplier's contract.
+      </p>
+      <ul class="marks">
+        <li><b>The network outlives the contract.</b> The RDO function is written into the Secretariat General's organigram. When the project closes, the reporting chain remains.</li>
+        <li><b>Crisis access is a protocol, not a promise.</b> Tiered collection, locally-resident agents and no geo-tagging in red zones, co-signed with humanitarian partners.</li>
+        <li><b>The platform already exists.</b> Every rival bid starts at zero with a delivery risk. This one starts with a working system and a login the Assembly can test tonight.</li>
+        <li><b>Nothing leaves the region.</b> Data, credentials and administration sit with the NWRA. No licence renewal can hold the region's own record hostage.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 10 · TEAM ═══════════════════════════════════════════════ -->
+<section class="slide" id="s10" data-n="10" data-title="Team">
+  <div class="eyebrow rise">10 · Who delivers this</div>
+  <div class="rise" style="margin-top:.8rem;display:flex;flex-wrap:wrap;align-items:flex-end;gap:1.5rem;justify-content:space-between">
+    <h2 style="max-width:20ch">Governed from the Chamber. <em>Staffed from the divisions.</em></h2>
+    <p class="small" style="max-width:42ch">
+      Not an external delivery team with a regional liaison. A regional
+      structure with a technical unit inside it — which is the only
+      arrangement that survives the end of the funding.
+    </p>
+  </div>
+
+  <div class="grid g3 rise" style="margin-top:clamp(1rem,2.4vh,1.9rem);align-items:start">
+    <div class="panel k">
+      <div class="eyebrow tight" style="margin-bottom:.9rem">Steering</div>
+      <table>
+        <tbody>
+          <tr><td>Prof. Fru Fobuzshi Angwafo III</td><td class="small">Chair · President, Regional Executive Council</td></tr>
+          <tr><td>Mr. Peter Yerima</td><td class="small">Secretary General · hosts the Project Management Unit</td></tr>
+          <tr><td>The eight standing committees</td><td class="small">Co-owners of their own workspaces</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="panel k">
+      <div class="eyebrow tight" style="margin-bottom:.9rem">Project Management Unit</div>
+      <ul class="marks" style="gap:.55rem">
+        <li>Regional Data Officer — focal point to MINEPAT and INS</li>
+        <li>IT Lead — platform, security, connectivity failover</li>
+        <li>M&amp;E Specialist — indicators, data-quality audit</li>
+        <li>Procurement Officer — the Command Centre tender</li>
+        <li>Communications Lead — briefings, data dictionary, press</li>
+      </ul>
+    </div>
+    <div class="panel k">
+      <div class="eyebrow tight" style="margin-bottom:.9rem">Origin and technical authorship</div>
+      <p style="font-family:var(--display);font-size:clamp(1.1rem,1.5vw,1.6rem);line-height:1.2;margin-bottom:.5rem">Wiysenyuy Louis Nyuydzeran</p>
+      <p class="small">Project conceptionist and author of the platform now running. Founder-market fit here is literal: the working system predates the funding request, which is the least common thing in this room.</p>
+      <div class="chain" style="margin:1rem 0 .8rem;max-width:100%"></div>
+      <p class="small">Skills transfer secured by twinning with <b style="color:var(--paper)">INS</b>, <b style="color:var(--paper)">MINEPAT</b> and a regional university, with a video training library and two-deep coverage on every role.</p>
+    </div>
+  </div>
+
+  <div class="panel go rise" style="margin-top:clamp(1rem,2.2vh,1.7rem)">
+    <div class="grid g4" style="gap:1.4rem;align-items:center">
+      <div><div class="eyebrow tight">Why now</div></div>
+      <p class="small">The 2026–2031 mandate has just opened and 81 members were inducted under Resolution 2026/04 — the induction cohort and the platform rollout are the same cohort.</p>
+      <p class="small">Resolution 2026/03 already commits the Assembly to the Digital Transformation Programme. This project is its instrument, not a new idea requiring a new mandate.</p>
+      <p class="small">The PPRD reconstruction window is open now and conditions further disbursement on verifiable execution evidence the region cannot currently produce.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 11 · FINANCIALS ═════════════════════════════════════════ -->
+<section class="slide" id="s11" data-n="11" data-title="Financials">
+  <div class="eyebrow rise">11 · Financials</div>
+  <div class="split wide-right rise" style="margin-top:1rem;align-items:start">
+    <div class="stack">
+      <h2>Milestone-gated. <em>The Assembly never pays ahead of delivery.</em></h2>
+      <p class="lede">
+        Nothing is disbursed against a promise. Each tranche is released against
+        an inspectable result, and the largest single payment lands only when
+        the Command Centre is commissioned and projecting.
+      </p>
+      <table>
+        <thead><tr><th>Trigger</th><th class="num">Share</th><th class="num">FCFA</th></tr></thead>
+        <tbody>
+          <tr><td>Contract signature</td><td class="num">20%</td><td class="num">97,500,000</td></tr>
+          <tr><td>Platform v1 acceptance</td><td class="num">25%</td><td class="num">121,875,000</td></tr>
+          <tr><td>Command Centre commissioning</td><td class="num">25%</td><td class="num">121,875,000</td></tr>
+          <tr><td>Mid-term review</td><td class="num">20%</td><td class="num">97,500,000</td></tr>
+          <tr><td>Final evaluation</td><td class="num">10%</td><td class="num">48,750,000</td></tr>
+          <tr class="total"><td>Total envelope</td><td class="num">100%</td><td class="num">487,500,000</td></tr>
+        </tbody>
+      </table>
+      <div class="panel">
+        <div class="eyebrow tight" style="margin-bottom:.7rem">Assumptions, stated plainly</div>
+        <ul class="marks" style="gap:.45rem">
+          <li>LED wall pricing is indicative, P1.8/P2.0 fine-pitch, from current vendor quotations</li>
+          <li>Agent per-diems follow the crisis-adapted framework, not standard mission rates</li>
+          <li>Recurrent cost from Y3 assumes hosting, maintenance and 63 agent allowances</li>
+          <li>No revenue is assumed from the open-data portal in the base case</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="panel">
+        <div class="eyebrow tight" style="margin-bottom:1rem">Cumulative draw-down against milestones · FCFA millions</div>
+        <svg viewBox="0 0 560 300" role="img" aria-label="Cumulative disbursement rising from 97.5 million at signature to 487.5 million at final evaluation" style="width:100%;height:auto">
+          <defs>
+            <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#E0B245" stop-opacity=".3"/>
+              <stop offset="1" stop-color="#E0B245" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <g font-family="IBM Plex Mono" font-size="10">
+            <g stroke="rgba(245,241,228,.08)">
+              <line x1="52" y1="30"  x2="540" y2="30"/>
+              <line x1="52" y1="90"  x2="540" y2="90"/>
+              <line x1="52" y1="150" x2="540" y2="150"/>
+              <line x1="52" y1="210" x2="540" y2="210"/>
+            </g>
+            <line x1="52" y1="250" x2="540" y2="250" stroke="rgba(224,178,69,.35)"/>
+            <g fill="#7E8C7E" text-anchor="end">
+              <text x="44" y="34">500</text><text x="44" y="94">375</text>
+              <text x="44" y="154">250</text><text x="44" y="214">125</text><text x="44" y="254">0</text>
+            </g>
+
+            <path d="M52 250 L112 203 L112 203 L250 145 L250 145 L330 87 L330 87 L410 40 L410 40 L500 17 L500 250 Z" fill="url(#fill)"/>
+            <polyline class="draw" points="52,250 112,203 250,145 330,87 410,40 500,17"
+              fill="none" stroke="#E0B245" stroke-width="2.4" stroke-linejoin="round"/>
+
+            <g fill="#E0B245">
+              <circle cx="112" cy="203" r="4"/><circle cx="250" cy="145" r="4"/>
+              <circle cx="330" cy="87" r="4"/><circle cx="410" cy="40" r="4"/>
+              <circle cx="500" cy="17" r="5"/>
+            </g>
+            <g fill="#DCD8C6" font-size="9.5" text-anchor="middle">
+              <text x="112" y="270">SIGN</text><text x="112" y="282" fill="#7E8C7E">97.5</text>
+              <text x="250" y="270">PLATFORM V1</text><text x="250" y="282" fill="#7E8C7E">219.4</text>
+              <text x="330" y="270">WALL LIVE</text><text x="330" y="282" fill="#7E8C7E">341.3</text>
+              <text x="410" y="270">MID-TERM</text><text x="410" y="282" fill="#7E8C7E">438.8</text>
+              <text x="500" y="270">FINAL</text><text x="500" y="282" fill="#F0CF7E">487.5</text>
+            </g>
+            <text x="52" y="296" fill="#7E8C7E">Months 1 → 30</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="grid g3">
+        <div class="panel stat"><span class="fig">219<span style="font-size:.4em"> M</span></span><span class="lbl">Year 1 draw</span><span class="sub">Signature and platform acceptance</span></div>
+        <div class="panel stat"><span class="fig">219<span style="font-size:.4em"> M</span></span><span class="lbl">Year 2 draw</span><span class="sub">Command Centre and mid-term</span></div>
+        <div class="panel stat"><span class="fig">48<span style="font-size:.4em"> M/yr</span></span><span class="lbl">From Year 3</span><span class="sub">Recurrent, in the operating budget</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 12 · ASK ════════════════════════════════════════════════ -->
+<section class="slide" id="s12" data-n="12" data-title="The ask">
+  <div class="eyebrow rise">12 · The ask</div>
+  <div class="split rise" style="margin-top:1rem;align-items:start">
+    <div class="stack">
+      <div>
+        <div class="eyebrow tight" style="margin-bottom:.8rem">The Assembly is asked to approve</div>
+        <div class="fig" style="font-size:clamp(3rem,7vw,6.6rem);color:var(--brass-ink);padding-left:.11em">487.5<span style="font-size:.28em;letter-spacing:0"> M FCFA</span></div>
+        <div class="chain"></div>
+        <p class="lede">
+          Over 30 months, disbursed against five inspectable milestones, to
+          establish the regional evidence base and commission the Command
+          Centre at the Assembly building in Bamenda.
+        </p>
+      </div>
+
+      <div class="panel">
+        <div class="eyebrow tight" style="margin-bottom:1rem">Use of funds</div>
+        <div style="display:flex;height:34px;border-radius:2px;overflow:hidden;gap:2px">
+          <div class="bar" style="width:34.6%;background:#E0B245"></div>
+          <div class="bar" style="width:29.1%;background:#5FB48C"></div>
+          <div class="bar" style="width:24.2%;background:#E2724A"></div>
+          <div class="bar" style="width:12.1%;background:#B98F2C"></div>
+        </div>
+        <div class="grid g4" style="gap:.9rem;margin-top:.9rem">
+          <div><div class="eyebrow tight" style="color:#E0B245">C2 · Platform</div><p class="mono small" style="margin-top:.25rem">168.5 M · 34.6%</p></div>
+          <div><div class="eyebrow tight" style="color:#5FB48C">C1 · DFP network</div><p class="mono small" style="margin-top:.25rem">142.0 M · 29.1%</p></div>
+          <div><div class="eyebrow tight" style="color:#E2724A">C3 · Command wall</div><p class="mono small" style="margin-top:.25rem">118.0 M · 24.2%</p></div>
+          <div><div class="eyebrow tight" style="color:#B98F2C">C4 · Capacity</div><p class="mono small" style="margin-top:.25rem">59.0 M · 12.1%</p></div>
+        </div>
+        <p class="small" style="margin-top:1rem;color:var(--muted)">
+          Two thirds of the envelope buys people and software. One quarter buys
+          the room that makes them impossible to ignore.
+        </p>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="panel k">
+        <div class="eyebrow tight" style="margin-bottom:1rem">What this round buys, in order</div>
+        <table>
+          <thead><tr><th>By</th><th>The Assembly will have</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">Q3</td><td>RDO and 7 Divisional Focal Points in post; baseline collection open in all seven divisions</td></tr>
+            <tr><td class="mono">Q4</td><td>Platform v1 accepted; 34 councils filing through it</td></tr>
+            <tr><td class="mono">Q5</td><td>Command Centre commissioned and projecting the live region in this building</td></tr>
+            <tr><td class="mono">Q6</td><td>Eight committee workspaces live; reporting lag under 30 days</td></tr>
+            <tr><td class="mono">Q8</td><td>Public open-data portal; ≥ 90% of divisions reporting on time</td></tr>
+            <tr class="total"><td class="mono">Q10</td><td>Independent audit, full handover, and FCFA 48 M written into the operating budget</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel go">
+        <p style="font-family:var(--display);font-size:clamp(1.15rem,1.65vw,1.85rem);line-height:1.32;color:var(--paper)">
+          In a region where the crisis has cut the flow of information, this
+          restores the evidence on which development depends — and it starts
+          from a system that is already running, not from a blank page.
+        </p>
+        <div class="chain" style="margin:1.1rem 0 .9rem;max-width:100%"></div>
+        <p class="motto" style="font-size:clamp(1rem,1.4vw,1.6rem)">« Mi na u, U na mi, wi be wi »</p>
+        <p class="small" style="margin-top:.35rem">I am you · You are me · We are one</p>
+      </div>
+
+      <div class="foot" style="border-top-color:var(--rule)">
+        <div class="item"><div class="k">See it working</div><div class="v"><a href="https://sacred-bonnet-qghb.here.now/" target="_blank" rel="noopener">sacred-bonnet-qghb.here.now</a></div></div>
+        <div class="item"><div class="k">Full project document</div><div class="v">v3.0 · filed in the platform registry</div></div>
+        <div class="item"><div class="k">Contact</div><div class="v">Wiysenyuy Louis Nyuydzeran</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="rail" id="rail" aria-label="Slides"></nav>
+
+<div class="hud">
+  <span><b id="cur">01</b> / 12</span>
+  <span><kbd>↑</kbd><kbd>↓</kbd> move</span>
+  <span><kbd>G</kbd> overview</span>
+  <span><kbd>F</kbd> full screen</span>
+</div>
+
+<div id="map" role="dialog" aria-modal="true" aria-label="Slide overview">
+  <div class="eyebrow tight">Overview · press G or Esc to close</div>
+  <div class="cards" id="mapCards"></div>
+</div>
+
+<script>
+(() => {
+  const deck   = document.getElementById('deck')
+  const slides = [...document.querySelectorAll('.slide')]
+  const rail   = document.getElementById('rail')
+  const cur    = document.getElementById('cur')
+  const map    = document.getElementById('map')
+  let at = 0
+
+  const goto = (i) => {
+    at = Math.max(0, Math.min(slides.length - 1, i))
+    slides[at].scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  // Rail + overview are both built from the slides themselves, so adding
+  // a slide never means remembering to update two other places.
+  slides.forEach((s, i) => {
+    const b = document.createElement('button')
+    b.type = 'button'
+    b.setAttribute('aria-label', `Slide ${i + 1}: ${s.dataset.title}`)
+    b.onclick = () => goto(i)
+    rail.append(b)
+
+    const c = document.createElement('button')
+    c.type = 'button'
+    c.innerHTML = `<span class="n">${s.dataset.n}</span><span class="t">${s.dataset.title}</span>`
+    c.onclick = () => { map.classList.remove('on'); goto(i) }
+    document.getElementById('mapCards').append(c)
+  })
+  const dots = [...rail.children]
+
+  // Reveal on entry, and keep the rail and counter honest about where we are.
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return
+      e.target.classList.add('seen')
+      at = slides.indexOf(e.target)
+      cur.textContent = String(at + 1).padStart(2, '0')
+      dots.forEach((d, i) => d.setAttribute('aria-current', String(i === at)))
+    })
+  }, { threshold: 0.5 })
+  slides.forEach((s) => io.observe(s))
+
+  addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase()
+    if (k === 'escape') return map.classList.remove('on')
+    if (k === 'g') { e.preventDefault(); return map.classList.toggle('on') }
+    if (k === 'f') {
+      e.preventDefault()
+      return document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()
+    }
+    if (['arrowdown', 'arrowright', 'pagedown', ' '].includes(k)) { e.preventDefault(); goto(at + 1) }
+    if (['arrowup', 'arrowleft', 'pageup'].includes(k))           { e.preventDefault(); goto(at - 1) }
+    if (k === 'home') { e.preventDefault(); goto(0) }
+    if (k === 'end')  { e.preventDefault(); goto(slides.length - 1) }
+  })
+
+  map.addEventListener('click', (e) => { if (e.target === map) map.classList.remove('on') })
+
+  // A presenter who clicks the wall expects to advance, but a click on a
+  // link or a chart should do what the click says.
+  deck.addEventListener('click', (e) => {
+    if (e.target.closest('a, button, svg, table')) return
+    if (getSelection().toString()) return
+    goto(at + 1)
+  })
+})()
+</script>
+</body>
+</html>

@@ -175,18 +175,21 @@ export function ProjectProgressPage() {
     (p.project_name || p.name || '').toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  /* Four bands, in the chamber palette rather than a traffic-light ramp:
+     highland for what is on course, brass for what is moving, kola for what
+     the Chamber should be asking about. */
   const getProgressColor = (percentage) => {
-    if (percentage >= 80) return 'from-green-500 to-emerald-500'
-    if (percentage >= 60) return 'from-blue-500 to-cyan-500'
-    if (percentage >= 40) return 'from-yellow-500 to-amber-500'
-    return 'from-red-500 to-rose-500'
+    if (percentage >= 80) return 'var(--highland)'
+    if (percentage >= 60) return 'var(--highland-2)'
+    if (percentage >= 40) return 'var(--brass)'
+    return 'var(--kola)'
   }
 
   const getStatusBadge = (percentage) => {
-    if (percentage >= 80) return { label: 'On Track', color: 'bg-green-100 text-green-800' }
-    if (percentage >= 60) return { label: 'Progressing', color: 'bg-blue-100 text-blue-800' }
-    if (percentage >= 40) return { label: 'In Progress', color: 'bg-yellow-100 text-yellow-800' }
-    return { label: 'At Risk', color: 'bg-red-100 text-red-800' }
+    if (percentage >= 80) return { label: 'On track',    tone: 'var(--highland)' }
+    if (percentage >= 60) return { label: 'Progressing', tone: 'var(--highland-2)' }
+    if (percentage >= 40) return { label: 'In progress', tone: 'var(--brass-ink)' }
+    return { label: 'At risk', tone: 'var(--kola)' }
   }
 
   return (
@@ -285,10 +288,13 @@ export function ProjectProgressPage() {
             return (
               <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 {/* Progress Bar */}
-                <div className="h-1 bg-gray-200 relative">
+                <div className="h-1 bg-[color:var(--linen)] relative">
                   <div
-                    className={`h-full bg-gradient-to-r ${getProgressColor(project.progress_percentage || 0)} transition-all duration-500`}
-                    style={{ width: `${project.progress_percentage || 0}%` }}
+                    className="h-full transition-all duration-500"
+                    style={{
+                      width: `${project.progress_percentage || 0}%`,
+                      background: getProgressColor(project.progress_percentage || 0),
+                    }}
                   />
                 </div>
 
@@ -297,7 +303,12 @@ export function ProjectProgressPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <h3 className="text-xl font-semibold text-foreground">{project.project_name || project.name}</h3>
-                      <Badge className={`mt-2 ${status.color}`}>{status.label}</Badge>
+                      <span
+                        className="eyebrow text-[0.55rem] inline-block mt-2 px-2 py-1 rounded-[2px] border"
+                        style={{ color: status.tone, borderColor: status.tone }}
+                      >
+                        {status.label}
+                      </span>
                     </div>
                     <div className="text-right">
                       <p className="text-3xl font-bold text-primary">{project.progress_percentage || 0}%</p>
@@ -307,23 +318,23 @@ export function ProjectProgressPage() {
 
                   {/* Progress Remark */}
                   {project.progress_remark && (
-                    <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-                      <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 flex items-center gap-2 mb-1">
-                        <TrendingUp className="w-4 h-4" />
-                        Progress Remark
+                    <div className="mb-4 p-3 rounded-[3px] bg-[color:var(--linen)] border-l-2 border-[color:var(--highland)]">
+                      <p className="eyebrow text-[0.55rem] flex items-center gap-2 mb-1.5">
+                        <TrendingUp className="w-3.5 h-3.5" />
+                        From the site
                       </p>
-                      <p className="text-sm text-blue-800 dark:text-blue-200 line-clamp-2">{project.progress_remark}</p>
+                      <p className="text-sm text-[color:var(--ink)] line-clamp-2">{project.progress_remark}</p>
                     </div>
                   )}
 
                   {/* Citizen Opinion */}
                   {project.citizen_opinion && (
-                    <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-950 rounded-lg border border-amber-200 dark:border-amber-800">
-                      <p className="text-sm font-semibold text-amber-900 dark:text-amber-100 flex items-center gap-2 mb-1">
-                        <Users className="w-4 h-4" />
-                        Citizen Opinion
+                    <div className="mb-4 p-3 rounded-[3px] bg-[color:var(--linen)] border-l-2 border-[color:var(--kola)]">
+                      <p className="eyebrow text-[0.55rem] flex items-center gap-2 mb-1.5">
+                        <Users className="w-3.5 h-3.5" />
+                        What the community says
                       </p>
-                      <p className="text-sm text-amber-800 dark:text-amber-200 line-clamp-2">{project.citizen_opinion}</p>
+                      <p className="text-sm italic text-[color:var(--ink)] line-clamp-2">{project.citizen_opinion}</p>
                     </div>
                   )}
 

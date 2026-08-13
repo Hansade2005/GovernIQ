@@ -125,31 +125,28 @@ export function ProjectBank() {
       </div>
 
       {/* Key Statistics */}
+      {/* Six figures in six unrelated hues read as a demo, not a register.
+          These use the chamber palette: highland for what is finished, brass
+          for what is in hand, kola for the rate that is being judged. */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-        <Card className="p-4 bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
-          <div className="text-xs font-semibold text-muted-foreground uppercase mb-1">Total Projects</div>
-          <div className="text-2xl font-bold text-foreground">{stats.total}</div>
-        </Card>
-        <Card className="p-4 bg-gradient-to-br from-green-500/10 to-transparent border-green-500/20">
-          <div className="text-xs font-semibold text-muted-foreground uppercase mb-1">Completed</div>
-          <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
-        </Card>
-        <Card className="p-4 bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/20">
-          <div className="text-xs font-semibold text-muted-foreground uppercase mb-1">In Progress</div>
-          <div className="text-2xl font-bold text-blue-600">{stats.inProgress}</div>
-        </Card>
-        <Card className="p-4 bg-gradient-to-br from-accent/10 to-transparent border-accent/20">
-          <div className="text-xs font-semibold text-muted-foreground uppercase mb-1">Avg Progress</div>
-          <div className="text-2xl font-bold text-accent">{stats.avgProgress}%</div>
-        </Card>
-        <Card className="p-4 bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20">
-          <div className="text-xs font-semibold text-muted-foreground uppercase mb-1">Total Budget</div>
-          <div className="text-2xl font-bold text-purple-600">{formatFcfa(stats.totalBudget)}</div>
-        </Card>
-        <Card className="p-4 bg-gradient-to-br from-teal-500/10 to-transparent border-teal-500/20">
-          <div className="text-xs font-semibold text-muted-foreground uppercase mb-1">Avg Execution</div>
-          <div className="text-2xl font-bold text-teal-600">{stats.avgExecution}%</div>
-        </Card>
+        {[
+          { label: 'Total projects', value: stats.total,                    tone: 'ink' },
+          { label: 'Completed',      value: stats.completed,                tone: 'highland' },
+          { label: 'In progress',    value: stats.inProgress,               tone: 'brass' },
+          { label: 'Avg progress',   value: `${stats.avgProgress}%`,        tone: 'brass' },
+          { label: 'Total budget',   value: formatFcfa(stats.totalBudget),  tone: 'highland' },
+          { label: 'Avg execution',  value: `${stats.avgExecution}%`,       tone: 'kola' },
+        ].map((s) => (
+          <Card key={s.label} className="p-4">
+            <div className="eyebrow text-[0.55rem] mb-1.5">{s.label}</div>
+            <div
+              className="figure-serif text-[1.75rem] leading-none"
+              style={{ color: `var(--${s.tone === 'ink' ? 'ink' : s.tone === 'brass' ? 'brass-ink' : s.tone})` }}
+            >
+              {s.value}
+            </div>
+          </Card>
+        ))}
       </div>
 
       {/* Filters */}

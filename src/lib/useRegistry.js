@@ -19,8 +19,15 @@ export function useQuery(fn, deps = [], { initial = null } = {}) {
   fnRef.current = fn
 
   const runId = useRef(0)
+  // Re-arm on mount, not just on unmount: React re-runs effects on the same
+  // instance (StrictMode's mount/unmount/remount, and Fast Refresh), and a
+  // flag that is only ever cleared would leave the query permanently unable
+  // to publish its result — the page would sit on its loading state forever.
   const alive = useRef(true)
-  useEffect(() => () => { alive.current = false }, [])
+  useEffect(() => {
+    alive.current = true
+    return () => { alive.current = false }
+  }, [])
 
   const run = useCallback(async () => {
     const id = ++runId.current

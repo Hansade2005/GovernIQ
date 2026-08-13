@@ -208,9 +208,7 @@ export function AnalyticsDashboard() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, value }) => `${name}: ${value}M`}
-                  outerRadius={80}
-                  fill="#8884d8"
+                  outerRadius={92}
                   dataKey="value"
                 >
                   {budgetAllocationData.map((entry, index) => (
@@ -218,6 +216,14 @@ export function AnalyticsDashboard() {
                   ))}
                 </Pie>
                 <Tooltip formatter={(value) => `${value}M FCFA`} />
+                {/* Labels drawn outside the arcs were clipped by the card at
+                    narrow widths — and this view is projected on a wall, where
+                    a half-cut figure reads as a broken chart. The legend below
+                    always fits. */}
+                <Legend
+                  verticalAlign="bottom"
+                  formatter={(value, entry) => `${value} · ${entry?.payload?.value}M`}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>

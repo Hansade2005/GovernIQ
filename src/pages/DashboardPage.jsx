@@ -378,7 +378,8 @@ function TreasuryLine({ label, value, figure, tone }) {
       <div className="flex items-baseline justify-between mb-2">
         <span className="text-sm text-[color:var(--ink)]">{label}</span>
         <span className="mono text-sm text-[color:var(--sepia)]">
-          <span className="text-[color:var(--ink)]">{figure} FCFA</span>
+          {/* `figure` already carries its unit — formatFcfa appends it. */}
+          <span className="text-[color:var(--ink)]">{figure}</span>
           {' · '}{value}%
         </span>
       </div>

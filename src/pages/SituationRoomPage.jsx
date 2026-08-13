@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Card } from '@/components/Card'
 import { Badge } from '@/components/Badge'
 import { Loading, LoadFailure } from '@/components/QueryState'
+import { LiveWalkthroughs } from '@/components/LiveWalkthroughs'
 import { useQuery } from '@/lib/useRegistry'
 import { listProjects } from '@/lib/registry'
 import { watchSites } from '@/lib/live'
@@ -113,6 +114,9 @@ export function SituationRoomPage() {
           </p>
         </Card>
       </div>
+
+      {/* Live pictures, when a supervisor is walking a site */}
+      <LiveWalkthroughs />
 
       {/* Silence is the signal */}
       {s.silent.length > 0 && (

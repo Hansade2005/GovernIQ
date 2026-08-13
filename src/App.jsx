@@ -22,6 +22,7 @@ import { UsersPage } from '@/pages/UsersPage'
 import { FeedbackPage } from '@/pages/FeedbackPage'
 import { SituationRoomPage } from '@/pages/SituationRoomPage'
 import { FieldCheckInPage } from '@/pages/FieldCheckInPage'
+import { LiveBroadcastPage } from '@/pages/LiveBroadcastPage'
 import { SessionProvider, useSession } from '@/lib/SessionContext'
 import { Loading } from '@/components/QueryState'
 
@@ -116,6 +117,7 @@ function AppContent() {
     users: 'users.manage',
     situation: 'live.watch',
     checkin: 'live.report',
+    broadcast: 'live.report',
   }
 
   /* Feedback opens for anyone who may write it or read it. */
@@ -155,6 +157,8 @@ function AppContent() {
         return <SituationRoomPage />
       case 'checkin':
         return <FieldCheckInPage />
+      case 'broadcast':
+        return <LiveBroadcastPage />
       case 'command-center':
         return <CommandCenterDashboard />
       case 'ocr-test':

@@ -2,7 +2,7 @@ import {
   ChevronRight, ChevronLeft,
   LayoutDashboard, FileText, FolderOpen, BarChart3,
   Map, Settings, LogOut, TrendingUp, Radio, Upload, MessageSquare,
-  Gavel, Users, Shield, MessagesSquare, Activity, ClipboardCheck,
+  Gavel, Users, Shield, MessagesSquare, Activity, ClipboardCheck, Video,
 } from 'lucide-react'
 import { useSession } from '@/lib/SessionContext'
 import { ROLES } from '@/lib/roles'
@@ -46,6 +46,7 @@ export function Sidebar({
         { id: 'project-progress', label: 'Execution', icon: TrendingUp, href: '#/project-progress', need: 'programmes.write' },
         { id: 'analytics',        label: 'Analytics', icon: BarChart3,  href: '#/analytics', need: 'registry.read' },
         { id: 'checkin',          label: 'File a report', icon: ClipboardCheck, href: '#/checkin', need: 'live.report' },
+        { id: 'broadcast',        label: 'Live walkthrough', icon: Video, href: '#/broadcast', need: 'live.report' },
       ],
     },
     {

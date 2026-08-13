@@ -17,9 +17,30 @@ import { OCRTestPage } from '@/pages/OCRTestPage'
 import { OCRTestPublic } from '@/pages/OCRTestPublic'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { AssistantPage } from '@/pages/AssistantPage'
+import { MinutesPage } from '@/pages/MinutesPage'
+import { UsersPage } from '@/pages/UsersPage'
+import { SessionProvider, useSession } from '@/lib/SessionContext'
+import { Loading } from '@/components/QueryState'
+
+/** Shown when someone reaches a register their capacity does not carry. */
+function NotPermitted({ page }) {
+  const { role } = useSession()
+  return (
+    <div className="ledger max-w-xl">
+      <p className="eyebrow text-[0.6rem]">Not permitted</p>
+      <h1 className="page-title mt-1.5">This register is not open to you</h1>
+      <p className="text-[color:var(--sepia)] mt-2 leading-relaxed">
+        Your capacity is <strong>{role}</strong>, which does not carry access to
+        “{page}”. Ask the superadmin if you need it.
+      </p>
+      <a href="#/" className="btn btn-outline mt-4">Back to the chamber</a>
+    </div>
+  )
+}
 
 function AppContent() {
   const { user, loading, signOut } = useContext(AuthContext)
+  const { allows, loading: roleLoading } = useSession()
   const [currentPage, setCurrentPage] = useState('dashboard')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
@@ -71,7 +92,26 @@ function AppContent() {
     return <LoginPage onSuccess={() => window.location.reload()} />
   }
 
+  if (roleLoading) return <Loading label="Establishing your capacity" />
+
+  /* Each guarded route names the permission it needs. A member who types a
+     URL they cannot open is told so plainly rather than shown a blank page. */
+  const ROUTE_PERMISSIONS = {
+    documents: 'registry.read',
+    reports: 'reports.read',
+    'upload-reports': 'registry.write',
+    projects: 'programmes.read',
+    'project-progress': 'programmes.write',
+    analytics: 'programmes.read',
+    minutes: 'minutes.read',
+    'command-center': 'command.read',
+    users: 'users.manage',
+  }
+
   const renderPage = () => {
+    const need = ROUTE_PERMISSIONS[currentPage]
+    if (need && !allows(need)) return <NotPermitted page={currentPage} />
+
     switch (currentPage) {
       case 'documents':
         return <DocumentsPage />
@@ -89,6 +129,10 @@ function AppContent() {
         return <AnalyticsDashboard />
       case 'assistant':
         return <AssistantPage />
+      case 'minutes':
+        return <MinutesPage />
+      case 'users':
+        return <UsersPage />
       case 'command-center':
         return <CommandCenterDashboard />
       case 'ocr-test':
@@ -188,7 +232,17 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <AppContent />
+      <SessionBridge />
     </AuthProvider>
+  )
+}
+
+/** SessionProvider needs the signed-in user, which lives inside AuthProvider. */
+function SessionBridge() {
+  const { user } = useContext(AuthContext)
+  return (
+    <SessionProvider user={user}>
+      <AppContent />
+    </SessionProvider>
   )
 }

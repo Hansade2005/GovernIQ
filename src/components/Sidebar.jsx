@@ -2,7 +2,10 @@ import {
   ChevronRight, ChevronLeft,
   LayoutDashboard, FileText, FolderOpen, BarChart3,
   Map, Settings, LogOut, TrendingUp, Radio, Upload, MessageSquare,
+  Gavel, Users,
 } from 'lucide-react'
+import { useSession } from '@/lib/SessionContext'
+import { ROLES } from '@/lib/roles'
 
 /**
  * Sidebar — grouped by parliamentary function so members find things
@@ -13,32 +16,45 @@ export function Sidebar({
   onSignOut, currentPage,
   isCollapsed = false, onToggleCollapse = () => {}, onNavigate,
 }) {
+  const { allows, role, isSuperadmin, profile } = useSession()
+
+  /* Nav is filtered by capacity: a member never sees a door they cannot
+     open, rather than finding it locked. */
   const groups = [
     {
       label: 'Chamber',
       items: [
         { id: 'dashboard',      label: 'Overview',       icon: LayoutDashboard, href: '#/' },
         { id: 'assistant',      label: 'Ask the Assembly', icon: MessageSquare, href: '#/assistant' },
-        { id: 'command-center', label: 'Command centre', icon: Radio,           href: '#/command-center' },
+        { id: 'minutes',        label: 'Minutes',        icon: Gavel,           href: '#/minutes', need: 'minutes.read' },
+        { id: 'command-center', label: 'Command centre', icon: Radio,           href: '#/command-center', need: 'command.read' },
       ],
     },
     {
       label: 'Registry',
       items: [
-        { id: 'documents',      label: 'Documents',   icon: FileText, href: '#/documents' },
-        { id: 'reports',        label: 'Reports',     icon: Map,      href: '#/reports' },
-        { id: 'upload-reports', label: 'Depositions', icon: Upload,   href: '#/upload-reports' },
+        { id: 'documents',      label: 'Documents',   icon: FileText, href: '#/documents', need: 'registry.read' },
+        { id: 'reports',        label: 'Reports',     icon: Map,      href: '#/reports', need: 'reports.read' },
+        { id: 'upload-reports', label: 'Depositions', icon: Upload,   href: '#/upload-reports', need: 'registry.write' },
       ],
     },
     {
       label: 'Programmes',
       items: [
-        { id: 'projects',         label: 'Projects',  icon: FolderOpen, href: '#/projects' },
-        { id: 'project-progress', label: 'Execution', icon: TrendingUp, href: '#/project-progress' },
-        { id: 'analytics',        label: 'Analytics', icon: BarChart3,  href: '#/analytics' },
+        { id: 'projects',         label: 'Projects',  icon: FolderOpen, href: '#/projects', need: 'programmes.read' },
+        { id: 'project-progress', label: 'Execution', icon: TrendingUp, href: '#/project-progress', need: 'programmes.write' },
+        { id: 'analytics',        label: 'Analytics', icon: BarChart3,  href: '#/analytics', need: 'programmes.read' },
+      ],
+    },
+    {
+      label: 'Administration',
+      items: [
+        { id: 'users', label: 'Users & capacities', icon: Users, href: '#/users', need: 'users.manage' },
       ],
     },
   ]
+    .map((g) => ({ ...g, items: g.items.filter((i) => !i.need || allows(i.need)) }))
+    .filter((g) => g.items.length > 0)
 
   const collapsedStyle = isCollapsed
     ? { paddingLeft: '0.625rem', paddingRight: '0.625rem', justifyContent: 'center' }
@@ -101,6 +117,14 @@ export function Sidebar({
           <Settings size={16} strokeWidth={1.85} className="flex-shrink-0" />
           {!isCollapsed && <span>Settings</span>}
         </a>
+        {!isCollapsed && (
+          <div className="px-3 pb-2 pt-1">
+            <p className="eyebrow text-[0.5rem]">Signed in as</p>
+            <p className="text-[0.75rem] font-medium text-[color:var(--ink)] truncate mt-0.5">
+              {ROLES[role]?.label || role}
+            </p>
+          </div>
+        )}
         <button
           onClick={onSignOut}
           className="nav-item w-full text-left"

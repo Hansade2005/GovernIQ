@@ -1,121 +1,193 @@
 import { useState } from 'react'
-import { Menu, X, LogOut, Settings, User, LifeBuoy, FileText, Clock, Search } from 'lucide-react'
+import {
+  Menu, X, LogOut, Settings, User, LifeBuoy, FileText, Clock,
+  Search, ChevronDown, Sun, Moon, Monitor,
+} from 'lucide-react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { useTheme } from '@/lib/theme'
 
 /**
- * Header — parchment strip. Left: institutional wordmark with an
- * ornamental diamond in place of a logo mark. Right: search, session
- * date, user affordance. Deliberately quiet so the ornament below the
- * hero can carry visual weight.
+ * Header — a single quiet strip. The seal and wordmark anchor the left,
+ * a fixed-width search sits centre-right, the member menu closes it out.
+ * No ornament here: it appeared on every page and became noise. The
+ * ornament is reserved for sign-in and the Chamber hero.
  */
 export function Header({ user, onSignOut }) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { preference, setPreference } = useTheme()
+
   const today = new Date().toLocaleDateString('en-GB', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    day: 'numeric', month: 'short', year: 'numeric',
   })
 
+  /* First two sit inline on desktop; the rest collapse under "More" so the
+     strip never wraps at narrow desktop widths. */
   const mainNav = [
-    { label: 'Chamber',     href: '#/' },
-    { label: 'Registry',    href: '#/documents' },
-    { label: 'Programmes',  href: '#/projects' },
-    { label: 'Analytics',   href: '#/analytics' },
-    { label: 'Command',     href: '#/command-center' },
+    { label: 'Chamber',        href: '#/' },
+    { label: 'Registry',       href: '#/documents' },
+    { label: 'Programmes',     href: '#/projects' },
+    { label: 'Analytics',      href: '#/analytics' },
+    { label: 'Command centre', href: '#/command-center' },
+    { label: 'Reports',        href: '#/reports' },
+    { label: 'Execution',      href: '#/project-progress' },
   ]
+  const INLINE_LINKS = 2
+  const inlineNav = mainNav.slice(0, INLINE_LINKS)
+  const overflowNav = mainNav.slice(INLINE_LINKS)
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[color:var(--rule)] bg-[color:var(--paper)]/92 backdrop-blur">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center gap-4">
-        {/* Wordmark */}
-        <a href="#/" className="flex items-center gap-3 flex-shrink-0 group">
-          <span
-            className="inline-block w-4 h-4 rotate-45 border border-[color:var(--kola)]"
-            aria-hidden
+    <header className="sticky top-0 z-50 border-b border-[color:var(--rule)] bg-[color:var(--card-bg)]">
+      <div className="px-4 sm:px-6 h-14 flex items-center gap-4">
+        {/* Seal + wordmark */}
+        <a href="#/" className="flex items-center gap-2.5 flex-shrink-0">
+          <img
+            src="/nwra-logo.png"
+            alt="North West Regional Assembly seal"
+            className="h-8 w-8 object-contain"
           />
-          <span className="flex flex-col leading-none">
-            <span className="serif text-[1.05rem] tracking-tight text-[color:var(--ink)]">
+          <span className="hidden sm:flex flex-col leading-none">
+            <span className="text-[0.9375rem] font-semibold tracking-tight text-[color:var(--ink)]">
               GovernIQ
             </span>
-            <span className="eyebrow text-[0.6rem] mt-0.5">NW Regional Assembly</span>
+            <span className="eyebrow text-[0.55rem] mt-1">NW Regional Assembly</span>
           </span>
         </a>
 
-        {/* Date stamp — desktop only */}
-        <div className="hidden xl:flex items-center gap-2 pl-4 border-l border-[color:var(--rule)] text-[color:var(--sepia)]">
-          <span className="eyebrow text-[0.6rem]">Session of</span>
-          <span className="mono text-xs text-[color:var(--ink)]">{today}</span>
-        </div>
-
-        <div className="flex-1" />
-
-        {/* Tablet condensed nav */}
-        <nav className="hidden md:flex items-center gap-1">
-          {mainNav.map((item) => (
+        {/* Primary nav — two inline, remainder under More */}
+        <nav className="hidden lg:flex items-center gap-0.5 ml-4">
+          {inlineNav.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="px-3 py-2 text-xs uppercase tracking-widest mono text-[color:var(--sepia)] hover:text-[color:var(--ink)] transition"
+              className="px-2.5 py-1.5 text-[0.8125rem] font-medium rounded-[3px] text-[color:var(--sepia)] hover:text-[color:var(--ink)] hover:bg-[color:var(--linen)] transition"
             >
               {item.label}
             </a>
           ))}
+
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button className="flex items-center gap-1 px-2.5 py-1.5 text-[0.8125rem] font-medium rounded-[3px] text-[color:var(--sepia)] hover:text-[color:var(--ink)] hover:bg-[color:var(--linen)] transition data-[state=open]:bg-[color:var(--linen)] data-[state=open]:text-[color:var(--ink)]">
+                More
+                <ChevronDown size={13} />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content
+              align="start"
+              sideOffset={6}
+              className="w-52 bg-[color:var(--card-bg)] border border-[color:var(--rule-firm)] rounded-[4px] shadow-[0_16px_40px_-20px_rgba(20,21,15,0.45)] p-1 z-50"
+            >
+              {overflowNav.map((item) => (
+                <DropdownMenu.Item asChild key={item.href}>
+                  <a
+                    href={item.href}
+                    className="block px-2.5 py-2 text-[0.8125rem] text-[color:var(--ink)] hover:bg-[color:var(--linen)] rounded-[3px] cursor-pointer outline-none"
+                  >
+                    {item.label}
+                  </a>
+                </DropdownMenu.Item>
+              ))}
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
         </nav>
 
-        {/* Search cue */}
+        <div className="flex-1" />
+
+        {/* Search */}
         <button
-          className="hidden lg:flex items-center gap-2 h-9 px-3 border border-[color:var(--rule)] text-[color:var(--sepia)] hover:text-[color:var(--ink)] hover:border-[color:var(--ink)] transition rounded-[2px]"
-          aria-label="Search the registry"
           onClick={() => (window.location.hash = '#/documents')}
+          className="hidden md:flex items-center gap-2 w-56 h-8 px-2.5 border border-[color:var(--rule-firm)] rounded-[3px] text-[color:var(--sepia-soft)] hover:border-[color:var(--ink)] hover:text-[color:var(--ink)] transition"
         >
-          <Search size={14} />
-          <span className="text-xs">Search the registry</span>
-          <span className="mono text-[0.65rem] ml-2 px-1.5 py-0.5 border border-[color:var(--rule)]">⌘K</span>
+          <Search size={13} className="flex-shrink-0" />
+          <span className="text-[0.8125rem] truncate">Search the registry</span>
+          <span className="mono text-[0.6rem] ml-auto px-1 py-0.5 border border-[color:var(--rule)] rounded-[2px] flex-shrink-0">⌘K</span>
         </button>
 
-        {/* User */}
+        {/* Date */}
+        <span className="hidden xl:block mono text-[0.7rem] text-[color:var(--sepia-soft)] whitespace-nowrap">
+          {today}
+        </span>
+
+        {/* Member menu */}
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
-            <button className="flex items-center gap-2 pl-3 pr-2 h-9 border border-transparent hover:border-[color:var(--rule)] transition rounded-[2px]">
-              <span className="w-7 h-7 border border-[color:var(--ink)] flex items-center justify-center rounded-[1px]">
-                <User size={13} className="text-[color:var(--ink)]" />
+            <button className="flex items-center gap-2 h-9 pl-1.5 pr-2 rounded-[3px] hover:bg-[color:var(--linen)] transition">
+              <span className="w-7 h-7 rounded-full bg-[color:var(--highland)] text-white flex items-center justify-center flex-shrink-0">
+                <User size={13} />
               </span>
               <span className="hidden sm:flex flex-col items-start leading-tight">
-                <span className="text-xs font-medium text-[color:var(--ink)] max-w-[120px] truncate">
-                  {user?.name || user?.email?.split('@')[0] || 'Honourable Member'}
+                <span className="text-[0.8125rem] font-medium text-[color:var(--ink)] max-w-[130px] truncate">
+                  {user?.name || user?.email?.split('@')[0] || 'Member'}
                 </span>
-                <span className="eyebrow text-[0.55rem]">Councillor</span>
+                <span className="eyebrow text-[0.5rem]">Councillor</span>
               </span>
             </button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content
             align="end"
-            sideOffset={8}
-            className="w-64 bg-[color:var(--paper)] border border-[color:var(--rule)] rounded-[3px] shadow-[0_20px_50px_-30px_rgba(20,21,15,0.35)] p-1"
+            sideOffset={6}
+            className="w-60 bg-[color:var(--card-bg)] border border-[color:var(--rule-firm)] rounded-[4px] shadow-[0_16px_40px_-20px_rgba(20,21,15,0.45)] p-1 z-50"
           >
-            <div className="px-3 py-3 border-b border-[color:var(--rule)] mb-1">
-              <p className="eyebrow text-[0.6rem]">Signed in as</p>
-              <p className="text-sm text-[color:var(--ink)] truncate mt-0.5">{user?.email || 'guest'}</p>
+            <div className="px-2.5 py-2.5 border-b border-[color:var(--rule)] mb-1">
+              <p className="eyebrow text-[0.55rem]">Signed in as</p>
+              <p className="text-[0.8125rem] text-[color:var(--ink)] truncate mt-1">{user?.email || 'guest'}</p>
             </div>
             {[
               { icon: Settings, label: 'Settings', href: '#/settings' },
-              { icon: FileText, label: 'Documentation', href: '#/documents' },
-              { icon: Clock, label: 'Activity Log', href: '#/activity' },
-              { icon: LifeBuoy, label: 'Help & Support', href: '#/help' },
+              { icon: FileText, label: 'Registry', href: '#/documents' },
+              { icon: Clock, label: 'Activity log', href: '#/activity' },
+              { icon: LifeBuoy, label: 'Help & support', href: '#/help' },
             ].map((item) => (
               <DropdownMenu.Item asChild key={item.label}>
                 <a
                   href={item.href}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-[color:var(--ink)] hover:bg-[color:var(--linen)] rounded-[2px] cursor-pointer"
+                  className="flex items-center gap-2.5 px-2.5 py-2 text-[0.8125rem] text-[color:var(--ink)] hover:bg-[color:var(--linen)] rounded-[3px] cursor-pointer outline-none"
                 >
                   <item.icon size={14} className="text-[color:var(--sepia)]" />
                   {item.label}
                 </a>
               </DropdownMenu.Item>
             ))}
+            {/* Appearance — light / dark / follow system */}
+            <div className="h-px bg-[color:var(--rule)] my-1" />
+            <div className="px-2.5 pt-2 pb-2.5">
+              <p className="eyebrow text-[0.55rem] mb-2">Appearance</p>
+              <div
+                role="radiogroup"
+                aria-label="Colour theme"
+                className="grid grid-cols-3 gap-1 p-0.5 bg-[color:var(--linen)] rounded-[4px]"
+              >
+                {[
+                  { value: 'light',  label: 'Light',  icon: Sun },
+                  { value: 'dark',   label: 'Dark',   icon: Moon },
+                  { value: 'system', label: 'Auto',   icon: Monitor },
+                ].map((opt) => {
+                  const active = preference === opt.value
+                  return (
+                    <button
+                      key={opt.value}
+                      role="radio"
+                      aria-checked={active}
+                      onClick={() => setPreference(opt.value)}
+                      className={`flex flex-col items-center gap-1 py-1.5 rounded-[3px] text-[0.65rem] font-medium transition ${
+                        active
+                          ? 'bg-[color:var(--card-bg)] text-[color:var(--ink)] shadow-[0_1px_2px_rgba(20,21,15,0.12)]'
+                          : 'text-[color:var(--sepia)] hover:text-[color:var(--ink)]'
+                      }`}
+                    >
+                      <opt.icon size={13} />
+                      {opt.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
             <div className="h-px bg-[color:var(--rule)] my-1" />
             <DropdownMenu.Item asChild>
               <button
                 onClick={onSignOut}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[color:var(--rust)] hover:bg-[color:var(--linen)] rounded-[2px] cursor-pointer"
+                className="w-full flex items-center gap-2.5 px-2.5 py-2 text-[0.8125rem] text-[color:var(--rust)] hover:bg-[color:var(--linen)] rounded-[3px] cursor-pointer outline-none"
               >
                 <LogOut size={14} />
                 Sign out
@@ -124,26 +196,23 @@ export function Header({ user, onSignOut }) {
           </DropdownMenu.Content>
         </DropdownMenu.Root>
 
-        {/* Mobile trigger */}
         <button
-          className="md:hidden p-2 text-[color:var(--ink)]"
+          className="lg:hidden p-2 text-[color:var(--ink)]"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Toggle navigation"
+          aria-expanded={mobileOpen}
         >
           {mobileOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
 
-      {/* Signature ornament — the woven diamond hairline */}
-      <div className="ornament ornament-draw" aria-hidden />
-
       {mobileOpen && (
-        <nav className="md:hidden border-t border-[color:var(--rule)] bg-[color:var(--vellum)] px-4 py-4 space-y-1">
+        <nav className="lg:hidden border-t border-[color:var(--rule)] bg-[color:var(--card-bg)] px-4 py-3 space-y-0.5">
           {mainNav.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="block px-3 py-2.5 text-sm text-[color:var(--ink)] hover:bg-[color:var(--linen)] rounded-[2px]"
+              className="block px-3 py-2.5 text-sm rounded-[3px] text-[color:var(--ink)] hover:bg-[color:var(--linen)]"
               onClick={() => setMobileOpen(false)}
             >
               {item.label}

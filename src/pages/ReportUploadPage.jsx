@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/PageHeader'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/Card'
@@ -89,17 +90,11 @@ export function ReportUploadPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="flex items-baseline gap-3 mb-3">
-          <p className="eyebrow">Depositions</p>
-          <span className="ornament-mark" aria-hidden />
-        </div>
-        <h1 className="serif text-[clamp(2rem,4vw,3.5rem)] font-light leading-[0.98] tracking-tight max-w-4xl">
-          Lay a <span className="italic text-[color:var(--highland)]">report</span> before the chamber.
-        </h1>
-        <div className="ornament ornament-draw mt-5 max-w-xs" aria-hidden />
-        <p className="mt-4 text-[color:var(--sepia)] max-w-2xl leading-relaxed">
-          Upload programme reports with attachments, visual evidence, and figures.
-        </p>
+        <PageHeader
+          eyebrow="Registry"
+          title="Depositions"
+          description="Lay a programme report before the chamber, with attachments, visual evidence, and figures."
+        />
       </motion.div>
 
       {/* Upload Form */}

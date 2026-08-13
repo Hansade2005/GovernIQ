@@ -4,6 +4,7 @@ import { Badge } from '@/components/Badge'
 import { Button } from '@/components/Button'
 import { DocumentUploadForm } from '@/components/DocumentUploadForm'
 import { FileText, Download, Calendar, Users, Search, Filter, Archive, Sparkles, Trash2, Eye } from 'lucide-react'
+import { PageHeader } from '@/components/PageHeader'
 import { pp } from '@/lib/pipilot'
 import { searchText } from '@/lib/ocr'
 import { useAuth } from '@/lib/auth/useAuth'
@@ -123,73 +124,45 @@ export function DocumentsPage() {
   }
 
   return (
-    <div className="stagger space-y-8">
-      {/* Masthead */}
-      <div>
-        <div className="flex items-baseline gap-3 mb-3">
-          <p className="eyebrow">Vol. II · Section II</p>
-          <span className="ornament-mark" aria-hidden />
-        </div>
-        <h1 className="serif text-[clamp(2.25rem,4.5vw,4rem)] font-light leading-[0.98] tracking-tight max-w-4xl">
-          The <span className="italic text-[color:var(--highland)]">Registry</span>.
-        </h1>
-        <div className="ornament ornament-draw mt-6 max-w-md" aria-hidden />
-        <p className="mt-5 text-[color:var(--sepia)] max-w-2xl leading-relaxed">
-          A single, searchable repository of every minute, motion, and ministerial report — indexed by OCR and interrogated by AI.
-        </p>
-      </div>
+    <div className="stagger space-y-6">
+      <PageHeader
+        eyebrow="Registry"
+        title="Documents"
+        description="Every minute, motion, and ministerial report — indexed by OCR and searchable in full text."
+        actions={
+          !showUploadForm && (
+            <Button onClick={() => setShowUploadForm(true)}>
+              <FileText size={14} />
+              Upload document
+            </Button>
+          )
+        }
+      />
 
       {/* Upload Section */}
       {showUploadForm && (
         <DocumentUploadForm onUploadSuccess={handleUploadSuccess} user={user} />
       )}
 
-      {/* Action Button */}
-      {!showUploadForm && (
-        <Button
-          onClick={() => setShowUploadForm(true)}
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          <FileText className="w-4 h-4 mr-2" />
-          Upload New Document
-        </Button>
-      )}
-
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">Total Documents</p>
-              <p className="text-3xl font-bold font-display text-primary">
-                {documents.length}
-              </p>
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: 'Total documents',   value: documents.length,                                icon: Archive },
+          { label: 'Indexed for search', value: documents.filter((d) => d.text_indexed).length, icon: Search },
+          { label: 'Matching search',   value: searchTerm.length >= 2 ? searchResults.length : '—', icon: Sparkles, accent: true },
+        ].map((s) => (
+          <Card key={s.label}>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="eyebrow text-[0.6rem]">{s.label}</p>
+                <p className={`figure text-3xl mt-2 ${s.accent ? 'figure-kola' : 'figure-highland'}`}>
+                  {s.value}
+                </p>
+              </div>
+              <s.icon size={16} className="text-[color:var(--sepia-soft)] flex-shrink-0" />
             </div>
-            <Archive className="w-8 h-8 text-accent opacity-20" />
-          </div>
-        </Card>
-        <Card className="p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">Indexed Documents</p>
-              <p className="text-3xl font-bold font-display text-primary">
-                {documents.filter((d) => d.text_indexed).length}
-              </p>
-            </div>
-            <Search className="w-8 h-8 text-accent opacity-20" />
-          </div>
-        </Card>
-        <Card className="p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">Search Results</p>
-              <p className="text-3xl font-bold font-display text-accent">
-                {searchTerm.length >= 2 ? searchResults.length : '—'}
-              </p>
-            </div>
-            <Sparkles className="w-8 h-8 text-accent opacity-20" />
-          </div>
-        </Card>
+          </Card>
+        ))}
       </div>
 
       {/* Search & Filter */}

@@ -1,13 +1,16 @@
+import { PageHeader } from '@/components/PageHeader'
 import { useState, useContext } from 'react'
 import { AuthContext } from '@/lib/auth/AuthContext'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
 import { Input } from '@/components/Input'
-import { Bell, Moon, Sun, Lock, User, Palette } from 'lucide-react'
+import { Bell, Moon, Sun, Monitor, Lock, User, Palette } from 'lucide-react'
+import { useTheme } from '@/lib/theme'
 
 export function SettingsPage() {
   const { user } = useContext(AuthContext)
-  const [darkMode, setDarkMode] = useState(localStorage.getItem('theme') === 'dark')
+  const { preference, resolved, setPreference } = useTheme()
+  const darkMode = resolved === 'dark'
   const [notifications, setNotifications] = useState({
     emailUpdates: localStorage.getItem('emailUpdates') !== 'false',
     documentNotifications: localStorage.getItem('documentNotifications') !== 'false',
@@ -18,17 +21,7 @@ export function SettingsPage() {
   })
   const [saved, setSaved] = useState(false)
 
-  const handleThemeToggle = () => {
-    const newDarkMode = !darkMode
-    setDarkMode(newDarkMode)
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-    }
-  }
+  const handleThemeToggle = () => setPreference(darkMode ? 'light' : 'dark')
 
   const handleNotificationChange = (key) => {
     const updated = { ...notifications, [key]: !notifications[key] }
@@ -45,20 +38,11 @@ export function SettingsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Masthead */}
-      <div>
-        <div className="flex items-baseline gap-3 mb-3">
-          <p className="eyebrow">Chamber</p>
-          <span className="ornament-mark" aria-hidden />
-        </div>
-        <h1 className="serif text-[clamp(2rem,4vw,3.5rem)] font-light leading-[0.98] tracking-tight">
-          Personal <span className="italic text-[color:var(--highland)]">preferences</span>.
-        </h1>
-        <div className="ornament ornament-draw mt-4 max-w-xs" aria-hidden />
-        <p className="mt-3 text-[color:var(--sepia)] max-w-xl leading-relaxed">
-          Manage account, notifications, and appearance.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Account"
+        title="Settings"
+        description="Manage your account, notifications, and appearance."
+      />
 
       {/* Profile Settings */}
       <Card className="p-6">
@@ -101,26 +85,69 @@ export function SettingsPage() {
           <Palette size={24} className="text-primary" />
           <h2 className="text-xl font-semibold text-foreground">Appearance</h2>
         </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {darkMode ? <Moon size={20} className="text-muted-foreground" /> : <Sun size={20} className="text-muted-foreground" />}
-            <div>
-              <p className="text-foreground font-medium">{darkMode ? 'Dark' : 'Light'} Mode</p>
-              <p className="text-xs text-muted-foreground">Adjust the appearance of GovernIQ</p>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              {darkMode
+                ? <Moon size={18} className="text-[color:var(--sepia)]" />
+                : <Sun size={18} className="text-[color:var(--sepia)]" />}
+              <div>
+                <p className="font-medium text-[color:var(--ink)]">
+                  {darkMode ? 'Dark' : 'Light'} mode
+                </p>
+                <p className="text-xs text-[color:var(--sepia)]">
+                  {preference === 'system'
+                    ? 'Following your device setting'
+                    : 'Set manually for this browser'}
+                </p>
+              </div>
             </div>
-          </div>
-          <button
-            onClick={handleThemeToggle}
-            className={`relative w-12 h-6 rounded-full transition ${
-              darkMode ? 'bg-primary' : 'bg-muted'
-            }`}
-          >
-            <div
-              className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                darkMode ? 'translate-x-6' : ''
+            <button
+              onClick={handleThemeToggle}
+              role="switch"
+              aria-checked={darkMode}
+              aria-label="Toggle dark mode"
+              className={`relative w-11 h-6 rounded-full transition flex-shrink-0 ${
+                darkMode ? 'bg-[color:var(--highland)]' : 'bg-[color:var(--rule-firm)]'
               }`}
-            />
-          </button>
+            >
+              <span
+                className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                  darkMode ? 'translate-x-5' : ''
+                }`}
+              />
+            </button>
+          </div>
+
+          <div
+            role="radiogroup"
+            aria-label="Colour theme"
+            className="grid grid-cols-3 gap-1 p-1 bg-[color:var(--linen)] rounded-[4px]"
+          >
+            {[
+              { value: 'light',  label: 'Light',  icon: Sun },
+              { value: 'dark',   label: 'Dark',   icon: Moon },
+              { value: 'system', label: 'System', icon: Monitor },
+            ].map((opt) => {
+              const active = preference === opt.value
+              return (
+                <button
+                  key={opt.value}
+                  role="radio"
+                  aria-checked={active}
+                  onClick={() => setPreference(opt.value)}
+                  className={`flex items-center justify-center gap-1.5 py-2 rounded-[3px] text-xs font-medium transition ${
+                    active
+                      ? 'bg-[color:var(--card-bg)] text-[color:var(--ink)] shadow-[0_1px_2px_rgba(20,21,15,0.12)]'
+                      : 'text-[color:var(--sepia)] hover:text-[color:var(--ink)]'
+                  }`}
+                >
+                  <opt.icon size={14} />
+                  {opt.label}
+                </button>
+              )
+            })}
+          </div>
         </div>
       </Card>
 

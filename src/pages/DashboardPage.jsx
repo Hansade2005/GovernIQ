@@ -16,14 +16,17 @@ const metrics = [
   { label: 'Budget FY 2026',    value: '20.8',  unit: 'B FCFA', delta: '+8.4% y/y', dir: 'up',   note: '18.1B investment · 2.7B operations' },
 ]
 
+/* Ten divisional representatives are returned from each of the seven
+   divisions (Law No. 024 of 24 December 2019), alongside 20 traditional
+   rulers in the House of Chiefs. */
 const divisions = [
-  { name: 'Mezam',         seat: 'Bamenda',  projects: 5, exec: 0.94 },
-  { name: 'Menchum',       seat: 'Wum',      projects: 4, exec: 0.81 },
-  { name: 'Momo',          seat: 'Mbengwi',  projects: 3, exec: 0.78 },
-  { name: 'Bui',           seat: 'Kumbo',    projects: 1, exec: 0.68 },
-  { name: 'Boyo',          seat: 'Fundong',  projects: 1, exec: 0.72 },
-  { name: 'Donga-Mantung', seat: 'Nkambe',   projects: 1, exec: 0.65 },
-  { name: 'Ngo-Ketunjia',  seat: 'Ndop',     projects: 1, exec: 0.70 },
+  { name: 'Mezam',         seat: 'Bamenda',  reps: 10, projects: 5, exec: 0.94 },
+  { name: 'Menchum',       seat: 'Wum',      reps: 10, projects: 4, exec: 0.81 },
+  { name: 'Momo',          seat: 'Mbengwi',  reps: 10, projects: 3, exec: 0.78 },
+  { name: 'Bui',           seat: 'Kumbo',    reps: 10, projects: 1, exec: 0.68 },
+  { name: 'Boyo',          seat: 'Fundong',  reps: 10, projects: 1, exec: 0.72 },
+  { name: 'Donga-Mantung', seat: 'Nkambe',   reps: 10, projects: 1, exec: 0.65 },
+  { name: 'Ngoketunjia',   seat: 'Ndop',     reps: 10, projects: 1, exec: 0.70 },
 ]
 
 const featured = [
@@ -47,13 +50,20 @@ export function DashboardPage() {
 
   return (
     <div className="stagger space-y-14">
-      {/* Masthead */}
-      <section>
-        <div className="flex flex-wrap items-baseline justify-between gap-4 mb-6">
+      {/* Ceremonial masthead — the one place the serif runs large */}
+      <section className="ceremonial">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div className="flex items-center gap-3">
-            <span className="eyebrow">Volume II · Session 2026</span>
-            <span className="w-px h-3 bg-[color:var(--rule)]" />
-            <span className="mono text-[0.7rem] text-[color:var(--sepia)]">{today}</span>
+            <img
+              src="/nwra-logo.png"
+              alt=""
+              className="h-9 w-9 object-contain"
+              aria-hidden
+            />
+            <div>
+              <p className="eyebrow">North West Regional Assembly</p>
+              <p className="mono text-[0.7rem] text-[color:var(--sepia)] mt-0.5">{today}</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="success">Chamber in session</Badge>
@@ -61,17 +71,16 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <h1 className="serif text-[clamp(2.75rem,5.5vw,4.75rem)] leading-[0.98] font-light tracking-tight max-w-5xl">
-          A morning of <span className="italic text-[color:var(--highland)]">good order</span>,
-          <br className="hidden md:block" /> punctual programmes, and paid ledgers.
+        <h1 className="serif display-lg max-w-4xl">
+          Seven divisions, <span className="italic text-[color:var(--highland)]">one register</span>.
         </h1>
 
-        <div className="ornament ornament-draw mt-8 max-w-xl" aria-hidden />
+        <div className="ornament ornament-draw mt-5 max-w-sm" aria-hidden />
 
-        <p className="mt-6 max-w-2xl text-[color:var(--sepia)] leading-relaxed">
-          The state of the North West Regional Assembly today: seven divisions
-          operational, thirty-one programmes underway, and the treasury on
-          course to close FY 2026 above execution target.
+        <p className="mt-4 max-w-2xl text-[color:var(--sepia)] leading-relaxed">
+          Ninety members — seventy divisional representatives and twenty
+          traditional rulers of the House of Chiefs — govern the North West
+          from Bamenda. This is the state of the region today.
         </p>
       </section>
 
@@ -92,8 +101,8 @@ export function DashboardPage() {
             >
               <p className="eyebrow text-[0.6rem]">{m.label}</p>
               <div className="mt-3 flex items-baseline gap-1.5">
-                <span className="figure text-[clamp(2.5rem,4.5vw,3.75rem)] figure-brass">{m.value}</span>
-                <span className="mono text-xs text-[color:var(--sepia)] pb-2">{m.unit}</span>
+                <span className="figure-serif text-[clamp(2.25rem,3.6vw,3rem)] text-[color:var(--ink)]">{m.value}</span>
+                <span className="mono text-xs text-[color:var(--sepia)] pb-1.5">{m.unit}</span>
               </div>
               <div className={`mt-2 flex items-center gap-1.5 mono text-[0.7rem] ${m.dir === 'up' ? 'text-[color:var(--sage)]' : m.dir === 'down' ? 'text-[color:var(--rust)]' : 'text-[color:var(--sepia)]'}`}>
                 {m.dir === 'up' && <ArrowUpRight size={12} strokeWidth={2} />}
@@ -169,7 +178,7 @@ export function DashboardPage() {
           <div className="mt-6 pt-6 border-t border-[color:var(--rule)]">
             <p className="eyebrow text-[0.6rem]">FY 2025 execution — closed</p>
             <div className="flex items-baseline gap-2 mt-2">
-              <span className="figure text-5xl figure-kola">97.5</span>
+              <span className="figure-serif text-5xl text-[color:var(--kola)]">97.5</span>
               <span className="mono text-sm text-[color:var(--sepia)] pb-1">%</span>
             </div>
             <p className="text-xs text-[color:var(--sepia)] mt-2">
@@ -313,28 +322,28 @@ export function DashboardPage() {
 
 function CardMasthead({ eyebrow, title, aside }) {
   return (
-    <div className="mb-5 pb-4 border-b border-[color:var(--rule)]">
-      <div className="flex items-baseline justify-between gap-4">
+    <div className="panel-head">
+      <div>
         <p className="eyebrow">{eyebrow}</p>
-        {aside && <span className="mono text-xs text-[color:var(--brass)]">{aside}</span>}
+        <h3 className="text-[1.0625rem] font-semibold mt-1 leading-tight">{title}</h3>
       </div>
-      <h3 className="serif text-2xl mt-1 leading-tight">{title}</h3>
+      {aside && (
+        <span className="mono text-xs text-[color:var(--brass-ink)] flex-shrink-0">{aside}</span>
+      )}
     </div>
   )
 }
 
 function SectionHead({ eyebrow, title, note }) {
   return (
-    <div className="mb-6">
-      <div className="flex items-baseline gap-3">
-        <p className="eyebrow">{eyebrow}</p>
+    <div className="mb-4 pb-3 border-b border-[color:var(--rule)]">
+      <div className="flex items-center gap-2">
         <span className="ornament-mark" aria-hidden />
+        <p className="eyebrow">{eyebrow}</p>
       </div>
-      <h2 className="serif text-3xl md:text-4xl font-light mt-2 max-w-3xl leading-tight">
-        {title}
-      </h2>
+      <h2 className="page-title mt-1.5">{title}</h2>
       {note && (
-        <p className="text-sm text-[color:var(--sepia)] mt-3 max-w-2xl leading-relaxed">
+        <p className="text-[color:var(--sepia)] mt-1.5 max-w-2xl leading-relaxed">
           {note}
         </p>
       )}

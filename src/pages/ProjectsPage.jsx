@@ -3,6 +3,7 @@ import { Card } from '@/components/Card'
 import { Badge } from '@/components/Badge'
 import { Button } from '@/components/Button'
 import { ProjectBank } from '@/components/ProjectBank'
+import { PageHeader } from '@/components/PageHeader'
 import { Search, Filter, Download, MapPin, DollarSign, Calendar, CheckCircle, AlertCircle, Eye, Edit, Trash2 } from 'lucide-react'
 
 const projectsData = [
@@ -172,21 +173,12 @@ export function ProjectsPage() {
   }
 
   return (
-    <div className="stagger space-y-12">
-      {/* Masthead */}
-      <div>
-        <div className="flex items-baseline gap-3 mb-3">
-          <p className="eyebrow">Vol. II · Section IV</p>
-          <span className="ornament-mark" aria-hidden />
-        </div>
-        <h1 className="serif text-[clamp(2.25rem,4.5vw,4rem)] font-light leading-[0.98] tracking-tight max-w-4xl">
-          Programmes of <span className="italic text-[color:var(--highland)]">public works</span>.
-        </h1>
-        <div className="ornament ornament-draw mt-6 max-w-md" aria-hidden />
-        <p className="mt-5 text-[color:var(--sepia)] max-w-2xl leading-relaxed">
-          Every infrastructure and development programme presently on the roll — contractor, budget, and rate of execution.
-        </p>
-      </div>
+    <div className="stagger space-y-8">
+      <PageHeader
+        eyebrow="Programmes"
+        title="Projects"
+        description="Every infrastructure and development programme on the roll — contractor, budget, and rate of execution."
+      />
 
       {/* Project Bank Section */}
       <div className="border-b border-border pb-12">
@@ -195,8 +187,8 @@ export function ProjectsPage() {
 
       {/* Sub-section */}
       <div>
-        <p className="eyebrow mb-2">Roll of programmes</p>
-        <h2 className="serif text-3xl font-light tracking-tight">Under active supervision</h2>
+        <p className="eyebrow mb-1.5">Roll of programmes</p>
+        <h2 className="page-title">Under active supervision</h2>
       </div>
 
       {/* Search & Controls */}
@@ -208,7 +200,7 @@ export function ProjectsPage() {
             placeholder="Search projects or contractors..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-card border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            className="field pl-10"
           />
         </div>
 

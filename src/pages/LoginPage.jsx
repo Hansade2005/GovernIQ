@@ -52,32 +52,37 @@ export function LoginPage({ onSuccess }) {
 
       <div className="flex-1 grid md:grid-cols-[1.15fr_1fr] max-w-7xl mx-auto w-full">
         {/* Cartouche */}
-        <section className="hidden md:flex flex-col justify-between px-10 lg:px-16 py-16 border-r border-[color:var(--rule)] relative">
+        <section className="ceremonial hidden md:flex flex-col justify-between px-10 lg:px-16 py-14 border-r border-[color:var(--rule)] relative">
           <div className="stagger">
             <div className="flex items-center gap-3">
-              <span className="w-3 h-3 rotate-45 border border-[color:var(--kola)]" />
-              <span className="eyebrow">Enacted MMXX · Bamenda</span>
+              <img src="/nwra-logo.png" alt="" className="h-11 w-11 object-contain" aria-hidden />
+              <div>
+                <p className="eyebrow">North West Regional Assembly</p>
+                <p className="mono text-[0.7rem] text-[color:var(--sepia)] mt-0.5">
+                  Law No. 024 · 24 December 2019
+                </p>
+              </div>
             </div>
 
-            <h1 className="mt-10 serif text-[clamp(3rem,5.6vw,5.75rem)] leading-[0.96] font-light tracking-tight">
+            <h1 className="mt-9 serif display-xl">
               A Chamber<br/>
               <span className="italic text-[color:var(--highland)]">for the</span><br/>
               Grassfields.
             </h1>
 
-            <div className="ornament mt-8 max-w-[240px]" aria-hidden />
+            <div className="ornament mt-7 max-w-[240px]" aria-hidden />
 
-            <p className="mt-8 text-[color:var(--sepia)] max-w-md leading-relaxed">
-              GovernIQ is the digital hansard of the North West Regional
+            <p className="mt-7 text-[color:var(--sepia)] max-w-md leading-relaxed">
+              GovernIQ is the digital register of the North West Regional
               Assembly of Cameroon — where deliberations are recorded,
               programmes are tracked, and the seven divisions govern in
-              concert.
+              concert from Bamenda.
             </p>
 
             <div className="mt-12 grid gap-6 max-w-md">
               {[
                 { n: '01', t: 'Registry', d: 'A single, searchable archive of every minute, motion, and ministerial report.' },
-                { n: '02', t: 'Programmes', d: 'Real-time execution of the 20.8 billion FCFA 2026 budget across all seven divisions.' },
+                { n: '02', t: 'Programmes', d: 'Live execution of the regional budget across all seven divisions.' },
                 { n: '03', t: 'Analytics', d: 'Evidence for the floor, not decoration for a slide.' },
               ].map((row) => (
                 <div key={row.n} className="grid grid-cols-[auto_1fr] gap-4">
@@ -102,13 +107,13 @@ export function LoginPage({ onSuccess }) {
         {/* Form */}
         <section className="flex flex-col justify-center px-6 sm:px-10 lg:px-14 py-16">
           <div className="md:hidden mb-10 flex items-center gap-3">
-            <span className="w-3 h-3 rotate-45 border border-[color:var(--kola)]" />
+            <img src="/nwra-logo.png" alt="" className="h-10 w-10 object-contain" aria-hidden />
             <span className="eyebrow">NW Regional Assembly</span>
           </div>
 
-          <div className="max-w-sm w-full mx-auto md:mx-0">
+          <div className="ceremonial max-w-sm w-full mx-auto md:mx-0">
             <p className="eyebrow">{mode === 'signup' ? 'New credential' : 'Present credentials'}</p>
-            <h2 className="serif text-4xl mt-3 mb-2 font-light">
+            <h2 className="serif text-4xl mt-3 mb-2">
               {mode === 'signup' ? 'Take the oath.' : 'Take the floor.'}
             </h2>
             <p className="text-sm text-[color:var(--sepia)] mb-8">
@@ -215,10 +220,10 @@ export function LoginPage({ onSuccess }) {
 
       <footer className="border-t border-[color:var(--rule)] px-6 py-4 flex flex-wrap items-center justify-between gap-3">
         <p className="eyebrow text-[0.6rem]">
-          © MMXXVI · North West Regional Assembly of Cameroon
+          North West Regional Assembly · Up Station, Bamenda
         </p>
         <p className="mono text-[0.65rem] text-[color:var(--sepia)]">
-          Records secured · Republic of Cameroon
+          info@nwra.cm · +237 233 362 100
         </p>
       </footer>
     </div>

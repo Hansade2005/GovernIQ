@@ -110,7 +110,7 @@ function AppContent() {
           {isChatPage ? (
             renderPage()
           ) : (
-            <div className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-14 py-12">
+            <div className="max-w-[1500px] mx-auto px-5 sm:px-7 lg:px-9 py-7">
               {renderPage()}
             </div>
           )}

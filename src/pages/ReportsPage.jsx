@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/PageHeader'
 import { useState } from 'react'
 import React from 'react'
 import { Card } from '@/components/Card'
@@ -635,21 +636,12 @@ export function ReportsPage() {
   }
 
   return (
-    <div className="stagger space-y-8">
-      {/* Masthead */}
-      <div>
-        <div className="flex items-baseline gap-3 mb-3">
-          <p className="eyebrow">Vol. II · Section V</p>
-          <span className="ornament-mark" aria-hidden />
-        </div>
-        <h1 className="serif text-[clamp(2.25rem,4.5vw,4rem)] font-light leading-[0.98] tracking-tight max-w-4xl">
-          Reports of <span className="italic text-[color:var(--highland)]">record</span>.
-        </h1>
-        <div className="ornament ornament-draw mt-6 max-w-md" aria-hidden />
-        <p className="mt-5 text-[color:var(--sepia)] max-w-2xl leading-relaxed">
-          Governance reports, financial accounts, divisional updates, and development records — signed, dated, and preserved.
-        </p>
-      </div>
+    <div className="stagger space-y-6">
+      <PageHeader
+        eyebrow="Registry"
+        title="Reports"
+        description="Governance reports, financial accounts, divisional updates, and development records — signed, dated, and preserved."
+      />
 
       {/* Tabs Navigation */}
       <div className="flex gap-2 border-b border-border pb-4 overflow-x-auto">

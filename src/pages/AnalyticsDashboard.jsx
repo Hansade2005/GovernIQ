@@ -7,6 +7,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts'
 import { Download, Eye, TrendingUp, TrendingDown, Calendar, Filter } from 'lucide-react'
+import { PageHeader } from '@/components/PageHeader'
 
 export function AnalyticsDashboard() {
   const [timeRange, setTimeRange] = useState('quarterly')
@@ -70,21 +71,17 @@ export function AnalyticsDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Masthead */}
-      <div>
-        <div className="flex items-baseline gap-3 mb-3">
-          <p className="eyebrow">Vol. II · Section III</p>
-          <span className="ornament-mark" aria-hidden />
-        </div>
-        <h1 className="serif text-[clamp(2.5rem,4.5vw,4rem)] font-light leading-[0.98] tracking-tight max-w-4xl">
-          Analytics of the <span className="italic text-[color:var(--highland)]">chamber</span>.
-        </h1>
-        <div className="ornament ornament-draw mt-6 max-w-md" aria-hidden />
-        <p className="mt-5 text-[color:var(--sepia)] max-w-2xl leading-relaxed">
-          Evidence for the floor — programme execution, budget efficiency,
-          and divisional performance across the North West.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Programmes"
+        title="Analytics"
+        description="Programme execution, budget efficiency, and divisional performance across the seven divisions."
+        actions={
+          <Button variant="outline" size="sm" onClick={() => setShowExportModal(!showExportModal)}>
+            <Download size={14} />
+            Export
+          </Button>
+        }
+      />
 
       {/* Controls */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -101,17 +98,7 @@ export function AnalyticsDashboard() {
           ))}
         </div>
 
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={() => setShowExportModal(!showExportModal)}
-          >
-            <Download size={16} />
-            Export Report
-          </Button>
-        </div>
+        <span className="eyebrow">Reporting period</span>
       </div>
 
       {/* Export Modal */}
@@ -142,33 +129,31 @@ export function AnalyticsDashboard() {
         </Card>
       )}
 
-      {/* Performance Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Performance Metrics */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {performanceMetrics.map((metric, idx) => (
-          <Card key={idx} className="hover:border-accent/50 transition">
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm text-muted-foreground font-medium">{metric.name}</h3>
-                <span className="text-xl">{metric.icon}</span>
-              </div>
-              <div className="flex items-baseline justify-between mb-3">
-                <div className="text-3xl font-bold text-foreground">{metric.value}%</div>
-                <div className="flex items-center gap-1 text-xs text-[color:var(--sage)]">
-                  <TrendingUp size={14} />
-                  {metric.trend}
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <Badge label={metric.status} />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleViewDetails(metric.name)}
-                  className="px-2"
-                >
-                  <Eye size={14} />
-                </Button>
-              </div>
+          <Card key={idx}>
+            <p className="eyebrow text-[0.6rem]">{metric.name}</p>
+            <div className="flex items-baseline gap-2 mt-2.5">
+              <span className="figure text-3xl figure-highland">{metric.value}</span>
+              <span className="mono text-xs text-[color:var(--sepia-soft)]">%</span>
+              <span className="flex items-center gap-1 ml-auto mono text-[0.7rem] text-[color:var(--sage)]">
+                <TrendingUp size={11} strokeWidth={2.25} />
+                {metric.trend}
+              </span>
+            </div>
+            <div className="progress-track mt-3">
+              <div className="progress-fill" style={{ width: `${metric.value}%` }} />
+            </div>
+            <div className="flex items-center justify-between mt-3">
+              <Badge variant={metric.value >= 85 ? 'success' : 'secondary'}>{metric.status}</Badge>
+              <button
+                onClick={() => handleViewDetails(metric.name)}
+                className="text-[color:var(--sepia)] hover:text-[color:var(--ink)] transition p-1 rounded-[2px]"
+                aria-label={`Details for ${metric.name}`}
+              >
+                <Eye size={14} />
+              </button>
             </div>
           </Card>
         ))}

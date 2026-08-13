@@ -174,7 +174,7 @@ tr.total td{border-top:1px solid var(--rule);border-bottom:none;color:var(--bras
 .shot img{display:block;width:100%;height:auto}
 .shot.crop{aspect-ratio:16/10}
 .shot.hero img{max-height:50vh;object-fit:cover;object-position:top left}
-.shot.hero.tight img{max-height:34vh}
+.shot.hero.tight img{max-height:29vh}
 .thumbs .shot.crop{aspect-ratio:16/9}
 .shot.crop img{height:100%;object-fit:cover;object-position:top left}
 .caption{font-family:var(--mono);font-size:clamp(.56rem,.68vw,.72rem);letter-spacing:.14em;
@@ -315,6 +315,7 @@ a:hover{text-decoration-color:var(--brass)}
   <div class="foot rise" style="padding-right:clamp(3rem,7vw,8rem)">
     <div class="item"><div class="k">The ask</div><div class="v mono">FCFA 487,500,000 · 30 months</div></div>
     <div class="item"><div class="k">Submitted to</div><div class="v">Prof. Fru Fobuzshi Angwafo III<br><span class="small">President, Regional Executive Council</span></div></div>
+    <div class="item"><div class="k">Platform architect &amp; builder</div><div class="v">Anye Happiness Ade</div></div>
     <div class="item"><div class="k">Project conceptionist</div><div class="v">Wiysenyuy Louis Nyuydzeran</div></div>
     <div class="item"><div class="k">Where · when</div><div class="v mono">Bamenda · Mandate 2026–2031</div></div>
     <div class="item motto">« Mi na u, U na mi, wi be wi »</div>
@@ -603,59 +604,25 @@ a:hover{text-decoration-color:var(--brass)}
   <div class="eyebrow rise">07 · Traction</div>
   <div class="rise" style="margin-top:.8rem;display:flex;flex-wrap:wrap;align-items:flex-end;gap:1.5rem;justify-content:space-between">
     <h2 style="max-width:20ch">Most bidders bring slides. <em>This one brings a login.</em></h2>
-    <span class="tag go">Live · counted from the register at the hour of this sitting</span>
+    <span class="tag go" id="liveTag">
+      <span id="liveDot" style="display:inline-block;width:.45em;height:.45em;border-radius:50%;background:var(--highland);margin-right:.5em;vertical-align:.1em"></span>
+      <span id="liveWhen">Reading the register…</span>
+    </span>
   </div>
 
   <div class="grid g4 rise" style="margin-top:clamp(1rem,2.4vh,1.8rem)">
-    <div class="panel stat k"><span class="fig">12</span><span class="lbl">Programmes tracked</span><span class="sub">FCFA 1.118 B across all seven divisions</span></div>
-    <div class="panel stat k"><span class="fig">11</span><span class="lbl">Documents indexed</span><span class="sub">Stored, searchable on body text, not only titles</span></div>
-    <div class="panel stat k"><span class="fig">07</span><span class="lbl">Divisions live</span><span class="sub">Performance and execution recorded for each</span></div>
+    <div class="panel stat k"><span class="fig" id="nProg">12</span><span class="lbl">Programmes tracked</span><span class="sub" id="sProg">FCFA 1.118 B across all seven divisions</span></div>
+    <div class="panel stat k"><span class="fig" id="nDocs">11</span><span class="lbl">Documents indexed</span><span class="sub">Stored, searchable on body text, not only titles</span></div>
+    <div class="panel stat k"><span class="fig" id="nDeps">16</span><span class="lbl">Site depositions</span><span class="sub" id="sDeps">With photograph and citizen testimony</span></div>
     <div class="panel stat k"><span class="fig">09</span><span class="lbl">Capacities enforced</span><span class="sub">Superadmin through Citizen, permission-gated</span></div>
   </div>
 
   <div class="split wide-right rise" style="margin-top:clamp(1rem,2.2vh,1.7rem);align-items:start">
     <div class="panel">
       <div class="eyebrow tight" style="margin-bottom:1rem">Execution rate by division · FY 2026, from the live register</div>
-      <svg viewBox="0 0 500 318" role="img" aria-label="Execution rate by division: Mezam 94 percent, Menchum 81, Momo 78, Boyo 72, Ngoketunjia 70, Bui 68, Donga-Mantung 65" style="width:100%;height:auto">
-        <g font-family="IBM Plex Mono" font-size="11">
-          <line x1="128" y1="8" x2="128" y2="258" stroke="rgba(245,241,228,.12)"/>
-          <line x1="450" y1="8" x2="450" y2="258" stroke="rgba(224,178,69,.28)" stroke-dasharray="3 3"/>
-          <text x="450" y="278" fill="#E0B245" text-anchor="middle">100%</text>
-          <text x="128" y="278" fill="#7E8C7E" text-anchor="middle">0</text>
-
-          <g fill="#DCD8C6">
-            <text x="120" y="30" text-anchor="end">MEZAM</text>
-            <rect class="bar" x="128" y="18" width="302.68" height="17" fill="#5FB48C"/>
-            <text x="440" y="30" text-anchor="end" fill="#0A1610" font-weight="600">94%</text>
-
-            <text x="120" y="65" text-anchor="end">MENCHUM</text>
-            <rect class="bar" x="128" y="53" width="260.82" height="17" fill="#5FB48C" opacity=".85"/>
-            <text x="380" y="65" text-anchor="end" fill="#0A1610" font-weight="600">81%</text>
-
-            <text x="120" y="100" text-anchor="end">MOMO</text>
-            <rect class="bar" x="128" y="88" width="251.16" height="17" fill="#5FB48C" opacity=".78"/>
-            <text x="371" y="100" text-anchor="end" fill="#0A1610" font-weight="600">78%</text>
-
-            <text x="120" y="135" text-anchor="end">BOYO</text>
-            <rect class="bar" x="128" y="123" width="231.84" height="17" fill="#E0B245" opacity=".8"/>
-            <text x="352" y="135" text-anchor="end" fill="#0A1610" font-weight="600">72%</text>
-
-            <text x="120" y="170" text-anchor="end">NGOKETUNJIA</text>
-            <rect class="bar" x="128" y="158" width="225.4" height="17" fill="#E0B245" opacity=".8"/>
-            <text x="346" y="170" text-anchor="end" fill="#0A1610" font-weight="600">70%</text>
-
-            <text x="120" y="205" text-anchor="end">BUI</text>
-            <rect class="bar" x="128" y="193" width="218.96" height="17" fill="#E0B245" opacity=".8"/>
-            <text x="339" y="205" text-anchor="end" fill="#0A1610" font-weight="600">68%</text>
-
-            <text x="120" y="240" text-anchor="end">DONGA-MANTUNG</text>
-            <rect class="bar" x="128" y="228" width="209.3" height="17" fill="#E2724A" opacity=".85"/>
-            <text x="330" y="240" text-anchor="end" fill="#0A1610" font-weight="600">65%</text>
-          </g>
-          <text x="128" y="296" fill="#7E8C7E" font-size="9.5">A 29-point spread between the best and worst division —</text>
-          <text x="128" y="308" fill="#7E8C7E" font-size="9.5">invisible to the Chamber until this register existed.</text>
-        </g>
-      </svg>
+      <svg id="execChart" viewBox="0 0 500 318" role="img"
+           aria-label="Execution rate by division, read from the live register"
+           style="width:100%;height:auto"></svg>
     </div>
 
     <div class="stack">
@@ -667,7 +634,7 @@ a:hover{text-decoration-color:var(--brass)}
           <li>3 sittings minuted, drafted through to adoption</li>
           <li>6 field site reports filed from the ground</li>
           <li>5 citizen submissions received and routed</li>
-          <li>Live snapshot streaming proven from a phone at a site</li>
+          <li>Live snapshot streaming, proven from a phone at a site</li>
         </ul>
       </div>
     </div>
@@ -773,7 +740,7 @@ a:hover{text-decoration-color:var(--brass)}
         <li><b>The network outlives the contract.</b> The RDO function is written into the Secretariat General's organigram. When the project closes, the reporting chain remains.</li>
         <li><b>Crisis access is a protocol, not a promise.</b> Tiered collection, locally-resident agents and no geo-tagging in red zones, co-signed with humanitarian partners.</li>
         <li><b>The platform already exists.</b> Every rival bid starts at zero with a delivery risk. This one starts with a working system and a login the Assembly can test tonight.</li>
-        <li><b>Nothing leaves the region.</b> Data, credentials and administration sit with the NWRA. No licence renewal can hold the region's own record hostage.</li>
+        <li><b>Nothing leaves the region — or the country.</b> Data, credentials and administration sit with the NWRA, and the platform was built by a Cameroonian engineer who can change it. No licence renewal and no foreign supplier can hold the region's own record hostage.</li>
       </ul>
     </div>
   </div>
@@ -786,8 +753,9 @@ a:hover{text-decoration-color:var(--brass)}
     <h2 style="max-width:20ch">Governed from the Chamber. <em>Staffed from the divisions.</em></h2>
     <p class="small" style="max-width:42ch">
       Not an external delivery team with a regional liaison. A regional
-      structure with a technical unit inside it — which is the only
-      arrangement that survives the end of the funding.
+      structure, a Cameroonian engineer who built the system and can change
+      it, and a technical unit inside the Assembly — the only arrangement
+      that survives the end of the funding.
     </p>
   </div>
 
@@ -798,6 +766,7 @@ a:hover{text-decoration-color:var(--brass)}
         <tbody>
           <tr><td>Prof. Fru Fobuzshi Angwafo III</td><td class="small">Chair · President, Regional Executive Council</td></tr>
           <tr><td>Mr. Peter Yerima</td><td class="small">Secretary General · hosts the Project Management Unit</td></tr>
+          <tr><td>Wiysenyuy Louis Nyuydzeran</td><td class="small">Project conceptionist · Technical Lead</td></tr>
           <tr><td>The eight standing committees</td><td class="small">Co-owners of their own workspaces</td></tr>
         </tbody>
       </table>
@@ -813,11 +782,32 @@ a:hover{text-decoration-color:var(--brass)}
       </ul>
     </div>
     <div class="panel k">
-      <div class="eyebrow tight" style="margin-bottom:.9rem">Origin and technical authorship</div>
-      <p style="font-family:var(--display);font-size:clamp(1.1rem,1.5vw,1.6rem);line-height:1.2;margin-bottom:.5rem">Wiysenyuy Louis Nyuydzeran</p>
-      <p class="small">Project conceptionist and author of the platform now running. Founder-market fit here is literal: the working system predates the funding request, which is the least common thing in this room.</p>
-      <div class="chain" style="margin:1rem 0 .8rem;max-width:100%"></div>
-      <p class="small">Skills transfer secured by twinning with <b style="color:var(--paper)">INS</b>, <b style="color:var(--paper)">MINEPAT</b> and a regional university, with a video training library and two-deep coverage on every role.</p>
+      <div class="eyebrow tight" style="margin-bottom:.9rem">Who built the platform</div>
+      <p style="font-family:var(--display);font-size:clamp(1.15rem,1.55vw,1.7rem);line-height:1.15">Anye Happiness Ade</p>
+      <p class="mono" style="font-size:clamp(.6rem,.7vw,.76rem);color:var(--brass);margin:.35rem 0 .7rem">
+        Principal architect · sole builder of GovernIQ
+      </p>
+      <p class="small" style="color:var(--paper-2)">
+        Cameroonian engineer, based in Douala. Founder and CTO of PiPilot,
+        an agentic development platform through which users have shipped
+        <b style="color:var(--paper)">2,000+ live sites</b>; founder of TweetChat
+        (<b style="color:var(--paper)">50,000+</b> users) and co-founder of an
+        engineering firm with 15+ delivered platforms across five sectors.
+        <b style="color:var(--paper)">160,000+ users</b> reached across four
+        products built and operated end to end.
+      </p>
+      <div class="chain" style="margin:.9rem 0 .75rem;max-width:100%"></div>
+      <p class="small">
+        He has already shipped in production every capability this project
+        depends on: multi-model inference with automatic failover, offline-first
+        browser storage, and Supabase/Postgres with row-level security — the
+        exact stack GovernIQ runs on.
+      </p>
+      <p class="small" style="margin-top:.6rem">
+        M.S. Computer Science (AI), Stanford · B.Sc. Software Engineering ·
+        Google Professional ML Engineer · AWS Solutions Architect ·
+        five MIT-licensed packages published to npm.
+      </p>
     </div>
   </div>
 
@@ -984,7 +974,7 @@ a:hover{text-decoration-color:var(--brass)}
       <div class="foot" style="border-top-color:var(--rule)">
         <div class="item"><div class="k">See it working</div><div class="v"><a href="https://sacred-bonnet-qghb.here.now/" target="_blank" rel="noopener">sacred-bonnet-qghb.here.now</a></div></div>
         <div class="item"><div class="k">Full project document</div><div class="v">v3.0 · filed in the platform registry</div></div>
-        <div class="item"><div class="k">Contact</div><div class="v">Wiysenyuy Louis Nyuydzeran</div></div>
+        <div class="item"><div class="k">Contact</div><div class="v">Anye Happiness Ade · Wiysenyuy Louis Nyuydzeran</div></div>
       </div>
     </div>
   </div>
@@ -1007,6 +997,112 @@ a:hover{text-decoration-color:var(--brass)}
 </div>
 
 <script>
+/* ═══════════════════════════════════════════════════════════════════
+   Slide 07 reads the register live.
+   The figures on the traction slide are the ones the Assembly can check
+   by logging in, so they are fetched rather than typed. The values in the
+   markup are the last known read and stay on screen if the fetch fails —
+   a conference network must never turn this slide blank. The publishable
+   key below is the same anon key the public site already ships; it grants
+   only what an unauthenticated visitor may already read.
+   ═══════════════════════════════════════════════════════════════════ */
+(() => {
+  const URL = 'https://sjfpspguvmtlhkekzybh.supabase.co/rest/v1'
+  const KEY = 'sb_publishable_0F1lKLi_VQ82oGFLurbA9Q_wf3LBX61'
+  const H   = { apikey: KEY, Authorization: `Bearer ${KEY}` }
+
+  const chart = document.getElementById('execChart')
+  const tag   = document.getElementById('liveWhen')
+  const dot   = document.getElementById('liveDot')
+
+  /* The last read, kept so the slide is complete before any network call
+     and unchanged if one fails. */
+  let divisions = [
+    ['Mezam', 94], ['Menchum', 81], ['Momo', 78], ['Boyo', 72],
+    ['Ngoketunjia', 70], ['Bui', 68], ['Donga-Mantung', 65],
+  ]
+
+  const X0 = 128, SPAN = 322, ROW = 35
+
+  function draw(rows) {
+    const worst = rows[rows.length - 1]?.[1] ?? 0
+    const best  = rows[0]?.[1] ?? 0
+    const bars = rows.map(([name, pct], i) => {
+      const y = 18 + i * ROW
+      const w = Math.max(2, (pct / 100) * SPAN)
+      const fill = pct >= 75 ? '#5FB48C' : pct >= 68 ? '#E0B245' : '#E2724A'
+      return `<text x="120" y="${y + 12}" text-anchor="end">${name.toUpperCase()}</text>
+        <rect class="bar" x="${X0}" y="${y}" width="${w}" height="17" fill="${fill}"/>
+        <text x="${X0 + w - 10}" y="${y + 12}" text-anchor="end" fill="#0A1610" font-weight="600">${pct}%</text>`
+    }).join('')
+
+    const base = 18 + rows.length * ROW
+    chart.innerHTML = `<g font-family="IBM Plex Mono" font-size="11">
+      <line x1="${X0}" y1="8" x2="${X0}" y2="${base}" stroke="rgba(245,241,228,.12)"/>
+      <line x1="${X0 + SPAN}" y1="8" x2="${X0 + SPAN}" y2="${base}" stroke="rgba(224,178,69,.28)" stroke-dasharray="3 3"/>
+      <text x="${X0 + SPAN}" y="${base + 20}" fill="#E0B245" text-anchor="middle">100%</text>
+      <text x="${X0}" y="${base + 20}" fill="#7E8C7E" text-anchor="middle">0</text>
+      <g fill="#DCD8C6">${bars}</g>
+      <text x="${X0}" y="${base + 38}" fill="#7E8C7E" font-size="9.5">A ${best - worst}-point spread between the best and worst division —</text>
+      <text x="${X0}" y="${base + 50}" fill="#7E8C7E" font-size="9.5">invisible to the Chamber until this register existed.</text>
+    </g>`
+    chart.setAttribute('viewBox', `0 0 500 ${base + 60}`)
+    chart.setAttribute('aria-label',
+      'Execution rate by division: ' + rows.map(([n, p]) => `${n} ${p} percent`).join(', '))
+  }
+
+  draw(divisions)
+
+  /** Row count without pulling the rows. */
+  async function countOf(table) {
+    const r = await fetch(`${URL}/${table}?select=id`, {
+      headers: { ...H, Prefer: 'count=exact', Range: '0-0' },
+    })
+    const range = r.headers.get('content-range') || ''
+    const total = Number(range.split('/')[1])
+    return Number.isFinite(total) ? total : null
+  }
+
+  const fcfa = (n) =>
+    n >= 1e9 ? `FCFA ${(n / 1e9).toFixed(3)} B` : `FCFA ${(n / 1e6).toFixed(0)} M`
+
+  async function read() {
+    const [progs, docs, deps, budget, perf] = await Promise.all([
+      countOf('projects'),
+      countOf('documents'),
+      countOf('project_progress'),
+      fetch(`${URL}/projects?select=budget_fcfa`, { headers: H }).then((r) => r.json()),
+      fetch(`${URL}/division_performance?select=division,execution_rate&fiscal_year=eq.2026&order=execution_rate.desc`,
+        { headers: H }).then((r) => r.json()),
+    ])
+
+    const set = (id, v) => { if (v != null) document.getElementById(id).textContent = v }
+    set('nProg', progs)
+    set('nDocs', docs)
+    set('nDeps', deps)
+
+    if (Array.isArray(budget) && budget.length) {
+      const total = budget.reduce((a, b) => a + Number(b.budget_fcfa || 0), 0)
+      document.getElementById('sProg').textContent =
+        `${fcfa(total)} across all seven divisions`
+    }
+    if (Array.isArray(perf) && perf.length) {
+      divisions = perf.map((d) => [d.division, Math.round(Number(d.execution_rate) * 100)])
+      draw(divisions)
+    }
+
+    tag.textContent = 'Live · read from the register at ' +
+      new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  }
+
+  read().catch(() => {
+    // Offline in the chamber: keep the last read and say so plainly rather
+    // than presenting stale numbers as live ones.
+    dot.style.background = 'var(--brass)'
+    tag.textContent = 'As last filed · register not reachable from this room'
+  })
+})();
+
 (() => {
   const deck   = document.getElementById('deck')
   const slides = [...document.querySelectorAll('.slide')]

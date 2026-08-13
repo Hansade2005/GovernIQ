@@ -21,12 +21,6 @@ export function ProjectBank() {
   useEffect(() => {
     const loadProjects = async () => {
       try {
-        if (!pp) {
-          console.warn('PiPilot client not available, using fallback data')
-          setLoading(false)
-          return
-        }
-
         const data = await listProjects({ limit: 200 })
         
         if (data && data.length > 0) {

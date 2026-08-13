@@ -3,7 +3,7 @@ import { Send, RefreshCw, Database, AlertCircle, Trash2 } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
 import { MarkdownMessage } from '@/components/MarkdownMessage'
 import { buildRegistryContext } from '@/lib/registry'
-import { pp } from '@/lib/pipilot'
+import { generate, AIUnavailable } from '@/lib/ai'
 
 /**
  * Ask the Assembly — a chamber-wide assistant.
@@ -83,18 +83,15 @@ export function AssistantPage() {
 
     try {
       if (!context) throw new Error('The registry has not loaded yet. Try again in a moment.')
-      if (!pp?.ai?.generate) throw new Error('The assistant service is not available on this deployment.')
 
-      const res = await pp.ai.generate({
+      const text = await generate({
         system: `${SYSTEM_RULES}\n\n# Briefing record\n\n${context.text}`,
         // Keep a short rolling window so follow-up questions stay coherent
         // without the prompt growing without bound.
-        messages: history.slice(-8).map((m) => ({ role: m.role, content: m.content })),
+        messages: history.slice(-6),
         maxTokens: 900,
       })
 
-      const text = res?.text?.trim()
-      if (!text) throw new Error('The assistant returned an empty answer.')
       setMessages((prev) => [...prev, { role: 'assistant', content: text }])
     } catch (err) {
       console.error('Assistant failed:', err)

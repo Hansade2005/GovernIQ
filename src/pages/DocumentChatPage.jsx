@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/Card'
 import { Badge } from '@/components/Badge'
 import { Loader, Send, Sparkles, ArrowLeft, FileText, ChevronDown } from 'lucide-react'
 import { pp } from '@/lib/pipilot'
+import { generate } from '@/lib/ai'
 import { getOrCreateChat, loadChatMessages, saveChatMessage } from '@/lib/chatService'
 
 /**
@@ -168,13 +169,11 @@ Be concise, accurate, and focus on the specific questions asked. Use **markdown*
 DOCUMENT TO ANALYZE:
 ${docContext}`
 
-      const response_obj = await pp.ai.generate({
+      const response = await generate({
         system: systemPrompt,
         messages: [{ role: 'user', content: userInput }],
         maxTokens: 800,
       })
-
-      const response = response_obj?.text || 'No response generated'
 
       setMessages((prev) => [
         ...prev,

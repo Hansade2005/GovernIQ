@@ -4,7 +4,7 @@ import { Button } from '@/components/Button'
 import { Input } from '@/components/Input'
 import { Badge } from '@/components/Badge'
 import { Loader, Send, Sparkles, X } from 'lucide-react'
-import { pp } from '@/lib/pipilot'
+import { generate } from '@/lib/ai'
 
 export function DocumentAIAssistant({ document, onClose }) {
   const hasText = document.extracted_text && 
@@ -135,15 +135,11 @@ Be concise, accurate, and focus on the specific questions asked. Use the documen
 DOCUMENT TO ANALYZE:
 ${documentContext}`
 
-          const response_obj = await pp.ai.generate({
+          response = await generate({
             system: systemPrompt,
-            messages: [
-              { role: 'user', content: userMessage.content }
-            ],
-            maxTokens: 600,
+            messages: [{ role: 'user', content: userMessage.content }],
+            maxTokens: 700,
           })
-          
-          response = response_obj?.text || 'No response generated'
         }
       } catch (aiErr) {
         console.error('AI generation error:', aiErr)

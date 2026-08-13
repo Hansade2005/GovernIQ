@@ -10,7 +10,7 @@ import {
   Archive, Mail, DollarSign, FolderOpen, Database, Loader
 } from 'lucide-react'
 import { MarkdownMessage } from '@/components/MarkdownMessage'
-import { pp } from '@/lib/pipilot'
+import { generate } from '@/lib/ai'
 
 export function ReportsPage() {
   const [expandedSection, setExpandedSection] = useState('rec')
@@ -42,9 +42,7 @@ export function ReportsPage() {
     ].filter(Boolean).join('\n')
 
     try {
-      if (!pp?.ai?.generate) throw new Error('The assistant is not available on this deployment.')
-
-      const res = await pp.ai.generate({
+      const text = await generate({
         system:
           'You brief members of the North West Regional Assembly of Cameroon. ' +
           'Summarise the record below in at most four short bullet points, then ' +
@@ -55,8 +53,6 @@ export function ReportsPage() {
         maxTokens: 400,
       })
 
-      const text = res?.text?.trim()
-      if (!text) throw new Error('The assistant returned an empty summary.')
       setAiSummaries((prev) => ({ ...prev, [report.id]: text }))
     } catch (err) {
       console.error('Report summary failed:', err)

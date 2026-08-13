@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Sparkles, Send, X } from 'lucide-react'
 import { MarkdownMessage } from './MarkdownMessage'
 import { getPortfolioSummary, formatFcfa } from '@/lib/registry'
+import { generate } from '@/lib/ai'
 
 
 export function ProjectAIAssistant() {
@@ -42,146 +43,56 @@ export function ProjectAIAssistant() {
   }, [messages])
 
   /**
-   * Answers are composed from the registry rows already in state, so every
-   * figure the assistant quotes can be checked against the Programmes page.
+   * Ground the model in the programme roll.
+   *
+   * The digest is built from the rows already in state, so the assistant
+   * and the Programmes page can never quote different figures.
    */
-  const generateAIResponse = async (userQuery) => {
-    const q = userQuery.toLowerCase()
+  const buildGrounding = () => {
     const rows = projectData
-    if (!rows.length) {
-      return 'The programme roll has not loaded yet. Give it a moment and ask again.'
-    }
-
-    const pct = (n, d) => (d ? Math.round((n / d) * 100) : 0)
-    const completed = rows.filter((p) => p.status === 'completed')
-    const ongoing = rows.filter((p) => p.status === 'ongoing')
+    const money = (v) => formatFcfa(v)
     const budget = rows.reduce((s, p) => s + Number(p.budget_fcfa || 0), 0)
     const spent = rows.reduce((s, p) => s + Number(p.spent_fcfa || 0), 0)
-    const avgProgress = Math.round(rows.reduce((s, p) => s + (p.progress || 0), 0) / rows.length)
 
-    const groupBy = (key) => {
-      const out = {}
-      for (const p of rows) {
-        const k = p[key] || 'Unassigned'
-        out[k] ??= { count: 0, completed: 0, progress: 0, budget: 0 }
-        out[k].count += 1
-        out[k].progress += p.progress || 0
-        out[k].budget += Number(p.budget_fcfa || 0)
-        if (p.status === 'completed') out[k].completed += 1
-      }
-      return out
+    const lines = [
+      `Programmes on the roll: ${rows.length}.`,
+      `Completed: ${rows.filter((p) => p.status === 'completed').length}. ` +
+        `In session: ${rows.filter((p) => p.status === 'ongoing').length}.`,
+      `Total committed: ${money(budget)}. Disbursed: ${money(spent)}.`,
+      '',
+      'Programme roll (name | division | contractor | category | status | progress | budget | spent | risk):',
+      ...rows.map((p) =>
+        `- ${p.name} | ${p.division} | ${p.contractor} | ${p.category} | ` +
+        `${p.status} | ${p.progress}% | ${money(p.budget_fcfa)} | ${money(p.spent_fcfa)} | ` +
+        `${p.risks || 'none noted'}`
+      ),
+    ]
+    return lines.join('\n')
+  }
+
+  const SYSTEM = [
+    'You advise members of the North West Regional Assembly of Cameroon on',
+    'its programme portfolio.',
+    '',
+    'Rules:',
+    '- Answer ONLY from the programme roll below. Never invent a programme,',
+    '  contractor, figure, or date.',
+    '- If the roll does not say, reply that the roll is silent on it.',
+    '- Quote money exactly as given, including units.',
+    '- Be brief. Lead with the answer. Use markdown tables when comparing',
+    '  programmes, divisions, or contractors.',
+    '- Plain British English, no preamble, no pleasantries.',
+  ].join('\n')
+
+  const generateAIResponse = async (userQuery) => {
+    if (!projectData.length) {
+      return 'The programme roll has not loaded yet. Give it a moment and ask again.'
     }
-
-    if (q.includes('overview') || q.includes('summary') || q.includes('portfolio')) {
-      return `## Portfolio overview
-
-| Measure | Figure |
-|---|---|
-| Programmes on the roll | ${rows.length} |
-| Completed | ${completed.length} |
-| In session | ${ongoing.length} |
-| Average progress | ${avgProgress}% |
-| Total budget | ${formatFcfa(budget)} |
-| Disbursed | ${formatFcfa(spent)} (${pct(spent, budget)}%) |
-
-**Contractors engaged:** ${new Set(rows.map((p) => p.contractor)).size}
-**Divisions covered:** ${new Set(rows.map((p) => p.division)).size}`
-    }
-
-    if (q.includes('completed') || q.includes('finish') || q.includes('delivered')) {
-      return `## Completed programmes (${completed.length})
-
-${completed.map((p) => `- **${p.name}** — ${p.contractor}, ${p.division} Division. ${formatFcfa(p.budget_fcfa)}.`).join('\n')}
-
-Delivered across ${new Set(completed.map((p) => p.division)).size} divisions.`
-    }
-
-    if (q.includes('risk') || q.includes('challenge') || q.includes('delay') || q.includes('behind')) {
-      const atRisk = ongoing.filter((p) => (p.progress || 0) < 50)
-      if (!atRisk.length) {
-        return `## Risk assessment\n\nNo programme currently sits below 50% while in session. The lowest is **${
-          ongoing.sort((a, b) => a.progress - b.progress)[0]?.name
-        }** at ${ongoing.sort((a, b) => a.progress - b.progress)[0]?.progress}%.`
-      }
-      return `## Programmes at risk (${atRisk.length})
-
-${atRisk.map((p) => `- **${p.name}** — ${p.progress}%, ${p.contractor} (${p.division}). ${p.risks || 'No risk noted.'}`).join('\n')}
-
-**Recommended:** raise contractor support on the lowest two, and confirm whether a schedule extension is warranted before the next sitting.`
-    }
-
-    if (q.includes('contractor') || q.includes('performance')) {
-      const byContractor = groupBy('contractor')
-      return `## Contractor performance
-
-| Contractor | Programmes | Completed | Avg. progress |
-|---|---|---|---|
-${Object.entries(byContractor)
-  .sort((a, b) => b[1].count - a[1].count)
-  .map(([n, d]) => `| ${n} | ${d.count} | ${d.completed} | ${Math.round(d.progress / d.count)}% |`)
-  .join('\n')}`
-    }
-
-    if (q.includes('budget') || q.includes('financial') || q.includes('cost') || q.includes('treasury')) {
-      const byCat = groupBy('category')
-      return `## Financial position
-
-**Total budget:** ${formatFcfa(budget)}
-**Disbursed:** ${formatFcfa(spent)} — ${pct(spent, budget)}% utilisation
-**Uncommitted:** ${formatFcfa(budget - spent)}
-
-### By category
-
-| Category | Programmes | Budget |
-|---|---|---|
-${Object.entries(byCat)
-  .sort((a, b) => b[1].budget - a[1].budget)
-  .map(([n, d]) => `| ${n} | ${d.count} | ${formatFcfa(d.budget)} |`)
-  .join('\n')}`
-    }
-
-    if (q.includes('division') || q.includes('progress') || q.includes('status')) {
-      const byDivision = groupBy('division')
-      return `## Progress by division
-
-| Division | Programmes | Completed | Avg. progress |
-|---|---|---|---|
-${Object.entries(byDivision)
-  .sort((a, b) => b[1].count - a[1].count)
-  .map(([n, d]) => `| ${n} | ${d.count} | ${d.completed} | ${Math.round(d.progress / d.count)}% |`)
-  .join('\n')}
-
-**Portfolio average:** ${avgProgress}%`
-    }
-
-    if (q.includes('education') || q.includes('school') || q.includes('classroom')) {
-      const edu = rows.filter((p) => p.category === 'Education')
-      return `## Education programmes (${edu.length})
-
-${edu.map((p) => `- **${p.name}** — ${p.progress}%, ${p.division}. ${formatFcfa(p.budget_fcfa)}.`).join('\n')}
-
-Total commitment: ${formatFcfa(edu.reduce((s, p) => s + Number(p.budget_fcfa || 0), 0))}.`
-    }
-
-    if (q.includes('health') || q.includes('hospital') || q.includes('clinic')) {
-      const health = rows.filter((p) => p.category === 'Health')
-      return `## Health programmes (${health.length})
-
-${health.map((p) => `- **${p.name}** — ${p.progress}%, ${p.division}. ${formatFcfa(p.budget_fcfa)}.`).join('\n')}
-
-Total commitment: ${formatFcfa(health.reduce((s, p) => s + Number(p.budget_fcfa || 0), 0))}.`
-    }
-
-    return `I can answer from the programme roll — ${rows.length} programmes across ${
-      new Set(rows.map((p) => p.division)).size
-    } divisions. Try:
-
-- **Portfolio overview** — the headline position
-- **At-risk programmes** — anything below half-way while in session
-- **Contractor performance** — programmes and progress by firm
-- **Budget report** — commitment, disbursement, and utilisation
-- **Progress by division** — where the work stands
-- **Education** or **health programmes** — by sector`
+    return generate({
+      system: `${SYSTEM}\n\n# Programme roll\n\n${buildGrounding()}`,
+      messages: [{ role: 'user', content: userQuery }],
+      maxTokens: 700,
+    })
   }
 
   const sendQuery = async (query) => {
@@ -200,7 +111,8 @@ Total commitment: ${formatFcfa(health.reduce((s, p) => s + Number(p.budget_fcfa 
       console.error('Error generating response:', error)
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: 'That query could not be answered. Rephrase it, or ask for a portfolio overview to start.',
+        content: `**I could not answer that.** ${error.message || 'The assistant could not be reached.'}`,
+        failed: true,
       }])
     } finally {
       setIsLoading(false)

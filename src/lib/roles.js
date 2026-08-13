@@ -36,6 +36,11 @@ export const ROLES = {
     description: 'Full control, including who else may sign in and in what capacity.',
     rank: 100,
   },
+  president: {
+    label: 'President of the Assembly',
+    description: 'Watches the region live and reads every register.',
+    rank: 90,
+  },
   admin: {
     label: 'Administrator',
     description: 'Manages every register except the roll of users.',
@@ -61,6 +66,11 @@ export const ROLES = {
     description: 'Reads the registry and puts questions to the assistant.',
     rank: 20,
   },
+  field: {
+    label: 'Site Supervisor',
+    description: 'Files reports from the sites. Sees the works, nothing else.',
+    rank: 15,
+  },
   citizen: {
     label: 'Citizen',
     description: 'Follows the public works and gives feedback on them. Sees no internal register.',
@@ -76,6 +86,12 @@ export const ROLE_KEYS = Object.keys(ROLES)
  */
 const GRANTS = {
   superadmin: ['*'],
+  president: [
+    'registry.read', 'minutes.read',
+    'programmes.read', 'treasury.read', 'reports.read',
+    'command.read', 'feedback.read',
+    'live.watch',
+  ],
   admin: [
     'registry.read', 'registry.write',
     'minutes.read', 'minutes.write', 'minutes.adopt',
@@ -84,6 +100,7 @@ const GRANTS = {
     'reports.read', 'reports.write',
     'command.read',
     'feedback.submit', 'feedback.read', 'feedback.respond',
+    'live.watch', 'live.report',
   ],
   clerk: [
     'registry.read', 'registry.write',
@@ -106,14 +123,20 @@ const GRANTS = {
     'programmes.read', 'programmes.write',
     'treasury.read', 'reports.read', 'command.read',
     'feedback.read', 'feedback.respond',
+    'live.watch', 'live.report',
   ],
   member: [
     'registry.read', 'minutes.read', 'programmes.read',
     'treasury.read', 'reports.read',
-    'feedback.read',
+    'feedback.read', 'live.watch',
   ],
   // A citizen follows the works and speaks about them. Nothing internal:
   // no treasury, no minutes, no registry, no command centre.
+  // A supervisor files from the site and sees the works they report on.
+  field: [
+    'programmes.read',
+    'live.report', 'live.watch',
+  ],
   citizen: [
     'programmes.read',
     'feedback.submit', 'feedback.read.own',

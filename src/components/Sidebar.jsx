@@ -2,7 +2,7 @@ import {
   ChevronRight, ChevronLeft,
   LayoutDashboard, FileText, FolderOpen, BarChart3,
   Map, Settings, LogOut, TrendingUp, Radio, Upload, MessageSquare,
-  Gavel, Users, Shield, MessagesSquare,
+  Gavel, Users, Shield, MessagesSquare, Activity, ClipboardCheck,
 } from 'lucide-react'
 import { useSession } from '@/lib/SessionContext'
 import { ROLES } from '@/lib/roles'
@@ -26,6 +26,7 @@ export function Sidebar({
       items: [
         { id: 'dashboard',      label: 'Overview',       icon: LayoutDashboard, href: '#/' },
         { id: 'assistant',      label: 'Ask the Assembly', icon: MessageSquare, href: '#/assistant', need: 'registry.read' },
+        { id: 'situation',      label: 'Situation room', icon: Activity,        href: '#/situation', need: 'live.watch' },
         { id: 'minutes',        label: 'Minutes',        icon: Gavel,           href: '#/minutes', need: 'minutes.read' },
         { id: 'command-center', label: 'Command centre', icon: Radio,           href: '#/command-center', need: 'command.read' },
       ],
@@ -44,6 +45,7 @@ export function Sidebar({
         { id: 'projects',         label: 'Projects',  icon: FolderOpen, href: '#/projects', need: 'programmes.read' },
         { id: 'project-progress', label: 'Execution', icon: TrendingUp, href: '#/project-progress', need: 'programmes.write' },
         { id: 'analytics',        label: 'Analytics', icon: BarChart3,  href: '#/analytics', need: 'registry.read' },
+        { id: 'checkin',          label: 'File a report', icon: ClipboardCheck, href: '#/checkin', need: 'live.report' },
       ],
     },
     {

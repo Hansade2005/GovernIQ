@@ -20,6 +20,8 @@ import { AssistantPage } from '@/pages/AssistantPage'
 import { MinutesPage } from '@/pages/MinutesPage'
 import { UsersPage } from '@/pages/UsersPage'
 import { FeedbackPage } from '@/pages/FeedbackPage'
+import { SituationRoomPage } from '@/pages/SituationRoomPage'
+import { FieldCheckInPage } from '@/pages/FieldCheckInPage'
 import { SessionProvider, useSession } from '@/lib/SessionContext'
 import { Loading } from '@/components/QueryState'
 
@@ -112,6 +114,8 @@ function AppContent() {
     minutes: 'minutes.read',
     'command-center': 'command.read',
     users: 'users.manage',
+    situation: 'live.watch',
+    checkin: 'live.report',
   }
 
   /* Feedback opens for anyone who may write it or read it. */
@@ -147,6 +151,10 @@ function AppContent() {
         return <UsersPage />
       case 'feedback':
         return <FeedbackPage />
+      case 'situation':
+        return <SituationRoomPage />
+      case 'checkin':
+        return <FieldCheckInPage />
       case 'command-center':
         return <CommandCenterDashboard />
       case 'ocr-test':

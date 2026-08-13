@@ -232,7 +232,7 @@ export function RecordPage() {
               />
             </div>
             <div className="flex items-center gap-1">
-              {['All', 'deliberation', 'resolution'].map((k) => (
+              {['All', 'deliberation', 'resolution', 'business'].map((k) => (
                 <button
                   key={k}
                   onClick={() => setKind(k)}
@@ -242,7 +242,7 @@ export function RecordPage() {
                       : 'border-[color:var(--rule-firm)] text-[color:var(--sepia)] hover:text-[color:var(--ink)]'
                   }`}
                 >
-                  {k === 'All' ? 'All' : k === 'deliberation' ? 'Deliberations' : 'Resolutions'}
+                  {{ All: 'All', deliberation: 'Deliberations', resolution: 'Resolutions', business: 'Business' }[k]}
                 </button>
               ))}
             </div>
@@ -278,8 +278,10 @@ export function RecordPage() {
                       </span>
                       <span className="min-w-0">
                         <span className="text-sm text-[color:var(--ink)] leading-relaxed">{d.title}</span>
-                        {d.kind === 'resolution' && (
-                          <Badge variant="secondary" className="ml-2 align-middle">Resolution</Badge>
+                        {d.kind !== 'deliberation' && (
+                          <Badge variant="secondary" className="ml-2 align-middle">
+                            {d.kind === 'resolution' ? 'Resolution' : 'Business'}
+                          </Badge>
                         )}
                       </span>
                     </li>

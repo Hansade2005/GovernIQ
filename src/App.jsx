@@ -18,6 +18,7 @@ import { OCRTestPublic } from '@/pages/OCRTestPublic'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { AssistantPage } from '@/pages/AssistantPage'
 import { MinutesPage } from '@/pages/MinutesPage'
+import { RecordPage } from '@/pages/RecordPage'
 import { UsersPage } from '@/pages/UsersPage'
 import { FeedbackPage } from '@/pages/FeedbackPage'
 import { SituationRoomPage } from '@/pages/SituationRoomPage'
@@ -149,6 +150,8 @@ function AppContent() {
         return <AssistantPage />
       case 'minutes':
         return <MinutesPage />
+      case 'record':
+        return <RecordPage />
       case 'users':
         return <UsersPage />
       case 'feedback':

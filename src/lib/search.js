@@ -91,6 +91,35 @@ const SOURCES = [
     shape: (r) => ({ id: r.id, title: r.headline, detail: `${r.project_name} · ${r.condition}` }),
   },
   {
+    kind: 'On the floor',
+    need: 'registry.read',
+    href: () => '#/record',
+    query: (c, t) => c.from('deliberations')
+      .select('id,title,kind,session_label,item_no')
+      .or(`title.ilike.%${t}%,session_label.ilike.%${t}%,theme.ilike.%${t}%`)
+      .limit(5),
+    shape: (r) => ({
+      id: r.id,
+      title: r.title,
+      detail: `${r.kind === 'resolution' ? 'Resolution' : 'Deliberation'} ${r.item_no} · ${r.session_label}`,
+    }),
+  },
+  {
+    kind: 'Budget year',
+    need: 'treasury.read',
+    href: () => '#/record',
+    query: (c, t) => c.from('budget_history')
+      .select('id,fiscal_year,stage,amount_fcfa,session_label')
+      .or(`session_label.ilike.%${t}%,note.ilike.%${t}%,stage.ilike.%${t}%`)
+      .limit(4),
+    shape: (r) => ({
+      id: r.id,
+      title: `FY ${r.fiscal_year} — ${r.stage}`,
+      detail: [r.amount_fcfa ? `FCFA ${(r.amount_fcfa / 1e9).toFixed(3)} B` : 'figure not published',
+        r.session_label].filter(Boolean).join(' · '),
+    }),
+  },
+  {
     kind: 'Division',
     need: 'programmes.read',
     href: () => '#/',

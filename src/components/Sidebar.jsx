@@ -2,7 +2,7 @@ import {
   ChevronRight, ChevronLeft,
   LayoutDashboard, FileText, FolderOpen, BarChart3,
   Map, Settings, LogOut, TrendingUp, Radio, Upload, MessageSquare,
-  Gavel, Users, Shield, MessagesSquare, Activity, ClipboardCheck, Video,
+  Gavel, Landmark, Users, Shield, MessagesSquare, Activity, ClipboardCheck, Video,
 } from 'lucide-react'
 import { useSession } from '@/lib/SessionContext'
 import { ROLES } from '@/lib/roles'
@@ -34,6 +34,7 @@ export function Sidebar({
     {
       label: 'Registry',
       items: [
+        { id: 'record',         label: 'The House record', icon: Landmark, href: '#/record', need: 'registry.read' },
         { id: 'documents',      label: 'Documents',   icon: FileText, href: '#/documents', need: 'registry.read' },
         { id: 'reports',        label: 'Reports',     icon: Map,      href: '#/reports', need: 'reports.read' },
         { id: 'upload-reports', label: 'Depositions', icon: Upload,   href: '#/upload-reports', need: 'registry.write' },

@@ -174,7 +174,7 @@ tr.total td{border-top:1px solid var(--rule);border-bottom:none;color:var(--bras
 .shot img{display:block;width:100%;height:auto}
 .shot.crop{aspect-ratio:16/10}
 .shot.hero img{max-height:50vh;object-fit:cover;object-position:top left}
-.shot.hero.tight img{max-height:29vh}
+.shot.hero.tight img{max-height:25vh}
 .thumbs .shot.crop{aspect-ratio:16/9}
 .shot.crop img{height:100%;object-fit:cover;object-position:top left}
 .caption{font-family:var(--mono);font-size:clamp(.56rem,.68vw,.72rem);letter-spacing:.14em;
@@ -341,6 +341,13 @@ a:hover{text-decoration-color:var(--brass)}
           the repair costs four times what it would have.
         </p>
         <p class="caption" style="margin-top:.7rem">This is the cost of latency — not of bad intentions</p>
+        <p class="small" style="margin-top:.9rem;color:var(--paper-2)">
+          It is not hypothetical. In 2021 the Assembly executed
+          <b style="color:var(--brass-ink)">60.6%</b> of its budget, with two
+          programmes near zero because works on destroyed schools never
+          happened. Nobody could see it until the accounts were tabled the
+          following March — nine months later.
+        </p>
       </div>
       <p class="small">
         The Specialised Finance Control Report 2025 and the May 2026 Ordinary
@@ -390,10 +397,23 @@ a:hover{text-decoration-color:var(--brass)}
           <span class="sub">No standing committee has live progress visibility</span>
         </div>
         <div class="panel stat hot">
-          <span class="fig" style="color:var(--kola)">10.33<span style="font-size:.42em">B</span></span>
-          <span class="lbl">FCFA decided blind</span>
-          <span class="sub">Adjusted budget executed without real-time visibility</span>
+          <span class="fig" style="color:var(--kola)">3<span style="font-size:.42em;letter-spacing:.02em"> of 10</span></span>
+          <span class="lbl">Figures never published</span>
+          <span class="sub">Budget entries since 2021 with no figure on the public record</span>
         </div>
+      </div>
+
+      <div class="panel hot">
+        <p class="small" style="color:var(--paper-2)">
+          <b style="color:var(--paper)">And the record itself does not reconcile.</b>
+          The 2021 execution table tabled in the House puts investment at
+          945,767,797 and running at 901,767,797 — against a stated total of
+          1,727,014,461. The lines sum to 1,847,535,594. Neither rate follows
+          from its own figures.
+        </p>
+        <p class="caption" style="margin-top:.6rem">
+          Minutes of the March 2022 Ordinary Session · recovered by OCR from the Assembly's own scan
+        </p>
       </div>
     </div>
   </div>
@@ -457,34 +477,70 @@ a:hover{text-decoration-color:var(--brass)}
       </p>
     </div>
 
+    <div class="stack" style="gap:1rem">
+      <div class="panel">
+        <div class="eyebrow tight" style="margin-bottom:1rem">The envelope this platform must account for · FCFA billions</div>
+        <svg viewBox="0 0 470 168" role="img"
+             aria-label="Voted envelope by year: 3 billion in 2021, 4.35 in 2022, 5.634 in 2024, 10.1 in 2025, 20 in 2026"
+             style="width:100%;height:auto">
+          <g font-family="IBM Plex Mono" font-size="9.5">
+            <line x1="30" y1="122" x2="460" y2="122" stroke="rgba(224,178,69,.3)"/>
+            <g>
+              <rect class="bar" x="34"  y="107.8" width="52" height="14.2" fill="#B98F2C"/>
+              <rect class="bar" x="120" y="101.3" width="52" height="20.7" fill="#B98F2C"/>
+              <rect class="bar" x="206" y="95.3"  width="52" height="26.7" fill="#E0B245"/>
+              <rect class="bar" x="292" y="74"    width="52" height="48"   fill="#E0B245"/>
+              <rect class="bar" x="378" y="27"    width="52" height="95"   fill="#5FB48C"/>
+            </g>
+            <g fill="#F0CF7E" text-anchor="middle" font-size="11">
+              <text x="60"  y="101">3.0</text>
+              <text x="146" y="94">4.35</text>
+              <text x="232" y="88">5.63</text>
+              <text x="318" y="67">10.1</text>
+              <text x="404" y="20">20.0</text>
+            </g>
+            <g fill="#7E8C7E" text-anchor="middle">
+              <text x="60"  y="136">2021</text>
+              <text x="146" y="136">2022</text>
+              <text x="232" y="136">2024</text>
+              <text x="318" y="136">2025</text>
+              <text x="404" y="136">2026</text>
+            </g>
+            <text x="30" y="152" fill="#7E8C7E">2023 omitted — the Assembly has never published that figure.</text>
+            <text x="30" y="164" fill="#7E8C7E">Adjusted figure shown where a year was adjusted.</text>
+          </g>
+        </svg>
+      </div>
+
     <div class="panel">
       <div class="eyebrow tight" style="margin-bottom:1.2rem">Bottom-up, from the unit that reports</div>
-      <svg viewBox="0 0 460 330" role="img" aria-label="Beachhead of 7 divisions and 34 councils, widening to 10 regional assemblies and 360 councils nationally" style="width:100%;height:auto">
+      <svg viewBox="0 0 460 312" role="img" aria-label="Beachhead of 7 divisions and 34 councils, widening to 10 regional assemblies and 360 councils nationally" style="width:100%;height:auto;max-height:34vh;display:block;margin-inline:auto">
         <g font-family="IBM Plex Mono" font-size="10.5">
-          <rect x="4" y="4" width="452" height="322" fill="rgba(224,178,69,.05)" stroke="rgba(224,178,69,.25)"/>
+          <rect x="4" y="4" width="452" height="304" fill="rgba(224,178,69,.05)" stroke="rgba(224,178,69,.25)"/>
           <text x="18" y="28" fill="#E0B245" letter-spacing="2">NATIONAL · 10 REGIONS</text>
           <text x="18" y="46" fill="#DCD8C6" font-size="12">360 councils · 14 city councils · 10 regional assemblies</text>
 
-          <rect x="26" y="66" width="408" height="238" fill="rgba(95,180,140,.06)" stroke="rgba(95,180,140,.3)"/>
+          <rect x="26" y="66" width="408" height="228" fill="rgba(95,180,140,.06)" stroke="rgba(95,180,140,.3)"/>
           <text x="40" y="90" fill="#5FB48C" letter-spacing="2">SERVICEABLE · REGIONAL ASSEMBLIES</text>
           <text x="40" y="108" fill="#DCD8C6" font-size="12">10 assemblies under the same 2019 reporting mandate</text>
 
-          <rect x="48" y="128" width="364" height="154" fill="rgba(224,178,69,.16)" stroke="#E0B245" stroke-width="1.2"/>
-          <text x="64" y="152" fill="#E0B245" letter-spacing="2">BEACHHEAD · THIS CONTRACT</text>
-          <text x="64" y="178" fill="#F5F1E4" font-size="19" font-family="Fraunces">North West Regional Assembly</text>
+          <rect x="48" y="128" width="364" height="152" fill="rgba(224,178,69,.16)" stroke="#E0B245" stroke-width="1.2"/>
+          <text x="64" y="150" fill="#E0B245" letter-spacing="2">BEACHHEAD · THIS CONTRACT</text>
+          <text x="64" y="174" fill="#F5F1E4" font-size="19" font-family="Fraunces">North West Regional Assembly</text>
           <g fill="#DCD8C6" font-size="11.5">
-            <text x="64" y="204">7 divisions</text>
-            <text x="180" y="204">34 councils</text>
-            <text x="300" y="204">8 committees</text>
-            <text x="64" y="226">90 members</text>
-            <text x="180" y="226">63 data agents</text>
-            <text x="300" y="226">1 command wall</text>
+            <text x="64" y="198">7 divisions</text>
+            <text x="180" y="198">34 councils</text>
+            <text x="300" y="198">8 committees</text>
+            <text x="64" y="218">90 members</text>
+            <text x="180" y="218">63 data agents</text>
+            <text x="300" y="218">1 command wall</text>
           </g>
-          <line x1="64" y1="242" x2="396" y2="242" stroke="rgba(224,178,69,.3)"/>
-          <text x="64" y="264" fill="#F0CF7E" font-size="15" font-family="Fraunces">FCFA 20.8 B under management, FY 2026</text>
-          <text x="64" y="278" fill="#7E8C7E" font-size="10">18.1 B investment · 2.7 B operations</text>
+          <line x1="64" y1="234" x2="396" y2="234" stroke="rgba(224,178,69,.3)"/>
+          <text x="64" y="254" fill="#F0CF7E" font-size="15" font-family="Fraunces">FCFA 20 B under management, FY 2026</text>
+          <text x="64" y="268" fill="#7E8C7E" font-size="10">Grown from 3 B in 2021 — a 6.7× rise in five years</text>
         </g>
       </svg>
+    </div>
     </div>
   </div>
 </section>
@@ -508,6 +564,7 @@ a:hover{text-decoration-color:var(--brass)}
         <ul class="marks go" style="gap:.5rem">
           <li>Programme register with budget, execution and division</li>
           <li>Document registry — upload, store, index, full-text search</li>
+          <li>The House record since 2021, every entry against its source</li>
           <li>Session minutes: draft, adopt, publish</li>
           <li>Nine capacities, Superadmin to Citizen, permission-gated</li>
           <li>Live walkthroughs streamed from a phone at the site</li>
@@ -547,29 +604,31 @@ a:hover{text-decoration-color:var(--brass)}
     <div class="stack">
       <h2>One point of execution <em>pays for the whole thing.</em></h2>
       <p class="lede">
-        The Assembly manages an investment budget of FCFA 18.1 billion. A single
-        percentage point of improved execution is FCFA 181 million a year. The
-        platform costs FCFA 48 million a year to run.
+        The Assembly manages FCFA 20 billion in 2026. A single percentage point
+        of improved execution is FCFA 200 million a year. The platform costs
+        FCFA 48 million a year to run.
       </p>
       <div class="panel go">
         <div class="grid g2" style="gap:1.2rem">
           <div class="stat">
-            <span class="fig" style="color:var(--highland)">3.8×</span>
+            <span class="fig" style="color:var(--highland)">4.2×</span>
             <span class="lbl">Annual cover</span>
             <span class="sub">One point of execution against the yearly running cost</span>
           </div>
           <div class="stat">
-            <span class="fig" style="color:var(--highland)">2.7<span style="font-size:.42em"> yrs</span></span>
+            <span class="fig" style="color:var(--highland)">2.4<span style="font-size:.42em"> yrs</span></span>
             <span class="lbl">Capital recovered</span>
             <span class="sub">Full FCFA 487.5 M envelope, on the same one point</span>
           </div>
         </div>
       </div>
       <p class="small">
-        This is the conservative case. It assumes the platform improves execution
-        by one point and nothing else — no reduction in duplicated payments, no
-        earlier detection of stalled works, no partner co-financing unlocked by
-        verifiable reporting.
+        This is the conservative case: one point, and nothing else. The real
+        prize is larger. In 2021 the Assembly left
+        <b style="color:var(--brass-ink)">FCFA 1.196 billion</b> of a
+        3 billion appropriation unspent — 39.4% — largely on works that
+        stalled without anyone seeing in time. Recovering a tenth of that
+        shortfall would pay the running cost twice over.
       </p>
     </div>
 
@@ -578,15 +637,15 @@ a:hover{text-decoration-color:var(--brass)}
       <table>
         <thead><tr><th>Measure</th><th class="num">FCFA</th><th class="num">Of budget</th></tr></thead>
         <tbody>
-          <tr><td>Capital, one time</td><td class="num">487,500,000</td><td class="num">2.34%</td></tr>
-          <tr><td>Recurrent, per year</td><td class="num">48,000,000</td><td class="num">0.23%</td></tr>
+          <tr><td>Capital, one time</td><td class="num">487,500,000</td><td class="num">2.44%</td></tr>
+          <tr><td>Recurrent, per year</td><td class="num">48,000,000</td><td class="num">0.24%</td></tr>
           <tr><td>Per division, per year</td><td class="num">6,857,000</td><td class="num">—</td></tr>
           <tr><td>Per council, per year</td><td class="num">1,412,000</td><td class="num">—</td></tr>
           <tr><td>Per data agent, over 30 months</td><td class="num">2,254,000</td><td class="num">—</td></tr>
           <tr class="total"><td>Cost of doing nothing</td><td class="num">unmeasured</td><td class="num">—</td></tr>
         </tbody>
       </table>
-      <p class="caption" style="margin-top:.9rem">Share of budget computed against the FY 2026 envelope of FCFA 20.8 B</p>
+      <p class="caption" style="margin-top:.9rem">Share of budget computed against the adjusted FY 2026 envelope of FCFA 20 B</p>
 
       <div class="chain" style="margin:1.2rem 0 1rem;max-width:100%"></div>
       <div class="eyebrow tight" style="margin-bottom:.7rem">How it sustains itself after handover</div>
@@ -612,9 +671,9 @@ a:hover{text-decoration-color:var(--brass)}
 
   <div class="grid g4 rise" style="margin-top:clamp(1rem,2.4vh,1.8rem)">
     <div class="panel stat k"><span class="fig" id="nProg">12</span><span class="lbl">Programmes tracked</span><span class="sub" id="sProg">FCFA 1.118 B across all seven divisions</span></div>
-    <div class="panel stat k"><span class="fig" id="nDocs">11</span><span class="lbl">Documents indexed</span><span class="sub">Stored, searchable on body text, not only titles</span></div>
+    <div class="panel stat k"><span class="fig" id="nDocs">14</span><span class="lbl">Documents indexed</span><span class="sub">Including 49 scanned pages read by OCR</span></div>
+    <div class="panel stat k"><span class="fig" id="nFloor">74</span><span class="lbl">Floor entries</span><span class="sub">Every deliberation and resolution since 2021</span></div>
     <div class="panel stat k"><span class="fig" id="nDeps">16</span><span class="lbl">Site depositions</span><span class="sub" id="sDeps">With photograph and citizen testimony</span></div>
-    <div class="panel stat k"><span class="fig">09</span><span class="lbl">Capacities enforced</span><span class="sub">Superadmin through Citizen, permission-gated</span></div>
   </div>
 
   <div class="split wide-right rise" style="margin-top:clamp(1rem,2.2vh,1.7rem);align-items:start">
@@ -630,6 +689,7 @@ a:hover{text-decoration-color:var(--brass)}
       <p class="caption">Execution register · site narrative, photograph and citizen testimony, per programme</p>
       <div class="panel">
         <ul class="marks go" style="gap:.5rem">
+          <li>The House record since 2021 — budgets, accounts, every decision</li>
           <li>5 committee reports filed and retrievable</li>
           <li>3 sittings minuted, drafted through to adoption</li>
           <li>6 field site reports filed from the ground</li>
@@ -1067,10 +1127,11 @@ a:hover{text-decoration-color:var(--brass)}
     n >= 1e9 ? `FCFA ${(n / 1e9).toFixed(3)} B` : `FCFA ${(n / 1e6).toFixed(0)} M`
 
   async function read() {
-    const [progs, docs, deps, budget, perf] = await Promise.all([
+    const [progs, docs, deps, floor, budget, perf] = await Promise.all([
       countOf('projects'),
       countOf('documents'),
       countOf('project_progress'),
+      countOf('deliberations'),
       fetch(`${URL}/projects?select=budget_fcfa`, { headers: H }).then((r) => r.json()),
       fetch(`${URL}/division_performance?select=division,execution_rate&fiscal_year=eq.2026&order=execution_rate.desc`,
         { headers: H }).then((r) => r.json()),
@@ -1080,6 +1141,7 @@ a:hover{text-decoration-color:var(--brass)}
     set('nProg', progs)
     set('nDocs', docs)
     set('nDeps', deps)
+    set('nFloor', floor)
 
     if (Array.isArray(budget) && budget.length) {
       const total = budget.reduce((a, b) => a + Number(b.budget_fcfa || 0), 0)

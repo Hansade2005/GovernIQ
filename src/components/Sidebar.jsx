@@ -2,7 +2,7 @@ import {
   ChevronRight, ChevronLeft,
   LayoutDashboard, FileText, FolderOpen, BarChart3,
   Map, Settings, LogOut, TrendingUp, Radio, Upload, MessageSquare,
-  Gavel, Landmark, Users, Shield, MessagesSquare, Activity, ClipboardCheck, Video,
+  Gavel, Landmark, Presentation, Users, Shield, MessagesSquare, Activity, ClipboardCheck, Video,
 } from 'lucide-react'
 import { useSession } from '@/lib/SessionContext'
 import { ROLES } from '@/lib/roles'
@@ -29,6 +29,7 @@ export function Sidebar({
         { id: 'situation',      label: 'Situation room', icon: Activity,        href: '#/situation', need: 'live.watch' },
         { id: 'minutes',        label: 'Minutes',        icon: Gavel,           href: '#/minutes', need: 'minutes.read' },
         { id: 'command-center', label: 'Command centre', icon: Radio,           href: '#/command-center', need: 'command.read' },
+        { id: 'deck',           label: 'Slide deck',     icon: Presentation,    href: '#/deck', need: 'registry.read' },
       ],
     },
     {

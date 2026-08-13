@@ -19,6 +19,7 @@ import { SettingsPage } from '@/pages/SettingsPage'
 import { AssistantPage } from '@/pages/AssistantPage'
 import { MinutesPage } from '@/pages/MinutesPage'
 import { RecordPage } from '@/pages/RecordPage'
+import { DeckPage } from '@/pages/DeckPage'
 import { UsersPage } from '@/pages/UsersPage'
 import { FeedbackPage } from '@/pages/FeedbackPage'
 import { SituationRoomPage } from '@/pages/SituationRoomPage'
@@ -152,6 +153,8 @@ function AppContent() {
         return <MinutesPage />
       case 'record':
         return <RecordPage />
+      case 'deck':
+        return <DeckPage />
       case 'users':
         return <UsersPage />
       case 'feedback':

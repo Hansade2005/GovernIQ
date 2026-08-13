@@ -122,7 +122,7 @@ export function AssistantPage() {
   const counts = context?.counts
 
   return (
-    <div className="stagger flex flex-col min-h-[calc(100vh-12rem)] pb-28">
+    <div className="stagger flex flex-col min-h-[calc(100vh-12rem)] pb-24 sm:pb-28">
       <PageHeader
         eyebrow="Chamber"
         title="Ask the Assembly"
@@ -265,9 +265,14 @@ export function AssistantPage() {
               <span className="hidden sm:inline">Ask</span>
             </button>
           </div>
-          <p className="eyebrow text-[0.5rem] mt-2 flex items-start gap-1.5">
-            <AlertCircle size={10} className="flex-shrink-0 mt-px" />
-            <span>Answers come from the registry. Check figures against the record before quoting them on the floor.</span>
+          {/* Standing caveat. Worth saying on a desktop, where there is room
+              for it; on a phone the keyboard and the thread need the space
+              more than a note the reader has already seen. */}
+          <p className="hidden sm:flex eyebrow text-[0.45rem] tracking-[0.14em] mt-1.5 items-center gap-1 text-[color:var(--sepia-soft)]">
+            <AlertCircle size={9} className="flex-shrink-0" />
+            <span className="truncate">
+              Answers come from the registry — check figures against the record before quoting them on the floor.
+            </span>
           </p>
         </div>
       </form>

@@ -2,7 +2,7 @@ import {
   ChevronRight, ChevronLeft,
   LayoutDashboard, FileText, FolderOpen, BarChart3,
   Map, Settings, LogOut, TrendingUp, Radio, Upload, MessageSquare,
-  Gavel, Users,
+  Gavel, Users, Shield,
 } from 'lucide-react'
 import { useSession } from '@/lib/SessionContext'
 import { ROLES } from '@/lib/roles'
@@ -56,6 +56,11 @@ export function Sidebar({
     .map((g) => ({ ...g, items: g.items.filter((i) => !i.need || allows(i.need)) }))
     .filter((g) => g.items.length > 0)
 
+  const displayName =
+    profile?.full_name || profile?.email?.split('@')[0] || 'Member'
+  const roleLabel = ROLES[role]?.label || role
+  const initial = displayName.trim().charAt(0).toUpperCase() || '?'
+
   const collapsedStyle = isCollapsed
     ? { paddingLeft: '0.625rem', paddingRight: '0.625rem', justifyContent: 'center' }
     : undefined
@@ -76,7 +81,7 @@ export function Sidebar({
         </button>
       </div>
 
-      <nav className="flex-1 py-4 px-2.5 space-y-5">
+      <nav className="py-4 px-2.5 space-y-5">
         {groups.map((group) => (
           <div key={group.label}>
             {!isCollapsed && (
@@ -105,35 +110,78 @@ export function Sidebar({
         ))}
       </nav>
 
-      <div className="border-t border-[color:var(--rule)] px-2.5 py-3 space-y-0.5">
-        <a
-          href="#/settings"
-          className="nav-item"
-          data-active={currentPage === 'settings'}
-          style={collapsedStyle}
-          title={isCollapsed ? 'Settings' : undefined}
-          onClick={onNavigate}
-        >
-          <Settings size={16} strokeWidth={1.85} className="flex-shrink-0" />
-          {!isCollapsed && <span>Settings</span>}
-        </a>
-        {!isCollapsed && (
-          <div className="px-3 pb-2 pt-1">
-            <p className="eyebrow text-[0.5rem]">Signed in as</p>
-            <p className="text-[0.75rem] font-medium text-[color:var(--ink)] truncate mt-0.5">
-              {ROLES[role]?.label || role}
-            </p>
+      {/* Who is signed in, and in what capacity. A member should be able to
+          see at a glance why a register is or is not on their list. */}
+      <div className="border-t border-[color:var(--rule)] mt-auto">
+        {isCollapsed ? (
+          <div
+            className="flex justify-center py-3"
+            title={`${displayName} — ${roleLabel}`}
+          >
+            <span className="w-8 h-8 rounded-full bg-[color:var(--highland)] text-white flex items-center justify-center text-[0.75rem] font-semibold">
+              {initial}
+            </span>
+          </div>
+        ) : (
+          <div className="px-3.5 py-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="w-8 h-8 flex-shrink-0 rounded-full bg-[color:var(--highland)] text-white flex items-center justify-center text-[0.75rem] font-semibold">
+                {initial}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[0.8125rem] font-semibold text-[color:var(--ink)] truncate leading-tight">
+                  {displayName}
+                </p>
+                {profile?.email && (
+                  <p className="mono text-[0.65rem] text-[color:var(--sepia-soft)] truncate mt-0.5">
+                    {profile.email}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 mt-2.5">
+              <span className="stamp text-[color:var(--highland)]">
+                {roleLabel}
+              </span>
+              {isSuperadmin && (
+                <span title="Standing superadmin — fixed in code">
+                  <Shield size={11} className="text-[color:var(--brass-ink)]" />
+                </span>
+              )}
+            </div>
+
+            {profile?.title && (
+              <p className="text-[0.7rem] text-[color:var(--sepia)] mt-1.5 leading-snug">
+                {profile.title}
+                {profile.division ? ` · ${profile.division} Division` : ''}
+              </p>
+            )}
           </div>
         )}
-        <button
-          onClick={onSignOut}
-          className="nav-item w-full text-left"
-          style={collapsedStyle}
-          title={isCollapsed ? 'Sign out' : undefined}
-        >
-          <LogOut size={16} strokeWidth={1.85} className="flex-shrink-0 text-[color:var(--rust)]" />
-          {!isCollapsed && <span className="text-[color:var(--rust)]">Sign out</span>}
-        </button>
+
+        <div className="px-2.5 pb-3 space-y-0.5 border-t border-[color:var(--rule)] pt-2">
+          <a
+            href="#/settings"
+            className="nav-item"
+            data-active={currentPage === 'settings'}
+            style={collapsedStyle}
+            title={isCollapsed ? 'Settings' : undefined}
+            onClick={onNavigate}
+          >
+            <Settings size={16} strokeWidth={1.85} className="flex-shrink-0" />
+            {!isCollapsed && <span>Settings</span>}
+          </a>
+          <button
+            onClick={onSignOut}
+            className="nav-item w-full text-left"
+            style={collapsedStyle}
+            title={isCollapsed ? 'Sign out' : undefined}
+          >
+            <LogOut size={16} strokeWidth={1.85} className="flex-shrink-0 text-[color:var(--rust)]" />
+            {!isCollapsed && <span className="text-[color:var(--rust)]">Sign out</span>}
+          </button>
+        </div>
       </div>
     </aside>
   )

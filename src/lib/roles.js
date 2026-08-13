@@ -22,6 +22,9 @@ import { supabase, isSupabaseConfigured } from './supabase'
  * row-level security policies keyed on an authenticated session.
  */
 
+/** How long to wait for a profile before letting someone in read-only. */
+const PROFILE_TIMEOUT_MS = 6000
+
 /** Always superadmin, whatever the table says. */
 export const STANDING_SUPERADMINS = [
   'hansade2005@gmail.com',
@@ -135,8 +138,15 @@ export async function resolveProfile(email) {
   if (!addr || !isSupabaseConfigured || !supabase) return fallback
 
   try {
-    const { data, error } = await supabase
-      .from('profiles').select('*').eq('email', addr).maybeSingle()
+    // Never let a slow or unreachable registry strand someone on the
+    // loading screen: after a few seconds, fall back to read-only and let
+    // them in. The interface re-resolves on demand.
+    const { data, error } = await Promise.race([
+      supabase.from('profiles').select('*').eq('email', addr).maybeSingle(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('the registry did not answer in time')), PROFILE_TIMEOUT_MS)
+      ),
+    ])
     if (error) throw error
     if (!data) return fallback
     return {

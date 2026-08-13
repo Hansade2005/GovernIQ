@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Menu, X, LogOut, Settings, User, LifeBuoy, FileText, Clock,
   Search, ChevronDown, Sun, Moon, Monitor,
 } from 'lucide-react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { useTheme } from '@/lib/theme'
+import { GlobalSearch } from './GlobalSearch'
 
 /**
  * Header — a single quiet strip. The seal and wordmark anchor the left,
@@ -14,7 +15,21 @@ import { useTheme } from '@/lib/theme'
  */
 export function Header({ user, onSignOut, onOpenNav }) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const { preference, setPreference } = useTheme()
+
+  // ⌘K / Ctrl+K from anywhere, and never while the member is typing
+  // into some other field.
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setSearchOpen(true)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   const today = new Date().toLocaleDateString('en-GB', {
     day: 'numeric', month: 'short', year: 'numeric',
@@ -37,6 +52,8 @@ export function Header({ user, onSignOut, onOpenNav }) {
   const overflowNav = mainNav.slice(INLINE_LINKS)
 
   return (
+    <>
+    <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
     <header className="sticky top-0 z-50 border-b border-[color:var(--rule)] bg-[color:var(--card-bg)]">
       <div className="px-4 sm:px-6 h-14 flex items-center gap-4">
         {/* Seal + wordmark */}
@@ -96,12 +113,22 @@ export function Header({ user, onSignOut, onOpenNav }) {
 
         {/* Search */}
         <button
-          onClick={() => (window.location.hash = '#/documents')}
+          onClick={() => setSearchOpen(true)}
           className="hidden md:flex items-center gap-2 w-56 h-8 px-2.5 border border-[color:var(--rule-firm)] rounded-[3px] text-[color:var(--sepia-soft)] hover:border-[color:var(--ink)] hover:text-[color:var(--ink)] transition"
         >
           <Search size={13} className="flex-shrink-0" />
           <span className="text-[0.8125rem] truncate">Search the registry</span>
           <span className="mono text-[0.6rem] ml-auto px-1 py-0.5 border border-[color:var(--rule)] rounded-[2px] flex-shrink-0">⌘K</span>
+        </button>
+
+        {/* On a phone there is no room for the field, but search must still
+            be reachable. */}
+        <button
+          onClick={() => setSearchOpen(true)}
+          className="md:hidden p-2 rounded-[3px] text-[color:var(--sepia)] hover:text-[color:var(--ink)] hover:bg-[color:var(--linen)] transition"
+          aria-label="Search the registry"
+        >
+          <Search size={17} />
         </button>
 
         {/* Date */}
@@ -221,5 +248,6 @@ export function Header({ user, onSignOut, onOpenNav }) {
         </nav>
       )}
     </header>
+    </>
   )
 }

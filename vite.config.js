@@ -20,5 +20,5 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), pipilotPreviewBridge()],
   // '@' → /src so imports like `@/components/Button` resolve.
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
-  server: { host: true },
+  server: { host: true, allowedHosts: true },
 })

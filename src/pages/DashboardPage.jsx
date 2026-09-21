@@ -55,7 +55,7 @@ export function DashboardPage() {
         <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div className="flex items-center gap-3">
             <img
-              src="/nwra-logo.png"
+              src="/ra-logo.svg"
               alt=""
               className="h-9 w-9 object-contain"
               aria-hidden

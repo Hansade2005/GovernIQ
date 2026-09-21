@@ -78,8 +78,8 @@ function SignInForm({ onSuccess }) {
       <form onSubmit={handleSubmit} className="space-y-5">
         {mode === 'signup' && (
           <div>
-            <Label>Honourable</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" type="text" />
+            <Label htmlFor="name">Honourable</Label>
+            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" type="text" />
           </div>
         )}
         <div>
@@ -179,7 +179,7 @@ export function LoginPage({ onSuccess }) {
       <section className="border-b border-[color:var(--rule)] bg-[color:var(--vellum)]">
         <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-8">
           {STATS.map((s, i) => (
-            <div key={s.l} className={`ceremonial stagger stagger-${i + 1}`}>
+            <div key={s.l} className={`ceremonial stagger ${i + 1}`}>
               <p className="serif text-4xl md:text-5xl text-[color:var(--highland)]">{s.v}</p>
               <p className="mono text-[0.7rem] tracking-wider text-[color:var(--sepia)] mt-2 uppercase">{s.l}</p>
             </div>
@@ -196,7 +196,7 @@ export function LoginPage({ onSuccess }) {
         </div>
         <div className="mt-12 grid md:grid-cols-3 gap-6">
           {PILLARS.map((p, i) => (
-            <article key={p.n} className={`ceremonial stagger stagger-${i + 1} record-card bg-[color:var(--vellum)] border border-[color:var(--rule)] p-8 hover:-translate-y-0.5 transition-transform duration-200`}>
+            <article key={p.n} className="ceremonial stagger record-card bg-[color:var(--vellum)] border border-[color:var(--rule)] p-8 hover:-translate-y-0.5 transition-transform duration-200">
               <div className="flex items-start justify-between">
                 <span className="inline-flex items-center justify-center h-11 w-11 border border-[color:var(--brass)] text-[color:var(--brass)] rounded-[2px]">
                   <p.icon size={20} />
@@ -248,7 +248,7 @@ export function LoginPage({ onSuccess }) {
               { icon: Users, t: 'Resolve', d: 'Programmes move from vote to works to verification — tracked live until the division signs off.' },
               { icon: ShieldCheck, t: 'Account', d: 'Analytics close the loop: attendance, absorption, equity — the evidence behind every decision.' },
             ].map((s, i) => (
-              <li key={s.t} className={`ceremonial stagger stagger-${i + 1} flex gap-5 py-6 border-b border-[color:var(--rule)] first:pt-0`}>
+              <li key={s.t} className="ceremonial stagger flex gap-5 py-6 border-b border-[color:var(--rule)] first:pt-0">
                 <span className="mono text-xs tracking-widest text-[color:var(--brass)] pt-1.5">0{i + 1}</span>
                 <span className="inline-flex items-center justify-center h-10 w-10 shrink-0 bg-[color:var(--highland)] text-[color:var(--paper)] rounded-[2px]"><s.icon size={17} /></span>
                 <div>

@@ -59,7 +59,7 @@ export function Header({ user, onSignOut, onOpenNav }) {
         {/* Seal + wordmark */}
         <a href="#/" className="flex items-center gap-2.5 flex-shrink-0">
           <img
-            src="/nwra-logo.png"
+            src="/ra-logo.svg"
             alt="North West Regional Assembly seal"
             className="h-8 w-8 object-contain"
           />

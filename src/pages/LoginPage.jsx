@@ -55,7 +55,7 @@ export function LoginPage({ onSuccess }) {
         <section className="ceremonial hidden md:flex flex-col justify-between px-10 lg:px-16 py-14 border-r border-[color:var(--rule)] relative">
           <div className="stagger">
             <div className="flex items-center gap-3">
-              <img src="/nwra-logo.png" alt="" className="h-11 w-11 object-contain" aria-hidden />
+              <img src="/ra-logo.svg" alt="" className="h-11 w-11 object-contain" aria-hidden />
               <div>
                 <p className="eyebrow">North West Regional Assembly</p>
                 <p className="mono text-[0.7rem] text-[color:var(--sepia)] mt-0.5">
@@ -107,7 +107,7 @@ export function LoginPage({ onSuccess }) {
         {/* Form */}
         <section className="flex flex-col justify-center px-6 sm:px-10 lg:px-14 py-16">
           <div className="md:hidden mb-10 flex items-center gap-3">
-            <img src="/nwra-logo.png" alt="" className="h-10 w-10 object-contain" aria-hidden />
+            <img src="/ra-logo.svg" alt="" className="h-10 w-10 object-contain" aria-hidden />
             <span className="eyebrow">NW Regional Assembly</span>
           </div>
 
